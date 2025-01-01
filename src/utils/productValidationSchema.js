@@ -16,8 +16,8 @@ export const productCreationSchema = Yup.object().shape({
   specifications: Yup.array()
     .of(
       Yup.object().shape({
-        key: Yup.string().required("Specification key is required"),
-        value: Yup.string().required("Specification value is required"),
+        key: Yup.string(),
+        value: Yup.string(),
       })
     )
     .optional(),

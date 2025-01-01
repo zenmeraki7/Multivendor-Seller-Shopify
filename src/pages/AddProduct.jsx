@@ -24,6 +24,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Stack } from "react-bootstrap";
 import { productCreationSchema } from "../utils/productValidationSchema";
+import { BASE_URL } from "../utils/baseUrl";
 
 function AddProduct() {
   const [thumbnail, setThumbnail] = useState(null);
@@ -45,14 +46,14 @@ function AddProduct() {
     category: "",
     categoryType: "",
     subcategory: "",
-    price: 0,
-    discountedPrice: 0,
-    stock: 0,
+    price: null,
+    discountedPrice: null,
+    stock: null,
     tags: "",
     shippingDetails: {
       weight: "",
       freeShipping: false,
-      shippingCharge: 0,
+      shippingCharge: null,
     },
     returnPolicy: {
       isReturnable: true,
@@ -68,6 +69,58 @@ function AddProduct() {
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
   const [isReturnPolicyEnabled, setIsReturnPolicyEnabled] = useState(true);
+  const [categoryTypes, setCategoryTypes] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+
+  const fetchActiveSubCategories = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/subcategory/all?id=${formData.category}`
+      );
+
+      setSubCategories(response.data.data || []);
+    } catch (err) {
+      console.log(
+        err.response?.data?.message || "Failed to fetch sub categories."
+      );
+    }
+  };
+
+  // Trigger fetch when selectedCategoryId changes
+  useEffect(() => {
+    formData.category && fetchActiveSubCategories();
+  }, [formData.category]);
+
+  const fetchActiveCategories = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/category/all?id=${formData.categoryType}`
+      );
+
+      setCategories(response.data.data || []);
+    } catch (err) {
+      console.log(err.response?.data?.message || "Failed to fetch categories.");
+    }
+  };
+
+  // Trigger fetch when selectedCategoryTypeId changes
+  useEffect(() => {
+    formData.categoryType && fetchActiveCategories();
+  }, [formData.categoryType]);
+
+  const fetchActiveCategoryTypes = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/api/category-type/all`);
+      setCategoryTypes(response.data.data);
+    } catch (err) {
+      console.log(err.message || "Failed to fetch category types.");
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveCategoryTypes();
+  }, []);
 
   const handleThumbnailChange = (event) => {
     const file = event.target.files[0];
@@ -146,23 +199,58 @@ function AddProduct() {
     const updatedFeatures = features.filter((_, i) => i !== index);
     setFeatures(updatedFeatures);
   };
-
-  // Handle form submission
+  console.log(errors);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       // Validate form data using Yup schema
       await productCreationSchema.validate(
-        { ...formData },
+        { ...formData, specifications: features },
         { abortEarly: false }
       );
 
       // Clear errors on successful validation
       setErrors({});
 
-      // Make API call
-      const response = await axios.post("/api/products", formData);
+      // Create FormData object to send as multipart/form-data
+      const formDataToSend = new FormData();
+
+      // Append all form data to FormData object
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("brand", formData.brand);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("categoryType", formData.categoryType);
+      formDataToSend.append("subcategory", formData.subcategory);
+      formDataToSend.append("price", formData.price);
+      formDataToSend.append("discountedPrice", formData.discountedPrice);
+      formDataToSend.append("stock", formData.stock);
+      formDataToSend.append("tags", formData.tags);
+      formDataToSend.append("shippingDetails", formData.shippingDetails);
+      formDataToSend.append("returnPolicy", formData.returnPolicy);
+      formDataToSend.append("meta", formData.meta);
+      formDataToSend.append("thumbnail", thumbnail);
+      productImages.forEach((img) => {
+        formDataToSend.append("images", img);
+      });
+      console.log(formDataToSend);
+      // If you have files (e.g., image), append them as well
+      // formDataToSend.append("image", fileInput.files[0]);
+
+      // Make API call using FormData
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${BASE_URL}/api/product/create`,
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            'authorization': `Bearer ${token}`,
+          },
+        }
+      );
+
       console.log("Product created successfully:", response.data);
     } catch (error) {
       if (error.name === "ValidationError") {
@@ -171,7 +259,7 @@ function AddProduct() {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err.message;
         });
-        setErrors(validationErrors);
+        setErrors({ ...error, ...validationErrors });
       } else {
         console.error("API error:", error.message);
       }
@@ -222,6 +310,11 @@ function AddProduct() {
                   />
                 </label>
               </Card>
+              {errors.thumbnail && (
+                <Typography color="error" variant="body2">
+                  {errors.thumbnail}
+                </Typography>
+              )}
             </Box>
 
             {/* Product Images Section */}
@@ -266,8 +359,12 @@ function AddProduct() {
                     </label>
                   </Card>
                 ))}
-                <button onClick={handleAddImageField}>Add More Images</button>
               </Box>
+              {errors.images && (
+                <Typography color="error" variant="body2">
+                  {errors.images}
+                </Typography>
+              )}
             </Box>
           </div>
 
@@ -286,6 +383,11 @@ function AddProduct() {
                 setFormData({ ...formData, description: newContent })
               }
             />
+            {errors.description && (
+              <Typography color="error" variant="body2">
+                {errors.description}
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -299,6 +401,7 @@ function AddProduct() {
               placeholder="Enter product title"
               value={formData.title}
               onChange={handleInputChange}
+              error={errors.title}
             />
             <div style={{ display: "flex", gap: "20px" }}>
               <CustomInput
@@ -308,33 +411,41 @@ function AddProduct() {
                 placeholder="Enter brand name"
                 value={formData.brand}
                 onChange={handleInputChange}
+                error={errors.brand}
               />
               <CustomSelect
                 id="categoryType"
                 label="Category Type"
                 name="categoryType"
-                MenuItems={["Electronics", "Fashion", "Home"]}
+                MenuItems={categoryTypes}
                 value={formData.categoryType}
                 onChange={handleInputChange}
+                error={errors.categoryType}
               />
             </div>
             <div style={{ display: "flex", gap: "20px" }}>
-              <CustomSelect
-                id="category"
-                label="Category"
-                name="category"
-                MenuItems={["Electronics", "Fashion", "Home"]}
-                value={formData.category}
-                onChange={handleInputChange}
-              />
-              <CustomSelect
-                id="subcategories"
-                label="Subcategories"
-                name="subcategory"
-                MenuItems={["Audio", "Clothes", "Footwear"]}
-                value={formData.subcategory}
-                onChange={handleInputChange}
-              />
+              {formData.categoryType && (
+                <CustomSelect
+                  id="category"
+                  label="Category"
+                  name="category"
+                  MenuItems={categories}
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  error={errors.category}
+                />
+              )}
+              {formData.category && (
+                <CustomSelect
+                  id="subcategories"
+                  label="Subcategories"
+                  name="subcategory"
+                  MenuItems={subCategories}
+                  value={formData.subcategory}
+                  onChange={handleInputChange}
+                  error={errors.subcategory}
+                />
+              )}
             </div>
             <div style={{ display: "flex", gap: "20px" }}>
               <CustomInput
@@ -345,6 +456,7 @@ function AddProduct() {
                 type="number"
                 value={formData.price}
                 onChange={(e) => handleInputChange(e)}
+                error={errors.price}
               />
               <CustomInput
                 id="discountedPrice"
@@ -354,6 +466,7 @@ function AddProduct() {
                 type="number"
                 value={formData.discountedPrice}
                 onChange={handleInputChange}
+                error={errors.discountedPrice}
               />
             </div>
             <div style={{ display: "flex", gap: "20px" }}>
@@ -365,6 +478,7 @@ function AddProduct() {
                 type="number"
                 value={formData.stock}
                 onChange={handleInputChange}
+                error={errors.stock}
               />
               <CustomInput
                 id="tags"
@@ -374,6 +488,7 @@ function AddProduct() {
                 value={formData.tags}
                 onChange={handleInputChange}
                 required={false}
+                error={errors.tags}
               />
             </div>
 
