@@ -13,6 +13,7 @@ import {
   Typography,
   Card,
   CardMedia,
+  Button,
 } from "@mui/material"; // Import MUI components for select fields
 import { Switch, FormControlLabel } from "@mui/material";
 import axios from "axios";
@@ -26,8 +27,8 @@ import { Stack } from "react-bootstrap";
 function AddProduct() {
   const [productImages, setProductImages] = useState([null, null, null, null]);
   const [thumbnail, setThumbnail] = useState(null);
-  console.log(productImages)
-  console.log(thumbnail)
+  console.log(productImages);
+  console.log(thumbnail);
   const [description, setDescription] = useState("");
   const [formData, setFormData] = useState({
     title: "",
@@ -35,20 +36,19 @@ function AddProduct() {
     brand: "",
     category: "",
     categoryType: "",
-    subcategories: "",
+    subcategory: "",
     price: 0,
     discountedPrice: 0,
     stock: 0,
     tags: "",
-    specifications: [{ key: "", value: "" }],
     shippingDetails: {
       weight: "",
-      freeShipping: true,
+      freeShipping: false,
       shippingCharge: 0,
     },
     returnPolicy: {
       isReturnable: true,
-      returnWindow: 30,
+      returnWindow: 5,
     },
     meta: {
       title: "",
@@ -58,13 +58,17 @@ function AddProduct() {
   });
 
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
-  const [isFreeShipping, setIsFreeShipping] = useState(true);
+  const [isFreeShipping, setIsFreeShipping] = useState(false);
   const [isReturnPolicyEnabled, setIsReturnPolicyEnabled] = useState(true);
 
   // Handling form field changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name == "price" || name == "discountedPrice" || name == "stock") {
+      setFormData({ ...formData, [name]: Number(value) });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   // Handling feature (specifications) changes
@@ -73,7 +77,7 @@ function AddProduct() {
     updatedFeatures[index][field] = value;
     setFeatures(updatedFeatures);
   };
-
+  console.log(features);
   // Handling the toggle of Free Shipping
   const handleFreeShippingToggle = () => {
     setIsFreeShipping(!isFreeShipping);
@@ -124,19 +128,19 @@ function AddProduct() {
         category: "",
         categoryType: "",
         subcategories: "",
-        price: 0,
-        discountedPrice: 0,
+        price: null,
+        discountedPrice: null,
         stock: 0,
         tags: "",
         specifications: [{ key: "", value: "" }],
         shippingDetails: {
           weight: "",
           freeShipping: true,
-          shippingCharge: 0,
+          shippingCharge: null,
         },
         returnPolicy: {
           isReturnable: true,
-          returnWindow: 30,
+          returnWindow: 5,
         },
         meta: {
           title: "",
@@ -311,7 +315,7 @@ function AddProduct() {
               <CustomSelect
                 id="category"
                 label="Category"
-                name="Category"
+                name="category"
                 MenuItems={["Electronics", "Fashion", "Home"]}
                 value={formData.category}
                 onChange={handleInputChange}
@@ -321,7 +325,7 @@ function AddProduct() {
                 label="Subcategories"
                 name="subcategory"
                 MenuItems={["Audio", "Clothes", "Footwear"]}
-                value={formData.subcategories}
+                value={formData.subcategory}
                 onChange={handleInputChange}
               />
             </div>
@@ -333,7 +337,7 @@ function AddProduct() {
                 placeholder="Enter original price"
                 type="number"
                 value={formData.price}
-                onChange={handleInputChange}
+                onChange={(e) => handleInputChange(e)}
               />
               <CustomInput
                 id="discountedPrice"
@@ -448,10 +452,17 @@ function AddProduct() {
                   label="Weight"
                   placeholder="Enter product weight"
                   value={formData.shippingDetails.weight}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      shippingDetails: {
+                        ...formData.shippingDetails,
+                        weight: e.target.value,
+                      },
+                    })
+                  }
                 />
                 <FormControlLabel
-                  sx={{ marginBottom: "15px" }}
                   control={
                     <Switch
                       checked={isFreeShipping}
@@ -470,13 +481,22 @@ function AddProduct() {
                   label="Shipping Charge"
                   placeholder="Enter shipping charge"
                   value={formData.shippingDetails.shippingCharge}
-                  onChange={handleInputChange}
+                  type={"number"}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      shippingDetails: {
+                        ...formData.shippingDetails,
+                        shippingCharge: Number(e.target.value),
+                      },
+                    })
+                  }
                 />
               )}
             </div>
 
             {/* Return Policy */}
-            <div style={{ marginTop: "40px" }}>
+            <div style={{ marginTop: "10px" }}>
               <h5>Return Policy</h5>
               <FormControlLabel
                 sx={{ marginy: 2 }}
@@ -498,13 +518,18 @@ function AddProduct() {
                   placeholder="Enter return window in days"
                   type="number"
                   value={formData.returnPolicy.returnWindow}
-                  onChange={handleInputChange}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      returnPolicy: {
+                        ...formData.returnPolicy,
+                        returnWindow: Number(e.target.value),
+                      },
+                    })
+                  }
                 />
               )}
             </div>
-
-            {/* Submit Button */}
-            <button type="submit">Submit Product</button>
           </form>
         </div>
       </div>
@@ -515,6 +540,16 @@ function AddProduct() {
           name="MEta field"
           label="Meta field title"
           placeholder="Enter meta field title"
+          value={formData.meta.title}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              meta: {
+                ...formData.meta,
+                title: e.target.value,
+              },
+            })
+          }
         />
       </div>
 
@@ -532,14 +567,35 @@ function AddProduct() {
           name="MEta field desc"
           label="Meta field description"
           placeholder="Enter meta field description"
+          value={formData.meta.description}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              meta: {
+                ...formData.meta,
+                description: e.target.value,
+              },
+            })
+          }
         />
         <CustomInput
           id="metaFieldDesc"
           name="MEta field desc"
           label="Meta field keywords"
           placeholder="Enter seperated by comas"
+          value={formData.meta.keywords}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              meta: {
+                ...formData.meta,
+                keywords: e.target.value,
+              },
+            })
+          }
         />
       </div>
+      <Button variant="contained">Save</Button>
     </div>
   );
 }

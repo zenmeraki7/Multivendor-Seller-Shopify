@@ -1,14 +1,6 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
-function CustomInput({
-  id,
-  name,
-  label,
-  placeholder,
-  value,
-  onChange,
-  type = "text",
-}) {
+function CustomInput({ id, name, label, placeholder, value, onChange, type }) {
   return (
     <TextField
       id={id}
@@ -18,7 +10,7 @@ function CustomInput({
       fullWidth
       variant="outlined"
       value={value}
-      onChange={onChange}
+      onChange={(e) => onChange(e)}
       type={type}
       sx={{
         marginTop: "5px",
