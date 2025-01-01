@@ -1,11 +1,20 @@
 import React from "react";
 import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-function CustomSelect({ id, value, onChange, label, name, MenuItems = [] }) {
+function CustomSelect({
+  id,
+  value,
+  onChange,
+  label,
+  name,
+  required = true,
+  MenuItems = [],
+}) {
   return (
     <FormControl
       fullWidth
       variant="outlined"
       style={{ marginTop: "5px" }}
+      required={required}
       sx={{
         marginTop: "5px",
         marginBottom: "15px",

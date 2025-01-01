@@ -1,6 +1,15 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
-function CustomInput({ id, name, label, placeholder, value, onChange, type }) {
+function CustomInput({
+  id,
+  name,
+  label,
+  placeholder,
+  value,
+  onChange,
+  type,
+  required = true,
+}) {
   return (
     <TextField
       id={id}
@@ -12,6 +21,7 @@ function CustomInput({ id, name, label, placeholder, value, onChange, type }) {
       value={value}
       onChange={(e) => onChange(e)}
       type={type}
+      required={required}
       sx={{
         marginTop: "5px",
         marginBottom: "15px",

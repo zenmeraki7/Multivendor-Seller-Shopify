@@ -23,13 +23,21 @@ import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Stack } from "react-bootstrap";
+import { productCreationSchema } from "../utils/productValidationSchema";
 
 function AddProduct() {
-  const [productImages, setProductImages] = useState([null, null, null, null]);
   const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [productImages, setProductImages] = useState([null, null, null, null]);
+  const [productImagePreviews, setProductImagePreviews] = useState([
+    null,
+    null,
+    null,
+    null,
+  ]);
+
   console.log(productImages);
   console.log(thumbnail);
-  const [description, setDescription] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -56,10 +64,36 @@ function AddProduct() {
       keywords: "",
     },
   });
-
+  const [errors, setErrors] = useState({}); // State to store validation errors
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
   const [isReturnPolicyEnabled, setIsReturnPolicyEnabled] = useState(true);
+
+  const handleThumbnailChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setThumbnail(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleProductImageChange = (event, index) => {
+    const file = event.target.files[0];
+    if (file) {
+      const updatedImages = [...productImages];
+      updatedImages[index] = file;
+      setProductImages(updatedImages);
+
+      const updatedPreviews = [...productImagePreviews];
+      updatedPreviews[index] = URL.createObjectURL(file);
+      setProductImagePreviews(updatedPreviews);
+    }
+  };
+
+  const handleAddImageField = () => {
+    setProductImages([...productImages, null]);
+    setProductImagePreviews([...productImagePreviews, null]);
+  };
 
   // Handling form field changes
   const handleInputChange = (e) => {
@@ -116,67 +150,32 @@ function AddProduct() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      // Send form data to the API
-      const response = await axios.post("/api/products", formData); // Adjust the API endpoint
-      console.log("Product added successfully:", response.data);
-      // Optionally reset form data or show success message
-      setFormData({
-        title: "",
-        description: "",
-        brand: "",
-        category: "",
-        categoryType: "",
-        subcategories: "",
-        price: null,
-        discountedPrice: null,
-        stock: 0,
-        tags: "",
-        specifications: [{ key: "", value: "" }],
-        shippingDetails: {
-          weight: "",
-          freeShipping: true,
-          shippingCharge: null,
-        },
-        returnPolicy: {
-          isReturnable: true,
-          returnWindow: 5,
-        },
-        meta: {
-          title: "",
-          description: "",
-          keywords: "",
-        },
-      });
+      // Validate form data using Yup schema
+      await productCreationSchema.validate(
+        { ...formData },
+        { abortEarly: false }
+      );
+
+      // Clear errors on successful validation
+      setErrors({});
+
+      // Make API call
+      const response = await axios.post("/api/products", formData);
+      console.log("Product created successfully:", response.data);
     } catch (error) {
-      console.error("Error adding product:", error);
+      if (error.name === "ValidationError") {
+        // Map Yup validation errors to state
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        console.error("API error:", error.message);
+      }
     }
-  };
-
-  // Debounce function for handling onChange efficiently
-  const debouncedSetDescription = useCallback(
-    debounce((newContent) => setDescription(newContent), 300),
-    []
-  );
-
-  const config = {
-    readonly: false,
-  };
-
-  // Handle image upload for individual image slots
-  const handleProductImageChange = (e, index) => {
-    const file = e.target.files[0];
-    const newImageURL = URL.createObjectURL(file);
-    const updatedProductImages = [...productImages];
-    updatedProductImages[index] = newImageURL;
-    setProductImages(updatedProductImages);
-  };
-
-  // Handle thumbnail upload
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files[0];
-    const newThumbnailURL = URL.createObjectURL(file);
-    setThumbnail(newThumbnailURL);
   };
 
   return (
@@ -189,81 +188,88 @@ function AddProduct() {
       <div style={{ display: "flex", gap: "10px" }}>
         <Box sx={{ flex: 1, padding: 2 }}>
           {/* Thumbnail Section */}
-          <Box sx={{ marginBottom: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Product Thumbnail
-            </Typography>
-            <Card
-              sx={{
-                width: 250, // Increased width
-                height: 250, // Increased height
-                mt: 2,
-              }}
-            >
-              <input
-                type="file"
-                style={{ display: "none" }}
-                id="product-thumbnail"
-                onChange={handleThumbnailChange}
-              />
-              <label htmlFor="product-thumbnail" style={{ cursor: "pointer" }}>
-                <CardMedia
-                  component="img"
-                  height="250"
-                  image={
-                    thumbnail ||
-                    "https://cdn.pixabay.com/photo/2017/11/10/04/47/image-2935360_1280.png"
-                  }
-                  alt="Thumbnail"
+          <div>
+            {/* Thumbnail Section */}
+            <Box sx={{ marginBottom: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Product Thumbnail
+              </Typography>
+              <Card
+                sx={{
+                  width: 250,
+                  height: 250,
+                  mt: 2,
+                }}
+              >
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  id="product-thumbnail"
+                  onChange={handleThumbnailChange}
                 />
-              </label>
-            </Card>
-          </Box>
-
-          {/* Product Images Section */}
-          <Box sx={{ marginY: 4 }}>
-            <Typography variant="h6" gutterBottom>
-              Product Images
-            </Typography>
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
-              {productImages.map((image, index) => (
-                <Card
-                  key={index}
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    position: "relative",
-                    cursor: "pointer",
-                    overflow: "hidden",
-                  }}
+                <label
+                  htmlFor="product-thumbnail"
+                  style={{ cursor: "pointer" }}
                 >
-                  <input
-                    type="file"
-                    style={{ display: "none" }}
-                    id={`product-image-${index}`}
-                    onChange={(e) => handleProductImageChange(e, index)}
+                  <CardMedia
+                    component="img"
+                    height="250"
+                    image={
+                      thumbnailPreview ||
+                      "https://cdn.pixabay.com/photo/2017/11/10/04/47/image-2935360_1280.png"
+                    }
+                    alt="Thumbnail"
                   />
-                  <label
-                    htmlFor={`product-image-${index}`}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="120"
-                      image={
-                        image ||
-                        "https://cdn.pixabay.com/photo/2017/11/10/04/47/image-2935360_1280.png"
-                      }
-                      alt={`Product Image ${index + 1}`}
-                    />
-                  </label>
-                </Card>
-              ))}
+                </label>
+              </Card>
             </Box>
-          </Box>
+
+            {/* Product Images Section */}
+            <Box sx={{ marginY: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Product Images
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
+                {productImages.map((_, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      width: 120,
+                      height: 120,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      position: "relative",
+                      cursor: "pointer",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <input
+                      type="file"
+                      style={{ display: "none" }}
+                      id={`product-image-${index}`}
+                      onChange={(e) => handleProductImageChange(e, index)}
+                    />
+                    <label
+                      htmlFor={`product-image-${index}`}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <CardMedia
+                        component="img"
+                        height="120"
+                        image={
+                          productImagePreviews[index] ||
+                          "https://cdn.pixabay.com/photo/2017/11/10/04/47/image-2935360_1280.png"
+                        }
+                        alt={`Product Image ${index + 1}`}
+                      />
+                    </label>
+                  </Card>
+                ))}
+                <button onClick={handleAddImageField}>Add More Images</button>
+              </Box>
+            </Box>
+          </div>
 
           {/* Product Description Section */}
           <Box>
@@ -271,20 +277,21 @@ function AddProduct() {
               Product Description
             </Typography>
             <JoditEditor
-              value={description}
-              config={{
-                ...config,
-                height: 400, // Specify the height in pixels
-              }}
-              onChange={debouncedSetDescription}
+              value={formData.description}
+              // config={{
+              //   ...config,
+              //   height: 400, // Specify the height in pixels
+              // }}
+              onChange={(newContent) =>
+                setFormData({ ...formData, description: newContent })
+              }
             />
           </Box>
         </Box>
 
         {/* Form Section */}
         <div style={{ flex: "1" }}>
-          <form onSubmit={handleSubmit}>
-            {/* Form Fields */}
+          <form>
             <CustomInput
               id="title"
               name="title"
@@ -366,12 +373,13 @@ function AddProduct() {
                 placeholder="Enter tags separated by commas"
                 value={formData.tags}
                 onChange={handleInputChange}
+                required={false}
               />
             </div>
 
             {/* Specifications */}
             <div style={{ margin: "20px 0px" }}>
-              <h5>Specifications</h5>
+              <h5>Specifications (if needed)</h5>
               <div
                 style={{
                   display: "flex",
@@ -397,6 +405,7 @@ function AddProduct() {
                       onChange={(e) =>
                         handleFeatureChange(index, "key", e.target.value)
                       }
+                      required={false}
                     />
                     <CustomInput
                       id="specificationsValue"
@@ -407,6 +416,7 @@ function AddProduct() {
                       onChange={(e) =>
                         handleFeatureChange(index, "value", e.target.value)
                       }
+                      required={false}
                     />
                     <IconButton
                       sx={{ backgroundColor: "#f2f2f2" }}
@@ -438,7 +448,7 @@ function AddProduct() {
 
             {/* Shipping Details */}
             <div style={{ marginTop: "40px" }}>
-              <h5>Shipping Details</h5>
+              <h5>Shipping Details (if needed)</h5>
               <div
                 style={{
                   display: "flex",
@@ -476,6 +486,7 @@ function AddProduct() {
               </div>
               {!isFreeShipping && (
                 <CustomInput
+                  required={false}
                   id="shippingCharge"
                   name="shippingCharge"
                   label="Shipping Charge"
@@ -534,12 +545,13 @@ function AddProduct() {
         </div>
       </div>
       <div style={{ marginTop: "0px" }}>
-        <h5> Meta Field</h5>
+        <h5> Meta Field (if needed)</h5>
         <CustomInput
           id="metaFieldTitle"
           name="MEta field"
           label="Meta field title"
           placeholder="Enter meta field title"
+          required={false}
           value={formData.meta.title}
           onChange={(e) =>
             setFormData({
@@ -563,6 +575,7 @@ function AddProduct() {
       >
         {/* Input Fields */}
         <CustomInput
+          required={false}
           id="metaFieldDesc"
           name="MEta field desc"
           label="Meta field description"
@@ -579,6 +592,7 @@ function AddProduct() {
           }
         />
         <CustomInput
+          required={false}
           id="metaFieldDesc"
           name="MEta field desc"
           label="Meta field keywords"
@@ -595,18 +609,11 @@ function AddProduct() {
           }
         />
       </div>
-      <Button variant="contained">Save</Button>
+      <Button variant="contained" onClick={handleSubmit}>
+        Save
+      </Button>
     </div>
   );
-}
-
-// Debounce function to avoid too frequent updates
-function debounce(func, wait) {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
 }
 
 export default AddProduct;
