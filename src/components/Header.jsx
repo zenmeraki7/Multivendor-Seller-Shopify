@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 function Header() {
   const navigate = useNavigate();
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#405D72" }}>
+    <AppBar position="sticky" sx={{ backgroundColor: "#405D72" }}>
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1, ml: 3 }}>
           Demo-Zen-Meraki

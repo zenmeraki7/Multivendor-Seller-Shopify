@@ -1,6 +1,14 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
-function CustomInput({ id, name, label, placeholder, value, onChange,type="text" }) {
+function CustomInput({
+  id,
+  name,
+  label,
+  placeholder,
+  value,
+  onChange,
+  type = "text",
+}) {
   return (
     <TextField
       id={id}
@@ -15,22 +23,26 @@ function CustomInput({ id, name, label, placeholder, value, onChange,type="text"
       sx={{
         marginTop: "5px",
         marginBottom: "15px",
-        borderRadius: "10px", // Rounded corners
+        marginBottom: "10px",
         "& .MuiOutlinedInput-root": {
-          borderRadius: "10px", // Apply to input field
-          backgroundColor: "#f9f9f9", // Light background color
+          borderRadius: "12px",
+          transition: "border 0.3s ease, background 0.3s ease",
         },
-        "& .MuiInputLabel-root": {
-          color: "#777", // Soft label color
+        "& .MuiOutlinedInput-root.Mui-focused": {
+          backgroundColor: "#e3f2fd",
+          borderColor: "#1e88e5",
+        },
+        "& .MuiInputLabel-root.Mui-focused": {
+          color: "#1e88e5",
         },
         "& .MuiOutlinedInput-notchedOutline": {
-          borderColor: "lightblue", // Light blue border color
+          borderColor: "#bbdefb",
         },
         "&:hover .MuiOutlinedInput-notchedOutline": {
-          borderColor: "blue", // Darker blue border on hover
+          borderColor: "#1e88e5",
         },
-        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-          borderColor: "darkblue", // Even darker blue border on focus
+        "& .MuiSelect-icon": {
+          color: "#1e88e5", // Change the dropdown icon color
         },
       }}
     />
