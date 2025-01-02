@@ -25,6 +25,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { Stack } from "react-bootstrap";
 import { productCreationSchema } from "../utils/productValidationSchema";
 import { BASE_URL } from "../utils/baseUrl";
+import toast from "react-hot-toast";
 
 function AddProduct() {
   const [thumbnail, setThumbnail] = useState(null);
@@ -202,11 +203,17 @@ function AddProduct() {
   console.log(errors);
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validImageArr = productImages.filter((item) => item != null);
 
     try {
       // Validate form data using Yup schema
       await productCreationSchema.validate(
-        { ...formData, specifications: features },
+        {
+          ...formData,
+          specifications: features,
+          thumbnail,
+          images: validImageArr,
+        },
         { abortEarly: false }
       );
 
@@ -226,17 +233,26 @@ function AddProduct() {
       formDataToSend.append("price", formData.price);
       formDataToSend.append("discountedPrice", formData.discountedPrice);
       formDataToSend.append("stock", formData.stock);
-      formDataToSend.append("tags", formData.tags);
-      formDataToSend.append("shippingDetails", formData.shippingDetails);
-      formDataToSend.append("returnPolicy", formData.returnPolicy);
-      formDataToSend.append("meta", formData.meta);
+      formDataToSend.append("tags", JSON.stringify(formData.tags));
+      formDataToSend.append(
+        "shippingDetails",
+        JSON.stringify(formData.shippingDetails)
+      );
+      formDataToSend.append(
+        "returnPolicy",
+        JSON.stringify(formData.returnPolicy)
+      );
+      formDataToSend.append("specifications", JSON.stringify(features));
+      formDataToSend.append("meta", JSON.stringify(formData.meta));
       formDataToSend.append("thumbnail", thumbnail);
-      productImages.forEach((img) => {
+
+      // Append images only if they are valid (not null)
+      validImageArr.forEach((img) => {
         formDataToSend.append("images", img);
       });
-      console.log(formDataToSend);
-      // If you have files (e.g., image), append them as well
-      // formDataToSend.append("image", fileInput.files[0]);
+
+      // Show a toast notification while submitting
+      toast.loading("Creating product...");
 
       // Make API call using FormData
       const token = localStorage.getItem("token");
@@ -246,11 +262,14 @@ function AddProduct() {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            'authorization': `Bearer ${token}`,
+            authorization: `Bearer ${token}`,
           },
         }
       );
 
+      // Handle successful product creation
+      toast.dismiss();
+      toast.success("Product created successfully!");
       console.log("Product created successfully:", response.data);
     } catch (error) {
       if (error.name === "ValidationError") {
@@ -260,8 +279,12 @@ function AddProduct() {
           validationErrors[err.path] = err.message;
         });
         setErrors({ ...error, ...validationErrors });
+        toast.dismiss();
+        toast.error("Validation failed! Please check the errors.");
       } else {
         console.error("API error:", error.message);
+        toast.dismiss();
+        toast.error("An error occurred while creating the product.");
       }
     }
   };
@@ -311,7 +334,7 @@ function AddProduct() {
                 </label>
               </Card>
               {errors.thumbnail && (
-                <Typography color="error" variant="body2">
+                <Typography mt={1} color="error" variant="body2">
                   {errors.thumbnail}
                 </Typography>
               )}
@@ -361,7 +384,7 @@ function AddProduct() {
                 ))}
               </Box>
               {errors.images && (
-                <Typography color="error" variant="body2">
+                <Typography mt={1} color="error" variant="body2">
                   {errors.images}
                 </Typography>
               )}

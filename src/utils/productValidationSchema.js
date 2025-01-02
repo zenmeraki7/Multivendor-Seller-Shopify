@@ -43,4 +43,28 @@ export const productCreationSchema = Yup.object().shape({
       keywords: Yup.string().optional(),
     })
     .optional(),
+  // Validation for thumbnail (required)
+  thumbnail: Yup.mixed()
+    .test("fileSize", "File size is too large", (value) => {
+      return value && value.size <= 5 * 1024 * 1024; // 5MB
+    })
+    .test("fileFormat", "Unsupported file format", (value) => {
+      const supportedFormats = ["image/jpeg", "image/png", "image/webp"];
+      return value && supportedFormats.includes(value.type);
+    })
+    .required("Thumbnail is required"),
+  // Validation for product images
+  images: Yup.array()
+    .of(
+      Yup.mixed()
+        .test("fileSize", "File size is too large", (value) => {
+          return value && value.size <= 5 * 1024 * 1024; // 5MB
+        })
+        .test("fileFormat", "Unsupported file format", (value) => {
+          const supportedFormats = ["image/jpeg", "image/png", "image/webp"];
+          return value && supportedFormats.includes(value.type);
+        })
+    )
+    .min(1, "At least one product image is required")
+    .required("Product images are required"),
 });
