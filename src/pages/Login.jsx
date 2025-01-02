@@ -1,10 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import axios from "axios";
 import "./Login.css";
-import signinImage from '../assets/signin.avif'
+import signinImage from "../assets/signin.avif";
+import { BASE_URL } from "../utils/baseUrl";
+
 function Login() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post(`${BASE_URL}/api/vendor/login`, {
+        email,
+        password,
+      });
+
+      // Handle success
+      const { token, vendor } = response.data;
+      console.log("Login successful:", vendor);
+
+      // Store the token (e.g., in localStorage)
+      localStorage.setItem("token", token);
+
+      // Redirect to vendor dashboard or another page
+      navigate("/dashboard");
+    } catch (err) {
+      // Handle errors
+      const message =
+        err.response?.data?.message || "An error occurred during login.";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSignUp = (e) => {
     e.preventDefault();
@@ -49,16 +86,22 @@ function Login() {
             Sign In
           </motion.h2>
 
+          {error && <div className="error-message">{error}</div>}
+
           <motion.form
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
+            onSubmit={handleLogin}
           >
             <div className="form-group">
               <input
                 type="email"
                 placeholder="Email Address"
                 className="form-control"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -67,6 +110,9 @@ function Login() {
                 type="password"
                 placeholder="Password"
                 className="form-control"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
             </div>
 
@@ -75,8 +121,9 @@ function Login() {
               className="submit-btn"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              disabled={loading}
             >
-              CONTINUE
+              {loading ? "Logging in..." : "CONTINUE"}
             </motion.button>
 
             <div
