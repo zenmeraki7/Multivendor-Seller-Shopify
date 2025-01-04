@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Stepper,
@@ -35,6 +35,11 @@ export default function Register() {
   const [email, setEmail] = useState(""); // Manage OTP error
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    token && navigate("/");
+  }, []);
 
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);

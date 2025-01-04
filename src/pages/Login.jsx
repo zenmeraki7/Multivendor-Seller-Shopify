@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
@@ -12,6 +12,11 @@ function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    token && navigate("/");
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
