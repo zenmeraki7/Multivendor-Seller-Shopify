@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import JoditEditor from "jodit-react";
-import AddVariant from "../components/AddVariant";
+import AddVariant from "../../components/AddVariant";
 import TextField from "@mui/material/TextField";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import {
@@ -14,22 +14,26 @@ import {
   Card,
   CardMedia,
   Button,
+  Stack,
 } from "@mui/material"; // Import MUI components for select fields
 import { Switch, FormControlLabel } from "@mui/material";
 import axios from "axios";
-import CustomInput from "../components/SharedComponents/CustomInput";
-import CustomSelect from "../components/SharedComponents/CustomSelect";
+import CustomInput from "../../components/SharedComponents/CustomInput";
+import CustomSelect from "../../components/SharedComponents/CustomSelect";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Stack } from "react-bootstrap";
-import { productCreationSchema } from "../utils/productValidationSchema";
-import { BASE_URL } from "../utils/baseUrl";
+import { productCreationSchema } from "../../utils/productValidationSchema";
+import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
 
 function AddProduct() {
+  const navigate = useNavigate();
   const [thumbnail, setThumbnail] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [variantBtn, setVariantBtn] = useState(false);
+  const [product, setProduct] = useState(null);
   const [productImages, setProductImages] = useState([null, null, null, null]);
   const [productImagePreviews, setProductImagePreviews] = useState([
     null,
@@ -270,9 +274,45 @@ function AddProduct() {
       // Handle successful product creation
       toast.dismiss();
       toast.success("Product created successfully!");
+      setThumbnail(null);
+      setThumbnailPreview(null);
+      setProductImages([null, null, null, null]);
+      setProductImagePreviews([null, null, null, null]);
+      setFormData({
+        title: "",
+        description: "",
+        brand: "",
+        category: "",
+        categoryType: "",
+        subcategory: "",
+        price: 0,
+        discountedPrice: 0,
+        stock: 0,
+        tags: "",
+        shippingDetails: {
+          weight: "",
+          freeShipping: false,
+          shippingCharge: null,
+        },
+        returnPolicy: {
+          isReturnable: true,
+          returnWindow: 5,
+        },
+        meta: {
+          title: "",
+          description: "",
+          keywords: "",
+        },
+      });
+      setFeatures([{ key: "", value: "" }]);
+      setErrors({});
+      setIsFreeShipping(false);
+      setIsReturnPolicyEnabled(false);
+      setVariantBtn(true);
+      setProduct(response.data?.data);
       console.log("Product created successfully:", response.data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       if (error.name === "ValidationError") {
         // Map Yup validation errors to state
         const validationErrors = {};
@@ -298,7 +338,16 @@ function AddProduct() {
       className="container"
       style={{ maxWidth: "1200px", margin: "10px auto" }}
     >
-      <h3>Add Product</h3>
+      <Stack direction="row" justifyContent={"space-between"}>
+        <h3>Add Product</h3>
+        <Button
+          onClick={() =>
+            navigate(`/manage-variant/:id/:title`, { state: product.variants })
+          }
+        >
+          Manage Variant
+        </Button>
+      </Stack>
       <br />
       <div style={{ display: "flex", gap: "10px" }}>
         <Box sx={{ flex: 1, padding: 2 }}>

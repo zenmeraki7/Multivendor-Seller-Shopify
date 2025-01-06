@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import "./Login.css";
-import signinImage from "../assets/signin.avif";
-import { BASE_URL } from "../utils/baseUrl";
+import signinImage from "../../assets/signin.avif";
+import { BASE_URL } from "../../utils/baseUrl";
 
 function Login() {
   const navigate = useNavigate();
