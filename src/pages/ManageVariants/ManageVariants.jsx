@@ -19,9 +19,48 @@ import {
   DialogTitle,
   Stack,
 } from "@mui/material";
+import { PhotoCamera } from "@mui/icons-material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { useLocation, useParams } from "react-router-dom";
+import * as Yup from "yup";
+import axios from "axios";
+import { BASE_URL } from "../../utils/baseUrl";
+import toast from "react-hot-toast";
+
+const validationSchema = Yup.object().shape({
+  attribute: Yup.string()
+    .required("Attribute is required")
+    .min(3, "Attribute must be at least 3 characters long")
+    .max(50, "Attribute must not exceed 50 characters"),
+
+  value: Yup.string()
+    .required("Value is required")
+    .min(3, "Value must be at least 3 characters long")
+    .max(50, "Value must not exceed 50 characters"),
+
+  additionalPrice: Yup.number()
+    .required("Additional Price is required")
+    .min(0, "Additional Price must be a positive number")
+    .typeError("Additional Price must be a valid number"),
+
+  stock: Yup.number()
+    .required("Stock is required")
+    .min(0, "Stock cannot be negative")
+    .typeError("Stock must be a valid number"),
+
+  image: Yup.mixed()
+    .test("fileSize", "Image is required", (value) => value !== null) // Check if file exists
+    .test(
+      "fileType",
+      "Supported formats are JPG, JPEG, PNG, or GIF",
+      (value) =>
+        value && ["image/jpeg", "image/png", "image/gif"].includes(value.type)
+    )
+    .test("fileSize", "File size must be less than 5MB", (value) =>
+      value ? value.size <= 5 * 1024 * 1024 : true
+    ),
+});
 
 const dummyVariants = [
   {
@@ -49,15 +88,21 @@ const ManageVariants = () => {
   const [openEditModal, setOpenEditModal] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [variantToDelete, setVariantToDelete] = useState(null);
-  // Initialize state to manage input fields
+  // State for the form fields (attribute, value, etc.)
   const [selectedVariant, setSelectedVariant] = useState({
     attribute: "",
     value: "",
     additionalPrice: 0,
     stock: 0,
-    image: "", // This will store the base64 image or file URL
   });
-  console.log(selectedVariant)
+  console.log(selectedVariant);
+  // State for the actual image file
+  const [imageFile, setImageFile] = useState(null);
+  console.log(imageFile);
+
+  // State for the image preview URL
+  const [imagePreview, setImagePreview] = useState("");
+  const [validationErrors, setValidationErrors] = useState({}); // Store validation errors
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,20 +112,20 @@ const ManageVariants = () => {
     });
   };
 
+  // Handle the image file input change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file); // Store the actual file
+
+      // Create a preview URL for the image
       const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedVariant({
-          ...selectedVariant,
-          image: reader.result, // Base64 encoded image
-        });
+      reader.onloadend = () => {
+        setImagePreview(reader.result); // Set the preview URL
       };
       reader.readAsDataURL(file);
     }
   };
-
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -92,6 +137,63 @@ const ManageVariants = () => {
     p: 4,
   };
 
+  const handleSubmit = async () => {
+    const formData = new FormData();
+
+    // Append the form data to FormData
+    formData.append("attribute", selectedVariant?.attribute);
+    formData.append("value", selectedVariant?.value);
+    formData.append("additionalPrice", selectedVariant?.additionalPrice);
+    formData.append("stock", selectedVariant?.stock);
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+    try {
+      const validationData = {
+        attribute: selectedVariant?.attribute,
+        value: selectedVariant?.value,
+        additionalPrice: selectedVariant?.additionalPrice,
+        stock: selectedVariant?.stock,
+        image: imageFile,
+      };
+
+      await validationSchema.validate(validationData, { abortEarly: false }); // Validate the entire form
+      setValidationErrors({});
+      toast.loading("Adding variant...");
+      const response = await axios.post(
+        `${BASE_URL}/api/product/product-variant/${id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data", // Ensure content-type is set for file upload
+            authorization: `Bearer ${localStorage.getItem("token")}`, // Replace 'token' with your actual token storage
+          },
+        }
+      );
+      toast.dismiss();
+      toast.success("Variant updated successfully!"); // Show success toast
+      console.log("Variant updated:", response.data);
+      setOpen(false); // Close the modal on success
+    } catch (error) {
+      toast.dismiss();
+      const errors = {};
+
+      if (error.name === "ValidationError") {
+        // Handle validation errors
+        error.inner.forEach((err) => {
+          errors[err.path] = err.message;
+        });
+        setValidationErrors(errors); // Set validation errors
+      } else {
+        // Handle API errors
+        toast.error("Error updating variant. Please try again.");
+        console.error(
+          "Error adding/updating variant:",
+          error.response?.data || error.message
+        );
+      }
+    }
+  };
   // Handle Edit Modal
   const handleEdit = (variant) => {
     setSelectedVariant(variant);
@@ -205,84 +307,84 @@ const ManageVariants = () => {
             Edit Variant
           </Typography>
 
-          {/* Attribute Input */}
           <TextField
             label="Attribute"
             fullWidth
             margin="normal"
-            name="attribute"
-            value={selectedVariant.attribute}
-            onChange={handleInputChange}
+            value={selectedVariant?.attribute || ""}
+            onChange={(e) =>
+              setSelectedVariant({
+                ...selectedVariant,
+                attribute: e.target.value,
+              })
+            }
+            error={!!validationErrors.attribute}
+            helperText={validationErrors.attribute}
           />
-
-          {/* Value Input */}
           <TextField
             label="Value"
             fullWidth
             margin="normal"
-            name="value"
-            value={selectedVariant.value}
-            onChange={handleInputChange}
+            value={selectedVariant?.value || ""}
+            onChange={(e) =>
+              setSelectedVariant({ ...selectedVariant, value: e.target.value })
+            }
+            error={!!validationErrors.value}
+            helperText={validationErrors.value}
           />
-
-          {/* Additional Price Input */}
           <TextField
             label="Additional Price"
             fullWidth
             margin="normal"
-            name="additionalPrice"
-            type="number"
-            value={selectedVariant.additionalPrice}
-            onChange={handleInputChange}
+            value={selectedVariant?.additionalPrice}
+            onChange={(e) =>
+              setSelectedVariant({
+                ...selectedVariant,
+                additionalPrice: Number(e.target.value),
+              })
+            }
+            error={!!validationErrors.additionalPrice}
+            helperText={validationErrors.additionalPrice}
           />
-
-          {/* Stock Input */}
           <TextField
             label="Stock"
             fullWidth
             margin="normal"
-            name="stock"
-            type="number"
-            value={selectedVariant.stock}
-            onChange={handleInputChange}
+            value={selectedVariant?.stock}
+            onChange={(e) =>
+              setSelectedVariant({
+                ...selectedVariant,
+                stock: Number(e.target.value),
+              })
+            }
+            error={!!validationErrors.stock}
+            helperText={validationErrors.stock}
           />
 
-          {/* File Input with Icon Button */}
-          <Typography variant="subtitle1" gutterBottom>
-            Upload Image
-          </Typography>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton
-              color="primary"
-              component="label"
-              sx={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                padding: 1,
-              }}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageChange}
-              />
-              <EditIcon /> {/* Icon representing the action */}
-            </IconButton>
-            {selectedVariant.image && (
-              <img
-                src={selectedVariant.image}
-                alt="Preview"
-                style={{
-                  maxWidth: "100px",
-                  height: "100px",
-                  objectFit: "contain",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                }}
-              />
+          <div>
+            <input
+              accept="image/*"
+              id="image-upload"
+              type="file"
+              hidden
+              onChange={handleImageChange}
+            />
+            <label htmlFor="image-upload">
+              <IconButton component="span">
+                <PhotoCamera />
+              </IconButton>
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Image preview"
+                  style={{ width: "100px", height: "100px", marginTop: 10 }}
+                />
+              )}
+            </label>
+            {validationErrors.image && (
+              <Typography color="error">{validationErrors.image}</Typography>
             )}
-          </Box>
+          </div>
 
           {/* Save Changes Button */}
           <Stack direction={"row"} spacing={2}>
@@ -290,15 +392,17 @@ const ManageVariants = () => {
               variant="contained"
               color="error"
               onClick={() => {
+                setOpenEditModal(false);
                 setSelectedVariant({
                   attribute: "",
                   value: "",
                   additionalPrice: 0,
                   stock: 0,
-                  image: "", // This will store the base64 image or file URL
                 });
-                setOpenEditModal(false);
-              }}
+                setImagePreview(null);
+                setImageFile(null);
+                setValidationErrors({});
+              }} // Pass the file and variant data
               sx={{ mt: 2 }}
             >
               Cancel
@@ -306,7 +410,7 @@ const ManageVariants = () => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => handleSaveEdit(selectedVariant)}
+              onClick={() => handleSubmit()} // Pass the file and variant data
               sx={{ mt: 2 }}
             >
               Save Changes
