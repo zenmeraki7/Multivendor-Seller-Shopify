@@ -272,6 +272,7 @@ function AddProduct() {
       toast.success("Product created successfully!");
       console.log("Product created successfully:", response.data);
     } catch (error) {
+      console.log(error)
       if (error.name === "ValidationError") {
         // Map Yup validation errors to state
         const validationErrors = {};
@@ -284,7 +285,10 @@ function AddProduct() {
       } else {
         console.error("API error:", error.message);
         toast.dismiss();
-        toast.error("An error occurred while creating the product.");
+        toast.error(
+          error.response?.data?.message ||
+            "An error occurred while creating product."
+        );
       }
     }
   };
