@@ -27,7 +27,7 @@ function CustomSelect({
         sx={{
           marginTop: "5px",
           marginBottom: "15px",
-          marginBottom: "10px",
+          
           "& .MuiOutlinedInput-root": {
             borderRadius: "12px",
             transition: "border 0.3s ease, background 0.3s ease",
