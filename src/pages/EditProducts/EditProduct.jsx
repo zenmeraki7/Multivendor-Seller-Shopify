@@ -14,6 +14,7 @@ import {
   Card,
   CardMedia,
   Button,
+  Stack,
 } from "@mui/material"; // Import MUI components for select fields
 import { Switch, FormControlLabel } from "@mui/material";
 import axios from "axios";
@@ -22,11 +23,10 @@ import CustomSelect from "../../components/SharedComponents/CustomSelect";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Stack } from "react-bootstrap";
 import { productCreationSchema } from "../../utils/productValidationSchema";
 import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function EditProduct() {
   const { id } = useParams();
@@ -68,6 +68,7 @@ function EditProduct() {
       keywords: "",
     },
   });
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({}); // State to store validation errors
   const [features, setFeatures] = useState([{ key: "", value: "" }]);
   const [isFreeShipping, setIsFreeShipping] = useState(false);
@@ -75,6 +76,7 @@ function EditProduct() {
   const [categoryTypes, setCategoryTypes] = useState([]);
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
+  const [product, setProduct] = useState(null);
 
   const fetchProductData = async () => {
     try {
@@ -119,6 +121,7 @@ function EditProduct() {
       setIsReturnPolicyEnabled(data.returnPolicy.isReturnable);
       setThumbnailPreview(data.thumbnail.url);
       setProductImagePreviews(data.images.map((item) => item.url));
+      setProduct(data);
       //   setLoading(false);
     } catch (err) {
       console.log(err);
@@ -355,7 +358,19 @@ function EditProduct() {
       className="container"
       style={{ maxWidth: "1200px", margin: "10px auto" }}
     >
-      <h3>View and Edit Product</h3>
+      <Stack direction="row" justifyContent={"space-between"}>
+        <h3>View and Edit Product</h3>
+        <Button
+          variant="outlined"
+          onClick={() =>
+            navigate(`/manage-variant/${product._id}/${product.title}`, {
+              state: product.variants,
+            })
+          }
+        >
+          Manage variants
+        </Button>
+      </Stack>
       <br />
       <div style={{ display: "flex", gap: "10px" }}>
         <Box sx={{ flex: 1, padding: 2 }}>

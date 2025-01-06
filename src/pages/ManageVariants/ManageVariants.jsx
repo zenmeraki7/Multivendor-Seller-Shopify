@@ -17,9 +17,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Stack,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import { useLocation, useParams } from "react-router-dom";
 
 const dummyVariants = [
   {
@@ -39,20 +41,52 @@ const dummyVariants = [
     image: "https://via.placeholder.com/50",
   },
 ];
-
 const ManageVariants = () => {
-  const [variants, setVariants] = useState(dummyVariants);
+  const { state } = useLocation();
+  const { id, title } = useParams();
+
+  const [variants, setVariants] = useState(state);
   const [openEditModal, setOpenEditModal] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [variantToDelete, setVariantToDelete] = useState(null);
+  // Initialize state to manage input fields
+  const [selectedVariant, setSelectedVariant] = useState({
+    attribute: "",
+    value: "",
+    additionalPrice: 0,
+    stock: 0,
+    image: "", // This will store the base64 image or file URL
+  });
+  console.log(selectedVariant)
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedVariant({
+      ...selectedVariant,
+      [name]: value,
+    });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSelectedVariant({
+          ...selectedVariant,
+          image: reader.result, // Base64 encoded image
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const modalStyle = {
     position: "absolute",
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 400,
+    width: 500,
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
@@ -72,7 +106,7 @@ const ManageVariants = () => {
     );
     setOpenEditModal(false);
   };
-
+  console.log(id, title, state);
   // Handle Delete Dialog
   const handleDelete = (variant) => {
     setVariantToDelete(variant);
@@ -91,20 +125,24 @@ const ManageVariants = () => {
       {/* Header Section */}
       <Box mb={3}>
         <Typography variant="h4" gutterBottom>
-          Product Title
+          {title}
         </Typography>
         <Typography variant="body1">
-          Manage the variants for this product below. You can add, edit, or view
+          Manage the variants for this {title}. You can add, edit, or view
           details of each variant.
         </Typography>
       </Box>
 
       {/* Add Variant Button */}
-      <Box mb={2}>
-        <Button variant="contained" color="primary">
+      <Stack direction={"row"} justifyContent={"flex-end"} mb={2}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setOpenEditModal(true)}
+        >
           Add Variant
         </Button>
-      </Box>
+      </Stack>
 
       <TableContainer>
         <Table>
@@ -121,14 +159,14 @@ const ManageVariants = () => {
           <TableBody>
             {variants.length > 0 ? (
               variants.map((variant) => (
-                <TableRow key={variant.id}>
+                <TableRow key={variant._id}>
                   <TableCell>{variant.attribute}</TableCell>
                   <TableCell>{variant.value}</TableCell>
                   <TableCell>${variant.additionalPrice}</TableCell>
                   <TableCell>{variant.stock}</TableCell>
                   <TableCell>
                     <img
-                      src={variant.image}
+                      src={variant.image.url}
                       alt={variant.attribute}
                       style={{ width: "50px", height: "50px" }}
                     />
@@ -166,68 +204,114 @@ const ManageVariants = () => {
           <Typography variant="h6" gutterBottom>
             Edit Variant
           </Typography>
+
+          {/* Attribute Input */}
           <TextField
             label="Attribute"
             fullWidth
             margin="normal"
-            value={selectedVariant?.attribute || ""}
-            onChange={(e) =>
-              setSelectedVariant({
-                ...selectedVariant,
-                attribute: e.target.value,
-              })
-            }
+            name="attribute"
+            value={selectedVariant.attribute}
+            onChange={handleInputChange}
           />
+
+          {/* Value Input */}
           <TextField
             label="Value"
             fullWidth
             margin="normal"
-            value={selectedVariant?.value || ""}
-            onChange={(e) =>
-              setSelectedVariant({ ...selectedVariant, value: e.target.value })
-            }
+            name="value"
+            value={selectedVariant.value}
+            onChange={handleInputChange}
           />
+
+          {/* Additional Price Input */}
           <TextField
             label="Additional Price"
             fullWidth
             margin="normal"
-            value={selectedVariant?.additionalPrice || ""}
-            onChange={(e) =>
-              setSelectedVariant({
-                ...selectedVariant,
-                additionalPrice: Number(e.target.value),
-              })
-            }
+            name="additionalPrice"
+            type="number"
+            value={selectedVariant.additionalPrice}
+            onChange={handleInputChange}
           />
+
+          {/* Stock Input */}
           <TextField
             label="Stock"
             fullWidth
             margin="normal"
-            value={selectedVariant?.stock || ""}
-            onChange={(e) =>
-              setSelectedVariant({
-                ...selectedVariant,
-                stock: Number(e.target.value),
-              })
-            }
+            name="stock"
+            type="number"
+            value={selectedVariant.stock}
+            onChange={handleInputChange}
           />
-          <TextField
-            label="Image URL"
-            fullWidth
-            margin="normal"
-            value={selectedVariant?.image || ""}
-            onChange={(e) =>
-              setSelectedVariant({ ...selectedVariant, image: e.target.value })
-            }
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSaveEdit}
-            sx={{ mt: 2 }}
-          >
-            Save Changes
-          </Button>
+
+          {/* File Input with Icon Button */}
+          <Typography variant="subtitle1" gutterBottom>
+            Upload Image
+          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton
+              color="primary"
+              component="label"
+              sx={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                padding: 1,
+              }}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleImageChange}
+              />
+              <EditIcon /> {/* Icon representing the action */}
+            </IconButton>
+            {selectedVariant.image && (
+              <img
+                src={selectedVariant.image}
+                alt="Preview"
+                style={{
+                  maxWidth: "100px",
+                  height: "100px",
+                  objectFit: "contain",
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                }}
+              />
+            )}
+          </Box>
+
+          {/* Save Changes Button */}
+          <Stack direction={"row"} spacing={2}>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => {
+                setSelectedVariant({
+                  attribute: "",
+                  value: "",
+                  additionalPrice: 0,
+                  stock: 0,
+                  image: "", // This will store the base64 image or file URL
+                });
+                setOpenEditModal(false);
+              }}
+              sx={{ mt: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleSaveEdit(selectedVariant)}
+              sx={{ mt: 2 }}
+            >
+              Save Changes
+            </Button>
+          </Stack>
         </Box>
       </Modal>
 
