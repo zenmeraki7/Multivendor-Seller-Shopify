@@ -55,7 +55,14 @@ const validationSchema = Yup.object().shape({
       "fileType",
       "Supported formats are JPG, JPEG, PNG, or GIF",
       (value) =>
-        value && ["image/jpeg", "image/png", "image/gif"].includes(value.type)
+        value &&
+        [
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+          "image/jpg",
+        ].includes(value.type)
     )
     .test("fileSize", "File size must be less than 5MB", (value) =>
       value ? value.size <= 5 * 1024 * 1024 : true
@@ -173,7 +180,7 @@ const ManageVariants = () => {
       toast.dismiss();
       toast.success("Variant updated successfully!"); // Show success toast
       console.log("Variant updated:", response.data);
-      setOpen(false); // Close the modal on success
+      setOpenEditModal(false); // Close the modal on success
     } catch (error) {
       toast.dismiss();
       const errors = {};
@@ -184,7 +191,6 @@ const ManageVariants = () => {
           errors[err.path] = err.message;
         });
         setValidationErrors(errors); // Set validation errors
-        
       } else {
         // Handle API errors
         toast.error("Error updating variant. Please try again.");
