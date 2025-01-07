@@ -184,6 +184,7 @@ const ManageVariants = () => {
           errors[err.path] = err.message;
         });
         setValidationErrors(errors); // Set validation errors
+        
       } else {
         // Handle API errors
         toast.error("Error updating variant. Please try again.");
