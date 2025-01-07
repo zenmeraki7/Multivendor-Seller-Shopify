@@ -49,24 +49,24 @@ const validationSchema = Yup.object().shape({
     .min(0, "Stock cannot be negative")
     .typeError("Stock must be a valid number"),
 
-  image: Yup.mixed()
-    .test("fileSize", "Image is required", (value) => value !== null) // Check if file exists
-    .test(
-      "fileType",
-      "Supported formats are JPG, JPEG, PNG, or GIF",
-      (value) =>
-        value &&
-        [
-          "image/jpeg",
-          "image/png",
-          "image/gif",
-          "image/webp",
-          "image/jpg",
-        ].includes(value.type)
-    )
-    .test("fileSize", "File size must be less than 5MB", (value) =>
-      value ? value.size <= 5 * 1024 * 1024 : true
-    ),
+  // image: Yup.mixed()
+  //   .test("fileSize", "Image is required", (value) => value !== null) // Check if file exists
+  //   .test(
+  //     "fileType",
+  //     "Supported formats are JPG, JPEG, PNG, or GIF",
+  //     (value) =>
+  //       value &&
+  //       [
+  //         "image/jpeg",
+  //         "image/png",
+  //         "image/gif",
+  //         "image/webp",
+  //         "image/jpg",
+  //       ].includes(value.type)
+  //   )
+  //   .test("fileSize", "File size must be less than 5MB", (value) =>
+  //     value ? value.size <= 5 * 1024 * 1024 : true
+  //   ),
 });
 
 const dummyVariants = [
@@ -93,6 +93,7 @@ const ManageVariants = () => {
 
   const [variants, setVariants] = useState(state);
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [isActionAdd, setIsActionAdd] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [variantToDelete, setVariantToDelete] = useState(null);
   // State for the form fields (attribute, value, etc.)
@@ -144,7 +145,7 @@ const ManageVariants = () => {
     p: 4,
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (action) => {
     const formData = new FormData();
 
     // Append the form data to FormData
@@ -161,22 +162,24 @@ const ManageVariants = () => {
         value: selectedVariant?.value,
         additionalPrice: selectedVariant?.additionalPrice,
         stock: selectedVariant?.stock,
-        image: imageFile,
       };
+      if (action == "add") {
+        validationData.image = imageFile;
+      }
 
       await validationSchema.validate(validationData, { abortEarly: false }); // Validate the entire form
       setValidationErrors({});
       toast.loading("Adding variant...");
-      const response = await axios.post(
-        `${BASE_URL}/api/product/product-variant/${id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Ensure content-type is set for file upload
-            authorization: `Bearer ${localStorage.getItem("token")}`, // Replace 'token' with your actual token storage
-          },
-        }
-      );
+      const apiUrl =
+        action == "add"
+          ? `${BASE_URL}/api/product/product-variant/${id}`
+          : `${BASE_URL}/api/product/product-variant/${id}/${selectedVariant._id}`;
+      const response = await axios.post(apiUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensure content-type is set for file upload
+          authorization: `Bearer ${localStorage.getItem("token")}`, // Replace 'token' with your actual token storage
+        },
+      });
       toast.dismiss();
       toast.success("Variant updated successfully!"); // Show success toast
       console.log("Variant updated:", response.data);
@@ -204,6 +207,9 @@ const ManageVariants = () => {
   // Handle Edit Modal
   const handleEdit = (variant) => {
     setSelectedVariant(variant);
+    console.log(variant);
+    setImagePreview(variant.image?.url || "");
+    setIsActionAdd(false);
     setOpenEditModal(true);
   };
 
@@ -247,7 +253,10 @@ const ManageVariants = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setOpenEditModal(true)}
+          onClick={() => {
+            setOpenEditModal(true);
+            setIsActionAdd(true);
+          }}
         >
           Add Variant
         </Button>
@@ -308,7 +317,21 @@ const ManageVariants = () => {
       </TableContainer>
 
       {/* Edit Modal */}
-      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+      <Modal
+        open={openEditModal}
+        onClose={() => {
+          setOpenEditModal(false);
+          setSelectedVariant({
+            attribute: "",
+            value: "",
+            additionalPrice: 0,
+            stock: 0,
+          });
+          setImagePreview(null);
+          setImageFile(null);
+          setValidationErrors({});
+        }}
+      >
         <Box sx={modalStyle}>
           <Typography variant="h6" gutterBottom>
             Edit Variant
@@ -414,14 +437,25 @@ const ManageVariants = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleSubmit()} // Pass the file and variant data
-              sx={{ mt: 2 }}
-            >
-              Save Changes
-            </Button>
+            {!isActionAdd ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmit("edit")} // Pass the file and variant data
+                sx={{ mt: 2 }}
+              >
+                Save Changes
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmit("add")} // Pass the file and variant data
+                sx={{ mt: 2 }}
+              >
+                Add
+              </Button>
+            )}
           </Stack>
         </Box>
       </Modal>
