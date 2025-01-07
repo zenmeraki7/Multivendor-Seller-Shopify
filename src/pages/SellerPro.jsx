@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import "./SellerPro.css";
-import {
-  Box,
-  Typography,
-  Button,
-} from "@mui/material";
-
+import { Box, Typography, Button } from "@mui/material";
+import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
 function SellerPro() {
   const [logo, setLogo] = useState(null);
 
@@ -24,13 +23,13 @@ function SellerPro() {
     const file = event.target.files[0];
     if (file) {
       const fileURL = URL.createObjectURL(file);
-      setDocuments(prev => ({ ...prev, [key]: fileURL }));
+      setDocuments((prev) => ({ ...prev, [key]: fileURL }));
     }
   };
 
   const handleDocumentDetailsChange = (event, key) => {
     const value = event.target.value;
-    setDocumentDetails(prev => ({
+    setDocumentDetails((prev) => ({
       ...prev,
       [key]: value,
     }));
@@ -42,6 +41,18 @@ function SellerPro() {
       const logoURL = URL.createObjectURL(file);
       setLogo(logoURL);
     }
+  };
+  const handleSaveLogo = () => {
+    if (logo) {
+      // Logic to save the logo (e.g., uploading to server or updating state)
+      console.log("Logo saved:", logo);
+    } else {
+      console.error("No logo to save!");
+    }
+  };
+  const handleDeleteLogo = () => {
+    setLogo(null); // Reset the logo state
+    console.log("Logo deleted!");
   };
 
   const [isEditingPersonal, setIsEditingPersonal] = useState(false);
@@ -82,10 +93,21 @@ function SellerPro() {
 
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
-      <Box sx={{ flex: 1, padding: "20px", }}>
+      <Box sx={{ flex: 1, padding: "20px" }}>
+        {/* Profile Header */}
         <Box className="profile-container" sx={{ paddingLeft: "20px" }}>
-          <Typography variant="h4" sx={{ color: 'blue' }}>Seller Profile</Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              color: "rgba(37,89,222,1)",
+              WebkitBackgroundClip: "text",
+              textAlign: "center",
+            }}
+          >
+            <b> Seller Profile</b>
+          </Typography>
           <Box sx={{ display: "flex", justifyContent: "space-evenly" }}>
+            {/* Logo Section */}
             <Box
               sx={{
                 flex: 1,
@@ -97,35 +119,87 @@ function SellerPro() {
                 padding: "20px",
               }}
             >
-              <label>
-                <input
-                  type="file"
-                  style={{ display: "none" }}
-                  onChange={handleLogoUpload}
-                />
-                <img
-                  src={
-                    logo ||
-                    "https://cdn.pixabay.com/photo/2018/11/13/21/43/avatar-3814049_1280.png"
-                  }
-                  alt="Profile"
-                  className="profile-image"
-                  style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "50%",
-                    cursor: "pointer",
-                  }}
-                />
-              </label>
-              <Button
-                variant="contained"
-                sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
-                onClick={() => document.querySelector('input[type="file"]').click()}
+              {/* Image Placeholder */}
+              <Box
+                sx={{
+                  width: "150px",
+                  height: "150px",
+                  border: "1px solid gray",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#f9f9f9",
+                }}
               >
-                Add Logo
-              </Button>
+                {logo ? (
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <Typography variant="body2" color="gray">
+                    No Image
+                  </Typography>
+                )}
+              </Box>
+              {/* Upload and Action Icons */}
+              <Box sx={{ display: "flex", gap: "20px", marginTop: "10px" }}>
+                <label style={{ cursor: "pointer" }}>
+                  <input
+                    type="file"
+                    style={{ display: "none" }}
+                    onChange={handleLogoUpload}
+                  />
+                  <DriveFolderUploadIcon
+                    style={{
+                      fontSize: "40px",
+                      color: "white",
+                      cursor: "pointer",
+                      background:
+                        "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                      borderRadius: "10px",
+                    }}
+                  />
+                </label>
+                {logo && (
+                  <>
+                    {/* Save Icon */}
+                    <SaveIcon
+                      onClick={handleSaveLogo}
+                      style={{
+                        fontSize: "40px",
+                        color: "white",
+                        cursor: "pointer",
+                        background:
+                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                        borderRadius: "10px",
+                      }}
+                    />
+                    {/* Delete Icon */}
+                    <DeleteIcon
+                      onClick={handleDeleteLogo}
+                      style={{
+                        fontSize: "40px",
+                        background:
+                          "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                        color: "white",
+                        cursor: "pointer",
+                        borderRadius: "10px",
+                      }}
+                    />
+                  </>
+                )}
+              </Box>
             </Box>
+
+            {/* Company Details */}
             <Box
               sx={{
                 flex: 2,
@@ -143,7 +217,12 @@ function SellerPro() {
                     type="text"
                     value={companyDetails.companyName}
                     onChange={(e) =>
-                      handleInputChange(e, companyDetails, "companyName", setCompanyDetails)
+                      handleInputChange(
+                        e,
+                        companyDetails,
+                        "companyName",
+                        setCompanyDetails
+                      )
                     }
                   />
                 </Box>
@@ -157,26 +236,41 @@ function SellerPro() {
                     type="text"
                     value={companyDetails.companyAddress}
                     onChange={(e) =>
-                      handleInputChange(e, companyDetails, "companyAddress", setCompanyDetails)
+                      handleInputChange(
+                        e,
+                        companyDetails,
+                        "companyAddress",
+                        setCompanyDetails
+                      )
                     }
                   />
                 </Box>
               ) : (
                 <Typography>{companyDetails.companyAddress}</Typography>
               )}
-              <Button className="editbutton"
+              <Button
+                className="editbutton"
                 onClick={() =>
-                  isEditingCompany ? handleSaveClick(setIsEditingCompany) : handleEditClick(setIsEditingCompany)
+                  isEditingCompany
+                    ? handleSaveClick(setIsEditingCompany)
+                    : handleEditClick(setIsEditingCompany)
                 }
                 variant="contained"
-                sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                sx={{
+                  marginTop: "10px",
+                  background:
+                    "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                  color: "white",
+                  borderRadius: "10px",
+                }}
               >
-                {isEditingCompany ? "Save" : "Edit"}
+                {isEditingCompany ? <SaveIcon /> : <ModeEditIcon />}
               </Button>
             </Box>
           </Box>
         </Box>
 
+        {/* Personal Information Section */}
         <Box className="personal-info-container mt-3">
           <Typography variant="h6">Personal Information</Typography>
           {isEditingPersonal ? (
@@ -187,7 +281,12 @@ function SellerPro() {
                   type="text"
                   value={personalInfo.firstName}
                   onChange={(e) =>
-                    handleInputChange(e, personalInfo, "firstName", setPersonalInfo)
+                    handleInputChange(
+                      e,
+                      personalInfo,
+                      "firstName",
+                      setPersonalInfo
+                    )
                   }
                 />
               </Box>
@@ -217,35 +316,60 @@ function SellerPro() {
                   type="text"
                   value={personalInfo.address}
                   onChange={(e) =>
-                    handleInputChange(e, personalInfo, "address", setPersonalInfo)
+                    handleInputChange(
+                      e,
+                      personalInfo,
+                      "address",
+                      setPersonalInfo
+                    )
                   }
                 />
               </Box>
               <Button
                 onClick={() => handleSaveClick(setIsEditingPersonal)}
                 variant="contained"
-                sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                sx={{
+                  marginTop: "10px",
+                  background:
+                    "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                  color: "white",
+                  borderRadius: "10px",
+                }}
               >
-                Save
+                <SaveIcon />
               </Button>
             </Box>
           ) : (
             <Box className="info-content">
-              <Typography><strong>First Name:</strong> {personalInfo.firstName}</Typography>
-              <Typography><strong>Email Address:</strong> {personalInfo.email}</Typography>
-              <Typography><strong>Phone:</strong> {personalInfo.phone}</Typography>
-              <Typography><strong>Address:</strong> {personalInfo.address}</Typography>
+              <Typography>
+                <strong>First Name:</strong> {personalInfo.firstName}
+              </Typography>
+              <Typography>
+                <strong>Email Address:</strong> {personalInfo.email}
+              </Typography>
+              <Typography>
+                <strong>Phone:</strong> {personalInfo.phone}
+              </Typography>
+              <Typography>
+                <strong>Address:</strong> {personalInfo.address}
+              </Typography>
               <Button
                 onClick={() => handleEditClick(setIsEditingPersonal)}
                 variant="contained"
-                sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                sx={{
+                  marginTop: "10px",
+                  background:
+                    "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                  borderRadius: "10px",
+                  color: "white",
+                }}
               >
-                Edit
+                <ModeEditIcon />
               </Button>
             </Box>
           )}
         </Box>
-
+        {/* Document  Section */}
         <Box sx={{ display: "flex", gap: "20px", marginTop: "20px" }}>
           <Box className="documents-container" sx={{ flex: 1 }}>
             <Typography variant="h6">Documents</Typography>
@@ -257,7 +381,9 @@ function SellerPro() {
                     <input
                       type="text"
                       value={documentDetails.panNumber}
-                      onChange={(e) => handleDocumentDetailsChange(e, "panNumber")}
+                      onChange={(e) =>
+                        handleDocumentDetailsChange(e, "panNumber")
+                      }
                       placeholder="Enter PAN Number"
                     />
                     <label>
@@ -267,7 +393,10 @@ function SellerPro() {
                         onChange={(e) => handleDocumentUpload(e, "pan")}
                       />
                       <img
-                        src={documents.pan || "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"}
+                        src={
+                          documents.pan ||
+                          "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"
+                        }
                         alt="PAN"
                         height="100px"
                         width="90px"
@@ -281,7 +410,9 @@ function SellerPro() {
                     <input
                       type="text"
                       value={documentDetails.gstinNumber}
-                      onChange={(e) => handleDocumentDetailsChange(e, "gstinNumber")}
+                      onChange={(e) =>
+                        handleDocumentDetailsChange(e, "gstinNumber")
+                      }
                       placeholder="Enter GSTIN Number"
                     />
                     <label>
@@ -291,7 +422,10 @@ function SellerPro() {
                         onChange={(e) => handleDocumentUpload(e, "gstin")}
                       />
                       <img
-                        src={documents.gstin || "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"}
+                        src={
+                          documents.gstin ||
+                          "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"
+                        }
                         alt="GSTIN"
                         height="100px"
                         width="90px"
@@ -302,26 +436,45 @@ function SellerPro() {
                 <Button
                   onClick={() => handleSaveClick(setIsEditingDocuments)}
                   variant="contained"
-                  sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                  sx={{
+                    marginTop: "10px",
+                    background:
+                      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                    color: "white",
+                    borderRadius: "10px",
+                  }}
                 >
-                  Save
+                  <SaveIcon />
                 </Button>
               </Box>
             ) : (
               <Box className="info-content">
-                <Typography><strong>PAN Number:</strong> {documentDetails.panNumber}</Typography>
-                <Typography><strong>GSTIN Number:</strong> {documentDetails.gstinNumber}</Typography>
+                <Typography>
+                  <strong>PAN Number:</strong> {documentDetails.panNumber}
+                </Typography>
+                <Typography>
+                  <strong>GSTIN Number:</strong> {documentDetails.gstinNumber}
+                </Typography>
                 <Button
                   onClick={() => handleEditClick(setIsEditingDocuments)}
                   variant="contained"
-                  sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                  sx={{
+                    marginTop: "10px",
+                    background:
+                      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "10px",
+                  }}
                 >
-                  Edit
+                  <ModeEditIcon />
                 </Button>
               </Box>
             )}
           </Box>
-
+          {/* Bank Section */}
           <Box className="bank-details-container" sx={{ flex: 1 }}>
             <Typography variant="h6">Bank Details</Typography>
             {isEditingBank ? (
@@ -332,7 +485,12 @@ function SellerPro() {
                     type="text"
                     value={bankDetails.accountHolder}
                     onChange={(e) =>
-                      handleInputChange(e, bankDetails, "accountHolder", setBankDetails)
+                      handleInputChange(
+                        e,
+                        bankDetails,
+                        "accountHolder",
+                        setBankDetails
+                      )
                     }
                   />
                 </Box>
@@ -342,7 +500,12 @@ function SellerPro() {
                     type="text"
                     value={bankDetails.accountNumber}
                     onChange={(e) =>
-                      handleInputChange(e, bankDetails, "accountNumber", setBankDetails)
+                      handleInputChange(
+                        e,
+                        bankDetails,
+                        "accountNumber",
+                        setBankDetails
+                      )
                     }
                   />
                 </Box>
@@ -362,22 +525,35 @@ function SellerPro() {
                     type="text"
                     value={bankDetails.bankName}
                     onChange={(e) =>
-                      handleInputChange(e, bankDetails, "bankName", setBankDetails)
+                      handleInputChange(
+                        e,
+                        bankDetails,
+                        "bankName",
+                        setBankDetails
+                      )
                     }
                   />
                 </Box>
                 <Box className="form-group">
                   <label>Upload Bank Document:</label>
                   <Box display="flex" alignItems="center">
-                    <input type="file" style={{ marginRight: "10px", display: 'none' }} />
+                    <input
+                      type="file"
+                      style={{ marginRight: "10px", display: "none" }}
+                    />
                     <label>
                       <input
                         type="file"
                         style={{ display: "none" }}
-                        onChange={(e) => handleDocumentUpload(e, "bankDocument")}
+                        onChange={(e) =>
+                          handleDocumentUpload(e, "bankDocument")
+                        }
                       />
                       <img
-                        src={documents.bankDocument || "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"}
+                        src={
+                          documents.bankDocument ||
+                          "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"
+                        }
                         alt="Bank Document"
                         height="100px"
                         width="90px"
@@ -388,23 +564,46 @@ function SellerPro() {
                 <Button
                   onClick={() => handleSaveClick(setIsEditingBank)}
                   variant="contained"
-                  sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                  sx={{
+                    marginTop: "10px",
+                    background:
+                      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                    color: "white",
+                    borderRadius: "10px",
+                  }}
                 >
-                  Save
+                  <SaveIcon />
                 </Button>
               </Box>
             ) : (
               <Box className="info-content">
-                <Typography><strong>Account Holder:</strong> {bankDetails.accountHolder}</Typography>
-                <Typography><strong>Account Number:</strong> {bankDetails.accountNumber}</Typography>
-                <Typography><strong>IFSC Code:</strong> {bankDetails.ifsc}</Typography>
-                <Typography><strong>Bank Name:</strong> {bankDetails.bankName}</Typography>
+                <Typography>
+                  <strong>Account Holder:</strong> {bankDetails.accountHolder}
+                </Typography>
+                <Typography>
+                  <strong>Account Number:</strong> {bankDetails.accountNumber}
+                </Typography>
+                <Typography>
+                  <strong>IFSC Code:</strong> {bankDetails.ifsc}
+                </Typography>
+                <Typography>
+                  <strong>Bank Name:</strong> {bankDetails.bankName}
+                </Typography>
                 <Button
                   onClick={() => handleEditClick(setIsEditingBank)}
                   variant="contained"
-                  sx={{ marginTop: "10px", backgroundColor: "black", color: "white" }}
+                  sx={{
+                    marginTop: "10px",
+                    background:
+                      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "10px",
+                  }}
                 >
-                  Edit
+                  <ModeEditIcon />
                 </Button>
               </Box>
             )}
