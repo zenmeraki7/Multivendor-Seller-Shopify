@@ -11,6 +11,7 @@ import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import PaymentIcon from '@mui/icons-material/Payment';
 import WidgetsIcon from '@mui/icons-material/Widgets';
+import './Dashboard.css'
 // Data for Recharts chart
 const rechartsData = [
   { name: "January", uv: 4000, pv: 2400, amt: 2400, year: "2023" },

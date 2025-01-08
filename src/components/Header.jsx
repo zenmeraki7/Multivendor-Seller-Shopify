@@ -66,7 +66,7 @@ function Header() {
           color="inherit"
           className="fs-1"
           sx={{ mr: 3 }}
-          onClick={() => navigate("/seller-profile")}
+          onClick={() => navigate("/sellers")}
         >
           <PersonIcon />
         </Button>

@@ -39,7 +39,7 @@ function App() {
           />
           <Route path="/product-list" element={<ProductList />} />
           <Route
-            path="/seller-profile"
+            path="/sellers"
             element={<PrivateRoute component={<SellerPro />} />}
           />
         </Route>
