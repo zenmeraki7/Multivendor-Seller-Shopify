@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Stepper,
@@ -13,11 +13,11 @@ import {
   Divider,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import PersonalDetails from "../components/Register/PersonalDetails";
-import DocumentUpload from "../components/Register/DocumentUpload";
-import BankDetailsUpload from "../components/Register/BankDetailsUpload";
-import OtpStep from "../components/Register/OtpStep";
-import Header from "../components/AuthPageHeader";
+import PersonalDetails from "../../components/Register/PersonalDetails";
+import DocumentUpload from "../../components/Register/DocumentUpload";
+import BankDetailsUpload from "../../components/Register/BankDetailsUpload";
+import OtpStep from "../../components/Register/OtpStep";
+import Header from "../../components/AuthPageHeader";
 
 const steps = [
   "Personal Details",
@@ -35,6 +35,11 @@ export default function Register() {
   const [email, setEmail] = useState(""); // Manage OTP error
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    token && navigate("/");
+  }, []);
 
   const handleNext = () => {
     setActiveStep((prev) => prev + 1);

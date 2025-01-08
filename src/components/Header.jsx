@@ -39,14 +39,6 @@ function Header() {
         <IconButton color="inherit" sx={{ mr: 3 }}>
           <NotificationsIcon />
         </IconButton>
-
-        <Button color="inherit" sx={{ mr: 3, textTransform: "none" }}>
-          FAQ
-        </Button>
-
-        <Button color="inherit" sx={{ mr: 3, textTransform: "none" }}>
-          Need Help?
-        </Button>
         <Button
           color="inherit"
           sx={{ mr: 3, textTransform: "none" }}
@@ -62,13 +54,13 @@ function Header() {
           <LoginIcon /> SignIn
         </Button>
 
-        <Button
+        {/* <Button
           color="inherit"
           sx={{ mr: 3, textTransform: "none" }}
           onClick={() => navigate("/")}
         >
           <LogoutIcon /> Logout
-        </Button>
+        </Button> */}
 
         <Button
           color="inherit"

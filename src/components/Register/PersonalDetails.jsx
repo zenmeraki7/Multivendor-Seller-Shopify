@@ -145,7 +145,7 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
 
       // If validation passes, make the API call
       const response = await axios.post(
-        "http://localhost:5000/api/vendor/register",
+        `${BASE_URL}/api/vendor/register`,
         formValues
       ); // Replace with your backend API
       console.log(response.data.message);
