@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   IconButton,
@@ -20,9 +20,10 @@ import {
   Stack,
 } from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import axios from "axios";
 import { BASE_URL } from "../../utils/baseUrl";
@@ -49,43 +50,33 @@ const validationSchema = Yup.object().shape({
     .min(0, "Stock cannot be negative")
     .typeError("Stock must be a valid number"),
 
-  image: Yup.mixed()
-    .test("fileSize", "Image is required", (value) => value !== null) // Check if file exists
-    .test(
-      "fileType",
-      "Supported formats are JPG, JPEG, PNG, or GIF",
-      (value) =>
-        value && ["image/jpeg", "image/png", "image/gif"].includes(value.type)
-    )
-    .test("fileSize", "File size must be less than 5MB", (value) =>
-      value ? value.size <= 5 * 1024 * 1024 : true
-    ),
+  // image: Yup.mixed()
+  //   .test("fileSize", "Image is required", (value) => value !== null) // Check if file exists
+  //   .test(
+  //     "fileType",
+  //     "Supported formats are JPG, JPEG, PNG, or GIF",
+  //     (value) =>
+  //       value &&
+  //       [
+  //         "image/jpeg",
+  //         "image/png",
+  //         "image/gif",
+  //         "image/webp",
+  //         "image/jpg",
+  //       ].includes(value.type)
+  //   )
+  //   .test("fileSize", "File size must be less than 5MB", (value) =>
+  //     value ? value.size <= 5 * 1024 * 1024 : true
+  //   ),
 });
 
-const dummyVariants = [
-  {
-    id: 1,
-    attribute: "Color",
-    value: "Red",
-    additionalPrice: 10,
-    stock: 50,
-    image: "https://via.placeholder.com/50",
-  },
-  {
-    id: 2,
-    attribute: "Storage",
-    value: "128GB",
-    additionalPrice: 20,
-    stock: 30,
-    image: "https://via.placeholder.com/50",
-  },
-];
 const ManageVariants = () => {
   const { state } = useLocation();
   const { id, title } = useParams();
 
-  const [variants, setVariants] = useState(state);
+  const [variants, setVariants] = useState();
   const [openEditModal, setOpenEditModal] = useState(false);
+  const [isActionAdd, setIsActionAdd] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [variantToDelete, setVariantToDelete] = useState(null);
   // State for the form fields (attribute, value, etc.)
@@ -103,14 +94,31 @@ const ManageVariants = () => {
   // State for the image preview URL
   const [imagePreview, setImagePreview] = useState("");
   const [validationErrors, setValidationErrors] = useState({}); // Store validation errors
+  const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedVariant({
-      ...selectedVariant,
-      [name]: value,
-    });
+  const fetchProductData = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/product/get-one/${id}?fields=variants`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming the token is stored in localStorage
+          },
+        }
+      );
+      console.log(response);
+      const { data } = response.data;
+      setVariants(data.variants);
+    } catch (err) {
+      console.log(err);
+      toast.error("Error fetching product data");
+      //   setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchProductData();
+  }, [id]);
 
   // Handle the image file input change
   const handleImageChange = (e) => {
@@ -137,7 +145,7 @@ const ManageVariants = () => {
     p: 4,
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (action) => {
     const formData = new FormData();
 
     // Append the form data to FormData
@@ -154,26 +162,29 @@ const ManageVariants = () => {
         value: selectedVariant?.value,
         additionalPrice: selectedVariant?.additionalPrice,
         stock: selectedVariant?.stock,
-        image: imageFile,
       };
+      if (action == "add") {
+        validationData.image = imageFile;
+      }
 
       await validationSchema.validate(validationData, { abortEarly: false }); // Validate the entire form
       setValidationErrors({});
       toast.loading("Adding variant...");
-      const response = await axios.post(
-        `${BASE_URL}/api/product/product-variant/${id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Ensure content-type is set for file upload
-            authorization: `Bearer ${localStorage.getItem("token")}`, // Replace 'token' with your actual token storage
-          },
-        }
-      );
+      const apiUrl =
+        action == "add"
+          ? `${BASE_URL}/api/product/product-variant/${id}`
+          : `${BASE_URL}/api/product/product-variant/${id}/${selectedVariant._id}`;
+      const response = await axios.post(apiUrl, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Ensure content-type is set for file upload
+          authorization: `Bearer ${localStorage.getItem("token")}`, // Replace 'token' with your actual token storage
+        },
+      });
       toast.dismiss();
       toast.success("Variant updated successfully!"); // Show success toast
       console.log("Variant updated:", response.data);
-      setOpen(false); // Close the modal on success
+      setOpenEditModal(false); // Close the modal on success
+      fetchProductData();
     } catch (error) {
       toast.dismiss();
       const errors = {};
@@ -184,7 +195,6 @@ const ManageVariants = () => {
           errors[err.path] = err.message;
         });
         setValidationErrors(errors); // Set validation errors
-        
       } else {
         // Handle API errors
         toast.error("Error updating variant. Please try again.");
@@ -198,6 +208,9 @@ const ManageVariants = () => {
   // Handle Edit Modal
   const handleEdit = (variant) => {
     setSelectedVariant(variant);
+    console.log(variant);
+    setImagePreview(variant.image?.url || "");
+    setIsActionAdd(false);
     setOpenEditModal(true);
   };
 
@@ -225,11 +238,17 @@ const ManageVariants = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <IconButton
+        onClick={() => navigate(`/view-product/${id}`)}
+        aria-label="back"
+      >
+        <ArrowBackIcon />
+      </IconButton>
       {/* Header Section */}
       <Box mb={3}>
-        <Typography variant="h4" gutterBottom>
-          {title}
-        </Typography>
+          <Typography variant="h4" gutterBottom>
+            {title}
+          </Typography>
         <Typography variant="body1">
           Manage the variants for this {title}. You can add, edit, or view
           details of each variant.
@@ -241,7 +260,10 @@ const ManageVariants = () => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => setOpenEditModal(true)}
+          onClick={() => {
+            setOpenEditModal(true);
+            setIsActionAdd(true);
+          }}
         >
           Add Variant
         </Button>
@@ -260,7 +282,7 @@ const ManageVariants = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {variants.length > 0 ? (
+            {variants?.length > 0 ? (
               variants.map((variant) => (
                 <TableRow key={variant._id}>
                   <TableCell>{variant.attribute}</TableCell>
@@ -302,7 +324,21 @@ const ManageVariants = () => {
       </TableContainer>
 
       {/* Edit Modal */}
-      <Modal open={openEditModal} onClose={() => setOpenEditModal(false)}>
+      <Modal
+        open={openEditModal}
+        onClose={() => {
+          setOpenEditModal(false);
+          setSelectedVariant({
+            attribute: "",
+            value: "",
+            additionalPrice: 0,
+            stock: 0,
+          });
+          setImagePreview(null);
+          setImageFile(null);
+          setValidationErrors({});
+        }}
+      >
         <Box sx={modalStyle}>
           <Typography variant="h6" gutterBottom>
             Edit Variant
@@ -408,14 +444,25 @@ const ManageVariants = () => {
             >
               Cancel
             </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => handleSubmit()} // Pass the file and variant data
-              sx={{ mt: 2 }}
-            >
-              Save Changes
-            </Button>
+            {!isActionAdd ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmit("edit")} // Pass the file and variant data
+                sx={{ mt: 2 }}
+              >
+                Save Changes
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmit("add")} // Pass the file and variant data
+                sx={{ mt: 2 }}
+              >
+                Add
+              </Button>
+            )}
           </Stack>
         </Box>
       </Modal>
