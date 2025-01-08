@@ -7,7 +7,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Grid from "@mui/material/Grid";  // Ensure Grid is imported correctly
 
 function PersonalDetails({ personalData }) {
-  const [isEditing, setIsEditing] = useState(false);
+  // const [isEditing, setIsEditing] = useState(false);
   const [personalInfo, setPersonalInfo] = useState({
     firstName: personalData?.fullName || "",
     email: personalData?.email || "",
