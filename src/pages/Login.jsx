@@ -32,7 +32,7 @@ function Login() {
       localStorage.setItem("token", token);
 
       // Redirect to vendor dashboard or another page
-      navigate("/dashboard");
+      navigate("/sellers");
     } catch (err) {
       // Handle errors
       const message =
