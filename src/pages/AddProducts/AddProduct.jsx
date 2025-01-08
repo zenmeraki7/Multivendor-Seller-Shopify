@@ -340,11 +340,7 @@ function AddProduct() {
     >
       <Stack direction="row" justifyContent={"space-between"}>
         <h3>Add Product</h3>
-        <Button
-          onClick={() =>
-            navigate(`/manage-variant/:id/:title`, { state: product.variants })
-          }
-        >
+        <Button onClick={() => navigate(`/manage-variant/:id/:title`)}>
           Manage Variant
         </Button>
       </Stack>

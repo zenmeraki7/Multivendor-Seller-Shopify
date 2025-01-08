@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   IconButton,
@@ -20,9 +20,10 @@ import {
   Stack,
 } from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import axios from "axios";
 import { BASE_URL } from "../../utils/baseUrl";
@@ -69,29 +70,11 @@ const validationSchema = Yup.object().shape({
   //   ),
 });
 
-const dummyVariants = [
-  {
-    id: 1,
-    attribute: "Color",
-    value: "Red",
-    additionalPrice: 10,
-    stock: 50,
-    image: "https://via.placeholder.com/50",
-  },
-  {
-    id: 2,
-    attribute: "Storage",
-    value: "128GB",
-    additionalPrice: 20,
-    stock: 30,
-    image: "https://via.placeholder.com/50",
-  },
-];
 const ManageVariants = () => {
   const { state } = useLocation();
   const { id, title } = useParams();
 
-  const [variants, setVariants] = useState(state);
+  const [variants, setVariants] = useState();
   const [openEditModal, setOpenEditModal] = useState(false);
   const [isActionAdd, setIsActionAdd] = useState(true);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -111,14 +94,31 @@ const ManageVariants = () => {
   // State for the image preview URL
   const [imagePreview, setImagePreview] = useState("");
   const [validationErrors, setValidationErrors] = useState({}); // Store validation errors
+  const navigate = useNavigate();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setSelectedVariant({
-      ...selectedVariant,
-      [name]: value,
-    });
+  const fetchProductData = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/api/product/get-one/${id}?fields=variants`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming the token is stored in localStorage
+          },
+        }
+      );
+      console.log(response);
+      const { data } = response.data;
+      setVariants(data.variants);
+    } catch (err) {
+      console.log(err);
+      toast.error("Error fetching product data");
+      //   setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchProductData();
+  }, [id]);
 
   // Handle the image file input change
   const handleImageChange = (e) => {
@@ -184,6 +184,7 @@ const ManageVariants = () => {
       toast.success("Variant updated successfully!"); // Show success toast
       console.log("Variant updated:", response.data);
       setOpenEditModal(false); // Close the modal on success
+      fetchProductData();
     } catch (error) {
       toast.dismiss();
       const errors = {};
@@ -237,11 +238,17 @@ const ManageVariants = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <IconButton
+        onClick={() => navigate(`/view-product/${id}`)}
+        aria-label="back"
+      >
+        <ArrowBackIcon />
+      </IconButton>
       {/* Header Section */}
       <Box mb={3}>
-        <Typography variant="h4" gutterBottom>
-          {title}
-        </Typography>
+          <Typography variant="h4" gutterBottom>
+            {title}
+          </Typography>
         <Typography variant="body1">
           Manage the variants for this {title}. You can add, edit, or view
           details of each variant.
@@ -275,7 +282,7 @@ const ManageVariants = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {variants.length > 0 ? (
+            {variants?.length > 0 ? (
               variants.map((variant) => (
                 <TableRow key={variant._id}>
                   <TableCell>{variant.attribute}</TableCell>
