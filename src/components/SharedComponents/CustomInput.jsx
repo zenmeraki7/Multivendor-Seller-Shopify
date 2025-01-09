@@ -11,9 +11,10 @@ function CustomInput({
   type,
   required = true,
   error,
+  small,
 }) {
   return (
-    <Stack sx={{ marginBottom: "15px", flex: 1 }}>
+    <Stack sx={{ flex: 1 }}>
       <TextField
         id={id}
         name={name}
@@ -25,9 +26,10 @@ function CustomInput({
         onChange={(e) => onChange(e)}
         type={type}
         required={required}
+        size={small && "small"}
         sx={{
           marginTop: "5px",
-          marginBottom: "10px",
+          marginBottom: "5px",
           "& .MuiOutlinedInput-root": {
             borderRadius: "12px",
             transition: "border 0.3s ease, background 0.3s ease",

@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  TextField,
+} from "@mui/material";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Grid from "@mui/material/Grid";  // Ensure Grid is imported correctly
+import Grid from "@mui/material/Grid"; // Ensure Grid is imported correctly
+import CustomInput from "./SharedComponents/CustomInput";
+import CustomButton from "./SharedComponents/CustomButton";
 
 function PersonalDetails({ personalData }) {
   // const [isEditing, setIsEditing] = useState(false);
@@ -18,7 +30,7 @@ function PersonalDetails({ personalData }) {
     companyName: personalData?.companyName || "",
     companyAddress: personalData?.address || "",
   });
-  const [logo, setLogo] = useState(null);
+  const [logo, setLogo] = useState(personalData?.companyIcon);
 
   const [openModal, setOpenModal] = useState(false);
 
@@ -71,38 +83,52 @@ function PersonalDetails({ personalData }) {
   };
 
   return (
-    <Box 
-      sx={{ 
-        backgroundColor: '#fff',
-        borderRadius: '0.5rem',
-        boxShadow: '0 1px 3px 0 black, 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-        padding: '1.5rem',
-        marginTop: '20px'
+    <Box
+      sx={{
+        // backgroundColor: "#fff",
+        borderRadius: "12px",
+        marginTop: "30px",
+        // padding: "2rem",
+        // boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
+        // maxWidth: "1000px",
+        margin: "auto",
       }}
     >
-      <Box sx={{ display: "flex", justifyContent: "space-evenly", gap: "20px" }}>
+      <Box sx={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
         {/* Logo Section */}
         <Box
           sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            padding: "20px",
+            flex: "1 1 300px",
+            border: "1px solid #e0e0e0",
+            borderRadius: "12px",
+            padding: "1.5rem",
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#f9f9f9",
+            textAlign: "center",
           }}
         >
+          <Typography
+            variant="h6"
+            sx={{
+              marginBottom: "1.5rem",
+              textAlign: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Company Logo
+          </Typography>
           <Box
             sx={{
-              width: "300px",
-              height: "300px",
-              border: "1px solid gray",
+              width: "200px",
+              height: "200px",
+              border: "2px dashed #ccc",
+              borderRadius: "12px",
               overflow: "hidden",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: "#f9f9f9",
+              margin: "0 auto 15px",
+              backgroundColor: "#f5f5f5",
             }}
           >
             {logo ? (
@@ -117,25 +143,31 @@ function PersonalDetails({ personalData }) {
               />
             ) : (
               <Typography variant="body2" color="gray">
-                No Image
+                No Image Available
               </Typography>
             )}
           </Box>
-          <Box sx={{ display: "flex", gap: "20px", marginTop: "10px" }}>
-            <label style={{ cursor: "pointer" }}>
+          <Typography
+            variant="body2"
+            sx={{ marginBottom: "10px", color: "#666" }}
+          >
+            Upload a high-quality logo.
+          </Typography>
+          <Box sx={{ display: "flex", justifyContent: "center", gap: "10px" }}>
+            <label>
               <input
                 type="file"
                 style={{ display: "none" }}
                 onChange={handleLogoUpload}
               />
               <DriveFolderUploadIcon
-                style={{
-                  fontSize: "40px",
-                  color: "white",
+                sx={{
+                  fontSize: "36px",
+                  color: "#fff",
                   cursor: "pointer",
-                  background:
-                    "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
-                  borderRadius: "10px",
+                  background: "linear-gradient(45deg, #556cd6, #19857b)",
+                  padding: "8px",
+                  borderRadius: "50%",
                 }}
               />
             </label>
@@ -143,24 +175,24 @@ function PersonalDetails({ personalData }) {
               <>
                 <SaveIcon
                   onClick={handleSaveLogo}
-                  style={{
-                    fontSize: "40px",
-                    color: "white",
+                  sx={{
+                    fontSize: "36px",
+                    color: "#fff",
                     cursor: "pointer",
-                    background:
-                      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
-                    borderRadius: "10px",
+                    background: "linear-gradient(45deg, #556cd6, #19857b)",
+                    padding: "8px",
+                    borderRadius: "50%",
                   }}
                 />
                 <DeleteIcon
                   onClick={handleDeleteLogo}
-                  style={{
-                    fontSize: "40px",
-                    background:
-                      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
-                    color: "white",
+                  sx={{
+                    fontSize: "36px",
+                    color: "#fff",
                     cursor: "pointer",
-                    borderRadius: "10px",
+                    background: "linear-gradient(45deg, #d32f2f, #ff5252)",
+                    padding: "8px",
+                    borderRadius: "50%",
                   }}
                 />
               </>
@@ -168,156 +200,57 @@ function PersonalDetails({ personalData }) {
           </Box>
         </Box>
 
-        {/* Company and Personal Details Section */}
+        {/* Details Section */}
         <Box
           sx={{
-            flex: 2,
-            display: "flex",
-            flexDirection: "column",
-            padding: "20px",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
+            flex: "2 1 600px",
+            border: "1px solid #e0e0e0",
+            borderRadius: "12px",
+            padding: "2rem",
+            boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#f9f9f9",
           }}
         >
-          <Typography variant="h6" style={{ textAlign: "center", marginBottom: '1rem' }}>
-            Company Information
-          </Typography>
-          <Typography variant="h6">Company Name:</Typography>
-          <Typography sx={{ marginBottom: '1rem' }}>{companyDetails.companyName}</Typography>
-
-          <Typography variant="h6">Company Address:</Typography>
-          <Typography sx={{ marginBottom: '1rem' }}>{companyDetails.companyAddress}</Typography>
-
-          <Typography variant="h6" style={{ textAlign: "center", marginTop: '1rem', marginBottom: '1rem' }}>
-            Personal Information
-          </Typography>
-          <Typography sx={{ marginBottom: '0.5rem' }}>
-            <strong>First Name:</strong> {personalInfo.firstName}
-          </Typography>
-          <Typography sx={{ marginBottom: '0.5rem' }}>
-            <strong>Email Address:</strong> {personalInfo.email}
-          </Typography>
-          <Typography sx={{ marginBottom: '0.5rem' }}>
-            <strong>Phone:</strong> {personalInfo.phone}
-          </Typography>
-          <Typography sx={{ marginBottom: '0.5rem' }}>
-            <strong>Address:</strong> {personalInfo.address}
-          </Typography>
-
-          {/* Edit Button */}
-          <Button
-            onClick={handleToggleEdit}
-            variant="contained"
+          <Typography
+            variant="h6"
             sx={{
-              alignSelf: 'flex-start',
-              marginTop: "10px",
-              background:
-                "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
-              color: "white",
-              borderRadius: "10px",
+              marginBottom: "1.5rem",
+              textAlign: "center",
+              fontWeight: "bold",
             }}
           >
-            <ModeEditIcon />
-          </Button>
+            Company and Personal Details
+          </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "1rem",
+            }}
+          >
+            {[
+              { label: "Company Name", value: personalData.companyName },
+              { label: "Full Name", value: personalData.fullName },
+              { label: "Email", value: personalData.email },
+              { label: "Phone Number", value: personalData.phoneNum },
+              { label: "Address", value: personalData.address },
+              { label: "Zip Code", value: personalData.zipCode },
+              { label: "City", value: personalData.city },
+              { label: "State", value: personalData.state.name },
+              { label: "Country", value: personalData.country.name },
+            ].map((field) => (
+              <CustomInput key={field.label} small={true} {...field} />
+            ))}
+          </Box>
+          <Box sx={{ textAlign: "right", marginTop: "20px" }}>
+            <CustomButton
+              onClick={handleToggleEdit}
+              label="Edit Details"
+              icon={<ModeEditIcon sx={{ marginRight: "8px" }} />}
+            />
+          </Box>
         </Box>
       </Box>
-
-      {/* Modal for Editing Details */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} style={{width:'100%'}}>
-        <DialogTitle>Edit Details</DialogTitle>
-        <DialogContent>
-        <Grid container spacing={2}>
-            {/* Company Name and Company Address in a row */}
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Company Name:</Typography>
-              <TextField
-                fullWidth
-                value={companyDetails.companyName}
-                onChange={(e) =>
-                  handleInputChange(e, companyDetails, "companyName", setCompanyDetails)
-                }
-                sx={{ marginBottom: '1rem' }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Company Address:</Typography>
-              <TextField
-                fullWidth
-                value={companyDetails.companyAddress}
-                onChange={(e) =>
-                  handleInputChange(e, companyDetails, "companyAddress", setCompanyDetails)
-                }
-                sx={{ marginBottom: '1rem' }}
-              />
-            </Grid>
-
-            {/* First Name and Email in a row */}
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">First Name:</Typography>
-              <TextField
-                fullWidth
-                value={personalInfo.firstName}
-                onChange={(e) =>
-                  handleInputChange(e, personalInfo, "firstName", setPersonalInfo)
-                }
-                sx={{ marginBottom: '1rem' }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Email:</Typography>
-              <TextField
-                fullWidth
-                value={personalInfo.email}
-                onChange={(e) =>
-                  handleInputChange(e, personalInfo, "email", setPersonalInfo)
-                }
-                sx={{ marginBottom: '1rem' }}
-              />
-            </Grid>
-
-            {/* Phone Number and Address in a row */}
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Phone:</Typography>
-              <TextField
-                fullWidth
-                value={personalInfo.phone}
-                onChange={(e) =>
-                  handleInputChange(e, personalInfo, "phone", setPersonalInfo)
-                }
-                sx={{ marginBottom: '1rem' }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Address:</Typography>
-              <TextField
-                fullWidth
-                value={personalInfo.address}
-                onChange={(e) =>
-                  handleInputChange(e, personalInfo, "address", setPersonalInfo)
-                }
-                sx={{ marginBottom: '1rem' }}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenModal(false)} color="primary">
-            Cancel
-          </Button>
-          <Button
-              onClick={handleSaveDetails}
-              variant="contained"
-              sx={{
-                background:
-                  "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(85,85,197,1) 56%, rgba(0,212,255,1) 100%)",
-                color: "white",
-                borderRadius: "10px",
-              }}
-            >
-              <SaveIcon /> 
-            </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   );
 }
