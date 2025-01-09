@@ -107,10 +107,40 @@ function Document({ document }) {
                 style={{ display: "none" }}
                 onChange={(e) => handleFileUpload(e, "panImageUrl")}
               />
-              <CustomButton
-                label="Upload PAN"
-                icon={<DriveFolderUploadIcon />}
-              />
+              <>
+                <Stack direction={"row"} spacing={1}>
+                  <DriveFolderUploadIcon
+                    sx={{
+                      fontSize: "36px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      background: "linear-gradient(45deg, #556cd6, #19857b)",
+                      padding: "8px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <SaveIcon
+                    sx={{
+                      fontSize: "36px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      background: "linear-gradient(45deg, #556cd6, #19857b)",
+                      padding: "8px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <DeleteIcon
+                    sx={{
+                      fontSize: "36px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      background: "linear-gradient(45deg, #d32f2f, #ff5252)",
+                      padding: "8px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </Stack>
+              </>
             </label>
           </Box>
         </Box>
@@ -164,28 +194,38 @@ function Document({ document }) {
                 onChange={(e) => handleFileUpload(e, "gstinImageUrl")}
               />
               <>
-                <SaveIcon
-                  onClick={handleSaveLogo}
-                  sx={{
-                    fontSize: "36px",
-                    color: "#fff",
-                    cursor: "pointer",
-                    background: "linear-gradient(45deg, #556cd6, #19857b)",
-                    padding: "8px",
-                    borderRadius: "50%",
-                  }}
-                />
-                <DeleteIcon
-                  onClick={handleDeleteLogo}
-                  sx={{
-                    fontSize: "36px",
-                    color: "#fff",
-                    cursor: "pointer",
-                    background: "linear-gradient(45deg, #d32f2f, #ff5252)",
-                    padding: "8px",
-                    borderRadius: "50%",
-                  }}
-                />
+                <Stack direction={"row"} spacing={1}>
+                  <DriveFolderUploadIcon
+                    sx={{
+                      fontSize: "36px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      background: "linear-gradient(45deg, #556cd6, #19857b)",
+                      padding: "8px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <SaveIcon
+                    sx={{
+                      fontSize: "36px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      background: "linear-gradient(45deg, #556cd6, #19857b)",
+                      padding: "8px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <DeleteIcon
+                    sx={{
+                      fontSize: "36px",
+                      color: "#fff",
+                      cursor: "pointer",
+                      background: "linear-gradient(45deg, #d32f2f, #ff5252)",
+                      padding: "8px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </Stack>
               </>
             </label>
           </Box>

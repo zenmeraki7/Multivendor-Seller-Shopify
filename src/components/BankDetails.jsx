@@ -4,6 +4,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import CustomInput from "./SharedComponents/CustomInput";
+import DeleteIcon from "@mui/icons-material/Delete";
 import CustomButton from "./SharedComponents/CustomButton";
 
 function BankDetails({ bankDetails }) {
@@ -129,10 +130,40 @@ function BankDetails({ bankDetails }) {
               style={{ display: "none" }}
               onChange={handleFileChange}
             />
-            <CustomButton
-              label="Upload Document"
-              icon={<DriveFolderUploadIcon />}
-            />
+            <>
+              <Stack direction={"row"} spacing={1}>
+                <DriveFolderUploadIcon
+                  sx={{
+                    fontSize: "36px",
+                    color: "#fff",
+                    cursor: "pointer",
+                    background: "linear-gradient(45deg, #556cd6, #19857b)",
+                    padding: "8px",
+                    borderRadius: "50%",
+                  }}
+                />
+                <SaveIcon
+                  sx={{
+                    fontSize: "36px",
+                    color: "#fff",
+                    cursor: "pointer",
+                    background: "linear-gradient(45deg, #556cd6, #19857b)",
+                    padding: "8px",
+                    borderRadius: "50%",
+                  }}
+                />
+                <DeleteIcon
+                  sx={{
+                    fontSize: "36px",
+                    color: "#fff",
+                    cursor: "pointer",
+                    background: "linear-gradient(45deg, #d32f2f, #ff5252)",
+                    padding: "8px",
+                    borderRadius: "50%",
+                  }}
+                />
+              </Stack>
+            </>
           </label>
         </Box>
       </Stack>
@@ -150,105 +181,6 @@ function BankDetails({ bankDetails }) {
           icon={<ModeEditIcon sx={{ marginRight: "8px" }} />}
         />
       </Stack>
-
-      {/* Modal for editing bank details */}
-      <Modal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        aria-labelledby="edit-bank-modal-title"
-        aria-describedby="edit-bank-modal-description"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 500,
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            borderRadius: "10px",
-            p: 4,
-          }}
-        >
-          <Typography id="edit-bank-modal-title" variant="h6" component="h2">
-            Edit Bank Details
-          </Typography>
-          <Stack spacing={2} marginTop={2}>
-            <CustomInput
-              label="Account Holder Name"
-              value={editedBankDetails.accountHolderName}
-              onChange={(e) => handleInputChange(e, "accountHolderName")}
-            />
-            <CustomInput
-              label="Account Number"
-              value={editedBankDetails.accountNumber}
-              onChange={(e) => handleInputChange(e, "accountNumber")}
-            />
-            <CustomInput
-              label="IFSC Code"
-              value={editedBankDetails.ifscCode}
-              onChange={(e) => handleInputChange(e, "ifscCode")}
-            />
-            <CustomInput
-              label="Bank Name"
-              value={editedBankDetails.bankName}
-              onChange={(e) => handleInputChange(e, "bankName")}
-            />
-          </Stack>
-          <Box marginTop={3} textAlign="center">
-            <Typography variant="subtitle1">Upload Bank Document:</Typography>
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              marginTop={1}
-            >
-              <img
-                src={
-                  editedBankDetails.documentUrl ||
-                  "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"
-                }
-                alt="Bank Document"
-                height="100px"
-                width="90px"
-              />
-              <label htmlFor="upload-button" style={{ cursor: "pointer" }}>
-                <DriveFolderUploadIcon
-                  sx={{
-                    background:
-                      "linear-gradient(90deg, rgb(113, 109, 200) 0%, rgb(151, 151, 205) 56%, rgb(84, 171, 189) 100%)",
-                    fontSize: "40px",
-                    color: "black",
-                    marginTop: "10px",
-                  }}
-                />
-                <input
-                  type="file"
-                  id="upload-button"
-                  hidden
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </label>
-            </Box>
-          </Box>
-          <Box display="flex" justifyContent="flex-end" marginTop={3}>
-            <CustomButton
-              onClick={() => setIsModalOpen(false)}
-              label="Cancel"
-              variant="outlined"
-              sx={{ marginRight: "10px" }}
-            />
-            <CustomButton
-              onClick={handleSaveClick}
-              label="Save"
-              variant="contained"
-              icon={<SaveIcon />}
-            />
-          </Box>
-        </Box>
-      </Modal>
     </Box>
   );
 }

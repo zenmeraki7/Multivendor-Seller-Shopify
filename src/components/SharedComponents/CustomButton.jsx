@@ -1,14 +1,15 @@
 import { Button } from "@mui/material";
 import React from "react";
 
-const CustomButton = ({ onClick, icon, label }) => {
+const CustomButton = ({ onClick, icon, label, variant = "contained" }) => {
   return (
     <Button
       onClick={onClick}
-      variant="contained"
+      variant={variant}
       sx={{
-        background: "linear-gradient(45deg, #556cd6, #19857b)",
-        color: "#fff",
+        background:
+          variant == "contained" && "linear-gradient(45deg, #556cd6, #19857b)",
+        color: variant == "contained" && "#fff",
         borderRadius: "8px",
         textTransform: "none",
         padding: "8px 16px",

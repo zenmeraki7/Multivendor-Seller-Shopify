@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Divider,
   TextField,
+  Stack,
 } from "@mui/material";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
@@ -17,39 +18,39 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Grid from "@mui/material/Grid"; // Ensure Grid is imported correctly
 import CustomInput from "./SharedComponents/CustomInput";
 import CustomButton from "./SharedComponents/CustomButton";
+import CustomSelect from "./SharedComponents/CustomSelect";
+import axios from "axios";
+import { BASE_URL } from "../utils/baseUrl";
+import { vendorUpdateSchema } from "../utils/vendorUpdateValidation";
+import toast from "react-hot-toast";
 
 function PersonalDetails({ personalData }) {
   // const [isEditing, setIsEditing] = useState(false);
-  const [personalInfo, setPersonalInfo] = useState({
-    firstName: personalData?.fullName || "",
-    email: personalData?.email || "",
-    phone: personalData?.phoneNum || "",
-    address: personalData?.address || "",
-  });
+  const [personalInfo, setPersonalInfo] = useState(personalData);
+  const [editable, setEditable] = useState(false);
+  const [supportData, setSupportData] = useState(personalData.supportContact);
   const [companyDetails, setCompanyDetails] = useState({
     companyName: personalData?.companyName || "",
     companyAddress: personalData?.address || "",
   });
-  const [logo, setLogo] = useState(personalData?.companyIcon);
-
-  const [openModal, setOpenModal] = useState(false);
-
+  const [logo, setLogo] = useState(personalInfo?.companyIcon);
+  const [states, setStates] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [validationError, setValidationError] = useState({});
+  console.log(validationError);
   useEffect(() => {
-    setPersonalInfo({
-      firstName: personalData?.fullName || "",
-      email: personalData?.email || "",
-      phone: personalData?.phoneNum || "",
-      address: personalData?.address || "",
-    });
-    setCompanyDetails({
-      companyName: personalData?.companyName || "",
-      companyAddress: personalData?.address || "",
-    });
-  }, [personalData]);
+    // Fetch countries
+    axios
+      .get(`${BASE_URL}/api/countries`)
+      .then((response) => setCountries(response.data))
+      .catch((err) => console.error("Error fetching countries:", err));
 
-  const handleInputChange = (e, stateObj, field, setStateObj) => {
-    setStateObj({ ...stateObj, [field]: e.target.value });
-  };
+    // Fetch states based on the default country (India)
+    axios
+      .get(`${BASE_URL}/api/states?country=India`)
+      .then((response) => setStates(response.data))
+      .catch((err) => console.error("Error fetching states:", err));
+  }, []);
 
   const handleLogoUpload = (event) => {
     const file = event.target.files[0];
@@ -57,6 +58,78 @@ function PersonalDetails({ personalData }) {
       const logoURL = URL.createObjectURL(file);
       setLogo(logoURL);
     }
+  };
+
+  const handleeditVendor = async () => {
+    try {
+      if (supportData.email || supportData.phone) {
+        personalInfo.supportContact = supportData;
+      } else {
+        delete personalInfo.supportContact;
+      }
+      // Validate the data
+      await vendorUpdateSchema.validate(personalInfo, { abortEarly: false });
+      const {
+        PAN,
+        GSTIN,
+        bankDetails,
+        salesData,
+        _id,
+        KycProvidedDetails,
+        isBlocked,
+        isVerified,
+        createdAt,
+        updatedAt,
+        isEmailVerified,
+        __v,
+        companyIcon,
+        verificationRemarks,
+        ...others
+      } = personalInfo;
+      const token = localStorage.getItem("token");
+      toast.loading("Updating profile");
+      const response = await axios.put(
+        `${BASE_URL}/api/vendor/update-details`,
+        others, // API endpoint
+        {
+          headers: {
+            authorization: `Bearer ${token}`, // Include token for authentication
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setValidationError({});
+      console.log("Vendor updated successfully:", response.data);
+      toast.dismiss();
+      toast.success("Profile updated successfully");
+      setEditable(false);
+    } catch (err) {
+      toast.dismiss();
+      if (err.name === "ValidationError") {
+        const errorMessages = err.inner.reduce((acc, curr) => {
+          acc[curr.path] = curr.message;
+          return acc;
+        }, {});
+        setValidationError(errorMessages);
+      } else {
+        toast.error(err.response?.data?.message || "An error occurred.");
+      }
+    }
+  };
+
+  console.log(personalInfo);
+  const handleChange = (e) => {
+    console.log("first");
+    const { value, name } = e.target;
+    console.log(value, name);
+    setPersonalInfo({ ...personalInfo, [name]: value });
+  };
+  console.log(supportData);
+  const handleChangeSupport = (e) => {
+    console.log("first");
+    const { value, name } = e.target;
+    console.log(value, name);
+    setSupportData({ ...supportData, [name]: value });
   };
 
   const handleSaveLogo = () => {
@@ -74,12 +147,6 @@ function PersonalDetails({ personalData }) {
 
   const handleToggleEdit = () => {
     setOpenModal(true);
-  };
-
-  const handleSaveDetails = () => {
-    console.log("Personal Info saved:", personalInfo);
-    console.log("Company Details saved:", companyDetails);
-    setOpenModal(false);
   };
 
   return (
@@ -229,25 +296,169 @@ function PersonalDetails({ personalData }) {
             }}
           >
             {[
-              { label: "Company Name", value: personalData.companyName },
-              { label: "Full Name", value: personalData.fullName },
-              { label: "Email", value: personalData.email },
-              { label: "Phone Number", value: personalData.phoneNum },
-              { label: "Address", value: personalData.address },
-              { label: "Zip Code", value: personalData.zipCode },
-              { label: "City", value: personalData.city },
-              { label: "State", value: personalData.state.name },
-              { label: "Country", value: personalData.country.name },
+              {
+                label: "Company Name",
+                value: personalInfo.companyName,
+                name: "companyName",
+                handleChange,
+                editable,
+                error: validationError.companyName,
+              },
+              {
+                label: "Full Name",
+                value: personalInfo.fullName,
+                name: "fullName",
+                handleChange,
+                editable,
+                error: validationError.fullName,
+              },
+              {
+                label: "Email",
+                value: personalInfo.email,
+                name: "email",
+                handleChange,
+                editable: false,
+                error: validationError.email,
+              },
+              {
+                label: "Phone Number",
+                value: personalInfo.phoneNum,
+                name: "phoneNum",
+                handleChange,
+                editable,
+                type: "number",
+                error: validationError.phoneNum,
+              },
+              {
+                label: "Address",
+                value: personalInfo.address,
+                name: "address",
+                handleChange,
+                editable,
+                error: validationError.address,
+              },
+              {
+                label: "Zip Code",
+                value: personalInfo.zipCode,
+                name: "zipCode",
+                handleChange,
+                editable,
+                type: "number",
+                error: validationError.zipCode,
+              },
+              {
+                label: "Website",
+                value: personalInfo.website || "",
+                name: "website",
+                handleChange,
+                editable,
+                error: validationError.website,
+              },
+              {
+                label: "Support mail",
+                value: supportData.email || "",
+                name: "email",
+                handleChange: handleChangeSupport,
+                editable,
+                error: validationError["supportContact.email"],
+              },
+              {
+                label: "Support phone number",
+                value: supportData.phone || "",
+                name: "phone",
+                handleChange: handleChangeSupport,
+                editable,
+                type: "number",
+                error: validationError["supportContact.phone"],
+              },
+              {
+                label: "City",
+                value: personalInfo.city,
+                name: "city",
+                handleChange,
+                editable,
+                error: validationError.city,
+              },
             ].map((field) => (
-              <CustomInput key={field.label} small={true} {...field} />
+              <CustomInput
+                error={field.error}
+                key={field.label}
+                small={true}
+                label={field.label}
+                value={field.value}
+                name={field.name}
+                readOnly={!field.editable}
+                onChange={field.handleChange}
+                type={field.type}
+              />
+            ))}
+            {[
+              {
+                label: "Country",
+                value: personalInfo.country,
+                name: "country",
+                handleChange,
+                editable,
+                menuItems: countries,
+                error: validationError.country,
+              },
+              {
+                label: "State",
+                value: personalInfo.state,
+                name: "state",
+                handleChange,
+                editable,
+                menuItems: states,
+                error: validationError.state,
+              },
+            ].map((field) => (
+              <CustomSelect
+                error={field.error}
+                small={true}
+                key={field.label}
+                label={field.label}
+                value={field.value}
+                name={field.name}
+                readOnly={!field.editable}
+                onChange={field.handleChange}
+                MenuItems={field.menuItems}
+              />
             ))}
           </Box>
-          <Box sx={{ textAlign: "right", marginTop: "20px" }}>
-            <CustomButton
-              onClick={handleToggleEdit}
-              label="Edit Details"
-              icon={<ModeEditIcon sx={{ marginRight: "8px" }} />}
-            />
+          <Box
+            sx={{
+              textAlign: "right",
+              marginTop: "20px",
+              display: "flex",
+              gap: "20px",
+            }}
+          >
+            {!editable && (
+              <CustomButton
+                onClick={() => setEditable(true)}
+                label="Edit Details"
+                icon={<ModeEditIcon sx={{ marginRight: "8px" }} />}
+              />
+            )}
+            {editable && (
+              <Stack direction={"row"} spacing={2}>
+                <CustomButton
+                  onClick={handleeditVendor}
+                  label="Save"
+                  icon={<SaveIcon sx={{ marginRight: "8px" }} />}
+                />
+                <CustomButton
+                  onClick={() => {
+                    setPersonalInfo(personalData);
+                    setSupportData(personalData.supportContact);
+                    setEditable(false);
+                    setValidationError({});
+                  }}
+                  label="Cancel"
+                  variant="outlined"
+                />
+              </Stack>
+            )}
           </Box>
         </Box>
       </Box>

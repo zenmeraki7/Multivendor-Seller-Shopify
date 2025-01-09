@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./SellerPro.css";
-import { Box, Typography, Grid, Tabs, Tab } from "@mui/material";
+import { Box, Typography, Grid, Tabs, Tab, Alert } from "@mui/material";
 import axios from "axios";
 import PersonalDetails from "../../components/PersonalDetails";
 import Document from "../../components/Document";
@@ -72,7 +72,7 @@ function SellerPro() {
           }}
         >
           {/* Title */}
-          <Typography
+          {/* <Typography
             variant="h4"
             sx={{
               fontWeight: "bold",
@@ -86,7 +86,7 @@ function SellerPro() {
             }}
           >
             Seller Profile
-          </Typography>
+          </Typography> */}
 
           {/* Subtitle */}
           <Typography
@@ -102,6 +102,39 @@ function SellerPro() {
             information, and more from here.
           </Typography>
         </Box>
+        {!loading && !data?.user.isVerified && (
+          <Box sx={{ width: "100%", marginY: 2 }}>
+            <Alert severity="info" sx={{ borderRadius: 2 }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                Thank you for your registration! Your request is currently under
+                review. Please note that your registration has not been approved
+                yet. We will notify you once your profile has been reviewed and
+                approved by our admin team. We appreciate your patience and
+                understanding.
+              </Typography>
+            </Alert>
+          </Box>
+        )}
+        {!loading && !data?.user?.KycProvidedDetails?.bankDetails && (
+          <Box sx={{ width: "100%", marginBottom: 2 }}>
+            <Alert severity="warning" sx={{ borderRadius: 2 }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                Please provide your bank information to complete your
+                registration and await admin approval.
+              </Typography>
+            </Alert>
+          </Box>
+        )}
+        {!loading && !data?.user?.KycProvidedDetails?.PAN && (
+          <Box sx={{ width: "100%", marginBottom: 2 }}>
+            <Alert severity="warning" sx={{ borderRadius: 2 }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                Please provide your PAN and GSTIN information to complete your
+                registration and await admin approval.
+              </Typography>
+            </Alert>
+          </Box>
+        )}
 
         <Box sx={{ width: "100%" }}>
           <Tabs

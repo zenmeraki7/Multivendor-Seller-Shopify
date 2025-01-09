@@ -12,10 +12,14 @@ function CustomInput({
   required = true,
   error,
   small,
+  readOnly = false,
 }) {
   return (
     <Stack sx={{ flex: 1 }}>
       <TextField
+        InputProps={{
+          readOnly: readOnly,
+        }}
         id={id}
         name={name}
         label={label}
