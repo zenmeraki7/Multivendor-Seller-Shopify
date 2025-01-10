@@ -16,12 +16,12 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Grid from "@mui/material/Grid"; // Ensure Grid is imported correctly
-import CustomInput from "./SharedComponents/CustomInput";
-import CustomButton from "./SharedComponents/CustomButton";
-import CustomSelect from "./SharedComponents/CustomSelect";
+import CustomInput from "../SharedComponents/CustomInput";
+import CustomButton from "../SharedComponents/CustomButton";
+import CustomSelect from "../SharedComponents/CustomSelect";
 import axios from "axios";
-import { BASE_URL } from "../utils/baseUrl";
-import { vendorUpdateSchema } from "../utils/vendorUpdateValidation";
+import { BASE_URL } from "../../utils/baseUrl";
+import { vendorUpdateSchema } from "../../utils/vendorUpdateValidation";
 import toast from "react-hot-toast";
 
 function PersonalDetails({ personalData }) {
@@ -29,11 +29,9 @@ function PersonalDetails({ personalData }) {
   const [personalInfo, setPersonalInfo] = useState(personalData);
   const [editable, setEditable] = useState(false);
   const [supportData, setSupportData] = useState(personalData.supportContact);
-  const [companyDetails, setCompanyDetails] = useState({
-    companyName: personalData?.companyName || "",
-    companyAddress: personalData?.address || "",
-  });
-  const [logo, setLogo] = useState(personalInfo?.companyIcon);
+  const [logo, setLogo] = useState(null);
+  const [logoUrl, setLogoUrl] = useState(personalInfo?.companyIcon || "");
+  console.log(logoUrl, "lgogo");
   const [states, setStates] = useState([]);
   const [countries, setCountries] = useState([]);
   const [validationError, setValidationError] = useState({});
@@ -56,7 +54,42 @@ function PersonalDetails({ personalData }) {
     const file = event.target.files[0];
     if (file) {
       const logoURL = URL.createObjectURL(file);
-      setLogo(logoURL);
+      setLogoUrl(logoURL);
+      setLogo(file);
+    }
+  };
+
+  const uploadCompanyIcon = async () => {
+    if (logo && logo instanceof File) {
+      const formData = new FormData();
+      if (logo) {
+        formData.append("image", logo);
+      }
+      const token = localStorage.getItem("token");
+      try {
+        toast.loading("updating logo");
+        const response = await axios.put(
+          `${BASE_URL}/api/vendor/update-company-logo`,
+          formData, // API endpoint
+          {
+            headers: {
+              authorization: `Bearer ${token}`, // Include token for authentication
+              "Content-Type": "multipart-form/data",
+            },
+          }
+        );
+        console.log(response.data);
+        console.log("company logo updated successfully:", response.data);
+        toast.dismiss();
+        setLogo(null);
+        toast.success("Company logo updated successfully");
+      } catch (err) {
+        console.log(err);
+        toast.dismiss();
+        toast.error(err.response?.data?.message || "An error occurred.");
+      }
+    } else {
+      toast.error("please upload logo");
     }
   };
 
@@ -198,9 +231,9 @@ function PersonalDetails({ personalData }) {
               backgroundColor: "#f5f5f5",
             }}
           >
-            {logo ? (
+            {logoUrl ? (
               <img
-                src={logo}
+                src={logoUrl}
                 alt="Logo"
                 style={{
                   width: "100%",
@@ -241,7 +274,7 @@ function PersonalDetails({ personalData }) {
             {logo && (
               <>
                 <SaveIcon
-                  onClick={handleSaveLogo}
+                  onClick={uploadCompanyIcon}
                   sx={{
                     fontSize: "36px",
                     color: "#fff",
@@ -252,7 +285,10 @@ function PersonalDetails({ personalData }) {
                   }}
                 />
                 <DeleteIcon
-                  onClick={handleDeleteLogo}
+                  onClick={() => {
+                    setLogoUrl(personalData.companyIcon || "");
+                    setLogo(null);
+                  }}
                   sx={{
                     fontSize: "36px",
                     color: "#fff",

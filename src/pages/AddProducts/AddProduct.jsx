@@ -1,8 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
 import JoditEditor from "jodit-react";
-import AddVariant from "../../components/AddVariant";
-import TextField from "@mui/material/TextField";
-import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import {
   Select,
   MenuItem,
