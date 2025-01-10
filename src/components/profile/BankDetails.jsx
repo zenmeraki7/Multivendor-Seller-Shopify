@@ -3,9 +3,9 @@ import { Box, Typography, Stack, TextField, Modal } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
-import CustomInput from "./SharedComponents/CustomInput";
+import CustomInput from "../SharedComponents/CustomInput";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CustomButton from "./SharedComponents/CustomButton";
+import CustomButton from "../SharedComponents/CustomButton";
 
 function BankDetails({ bankDetails }) {
   const [isModalOpen, setIsModalOpen] = useState(false);

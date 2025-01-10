@@ -5,13 +5,12 @@ import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/PrivateRoute";
 import Register from "./pages/Register/Register";
 import Login from "./pages/Login/Login";
-import AddProduct from "./pages/AddProducts/AddProduct";
-import AddVariant from "./components/AddVariant";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SellerPro from "./pages/SellerProfile/SellerPro";
 import ProductList from "./pages/ProductList";
 import { Toaster } from "react-hot-toast";
 import EditProduct from "./pages/EditProducts/EditProduct";
+import AddProduct from "./pages/AddProducts/AddProduct";
 import ManageVariants from "./pages/ManageVariants/ManageVariants";
 
 function App() {
@@ -43,8 +42,6 @@ function App() {
             element={<PrivateRoute component={<SellerPro />} />}
           />
         </Route>
-
-        <Route path="add-variant" element={<AddVariant />} />
       </Routes>
     </>
   );

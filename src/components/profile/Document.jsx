@@ -3,8 +3,8 @@ import { Box, Typography, Modal, Stack, TextField } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
-import CustomInput from "./SharedComponents/CustomInput";
-import CustomButton from "./SharedComponents/CustomButton";
+import CustomInput from "../SharedComponents/CustomInput";
+import CustomButton from "../SharedComponents/CustomButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 function Document({ document }) {

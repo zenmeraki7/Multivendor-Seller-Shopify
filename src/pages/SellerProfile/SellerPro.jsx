@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import "./SellerPro.css";
 import { Box, Typography, Grid, Tabs, Tab, Alert } from "@mui/material";
 import axios from "axios";
-import PersonalDetails from "../../components/PersonalDetails";
-import Document from "../../components/Document";
-import BankDetails from "../../components/BankDetails";
+import PersonalDetails from "../../components/profile/PersonalDetails";
+import Document from "../../components/profile/Document";
+import BankDetails from "../../components/profile/BankDetails";
 import { BASE_URL } from "../../utils/baseUrl";
 
 function SellerPro() {
