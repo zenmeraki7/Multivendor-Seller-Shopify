@@ -222,17 +222,6 @@ function BankDetails({ bankDetails }) {
             </label>
             {image && (
               <>
-                <SaveIcon
-                  // onClick={uploadCompanyIcon}
-                  sx={{
-                    fontSize: "36px",
-                    color: "#fff",
-                    cursor: "pointer",
-                    background: "linear-gradient(45deg, #556cd6, #19857b)",
-                    padding: "8px",
-                    borderRadius: "50%",
-                  }}
-                />
                 <DeleteIcon
                   onClick={() => {
                     setImageUrl(bankDetails.documentUrl || "");

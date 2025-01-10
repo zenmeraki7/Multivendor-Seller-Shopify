@@ -6,36 +6,108 @@ import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import CustomInput from "../SharedComponents/CustomInput";
 import CustomButton from "../SharedComponents/CustomButton";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { BASE_URL } from "../../utils/baseUrl";
+import axios from "axios";
+import * as Yup from "yup";
+import toast from "react-hot-toast";
+
+const documentValidationSchema = Yup.object({
+  gstinNumber: Yup.string()
+    .required("GSTIN Document Number is required")
+    .matches(/^[A-Z0-9]{15}$/, "Invalid GSTIN format"),
+  panNumber: Yup.string()
+    .required("PAN Card Document Number is required")
+    .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"),
+  // gstinDocumentImage: Yup.mixed()
+  //   .test(
+  //     "fileSize",
+  //     "File size is too large. Max 5MB",
+  //     (value) => value && value.size <= 5242880 // Ensure `value` exists
+  //   )
+  //   .optional(),
+  // panCardDocumentImage: Yup.mixed()
+  //   .test(
+  //     "fileSize",
+  //     "File size is too large. Max 5MB",
+  //     (value) => value && value.size <= 5242880 // Ensure `value` exists
+  //   )
+  //   .optional(
+
+  //   ),
+});
 
 function Document({ document }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [documentDetails, setDocumentDetails] = useState({
     panNumber: document?.pan?.documentNumber || "",
     gstinNumber: document?.gstin?.documentNumber || "",
-    panImageUrl: document?.pan?.documentUrl || "",
-    gstinImageUrl: document?.gstin?.documentUrl || "",
   });
 
-  const handleInputChange = (event, key) => {
-    const value = event.target.value;
-    setDocumentDetails((prev) => ({ ...prev, [key]: value }));
-  };
+  const [panDoc, setPanDoc] = useState(null);
+  const [panDocUrl, setPanDocUrl] = useState(document?.pan?.documentUrl || "");
+  const [gstinDoc, setGstinDoc] = useState(null);
+  const [gstinDocUrl, setGstinDocUrl] = useState(
+    document?.gstin?.documentUrl || ""
+  );
+  const [editable, setEditable] = useState(false);
+  const [validationError, setValidationError] = useState({});
 
-  const handleFileUpload = (event, key) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setDocumentDetails((prev) => ({ ...prev, [key]: reader.result })); // Base64 encoding
-      };
-      reader.readAsDataURL(file);
+  const handleInputChange = (event) => {
+    const { value, name } = event.target;
+    setDocumentDetails({ ...documentDetails, [name]: value });
+  };
+  console.log(validationError);
+  const handleSubmit = async () => {
+    try {
+      // if (panDoc) {
+      //   documentDetails.panCardDocumentImage = panDoc;
+      // }
+      // if (gstinDoc) {
+      //   documentDetails.gstinDocumentImage = gstinDoc;
+      // }
+      console.log(documentDetails);
+      await documentValidationSchema.validate(documentDetails, {
+        abortEarly: false,
+      });
+      const formData = new FormData();
+      formData.append("panNumber", documentDetails.panNumber);
+      formData.append("gstinNumber", documentDetails.gstinNumber);
+      if (panDoc && panDoc instanceof File) {
+        formData.append("PAN", panDoc);
+      }
+      if (gstinDoc && gstinDoc instanceof File) {
+        formData.append("GSTIN", gstinDoc);
+      }
+      const token = localStorage.getItem("token");
+      toast.loading("Updating document details...");
+      const response = await axios.put(
+        `${BASE_URL}/api/vendor/update-document`,
+        formData, // API endpoint
+        {
+          headers: {
+            authorization: `Bearer ${token}`, // Include token for authentication
+            "Content-Type": "multipart-form/data",
+          },
+        }
+      );
+      setValidationError({});
+      console.log("document details updated successfully:", response.data);
+      toast.dismiss();
+      toast.success("Document details updated successfully");
+      setEditable(false);
+      setPanDoc(null);
+      setGstinDoc(null);
+    } catch (err) {
+      toast.dismiss();
+      if (err.name === "ValidationError") {
+        const errorMessages = err.inner.reduce((acc, curr) => {
+          acc[curr.path] = curr.message;
+          return acc;
+        }, {});
+        setValidationError(errorMessages);
+      } else {
+        toast.error(err.response?.data?.message || "An error occurred.");
+      }
     }
-  };
-
-  const handleSaveDetails = () => {
-    console.log("Updated Document Details:", documentDetails);
-    setIsModalOpen(false);
-    // Add backend integration here
   };
 
   return (
@@ -73,9 +145,12 @@ function Document({ document }) {
             PAN Details
           </Typography>
           <CustomInput
+            error={validationError.panNumber}
             label="PAN Number"
             value={documentDetails.panNumber}
-            onChange={(e) => handleInputChange(e, "panNumber")}
+            name={"panNumber"}
+            readOnly={!editable}
+            onChange={handleInputChange}
           />
           <Box
             sx={{
@@ -87,7 +162,7 @@ function Document({ document }) {
           >
             <img
               src={
-                documentDetails.panImageUrl ||
+                panDocUrl ||
                 "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"
               }
               alt="PAN"
@@ -99,16 +174,25 @@ function Document({ document }) {
                 border: "1px solid #ccc",
               }}
             />
-            <label htmlFor="pan-upload">
-              <input
-                id="pan-upload"
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => handleFileUpload(e, "panImageUrl")}
-              />
-              <>
-                <Stack direction={"row"} spacing={1}>
+            <Box
+              sx={{ display: "flex", justifyContent: "center", gap: "10px" }}
+            >
+              <label>
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  onChange={(event) => {
+                    {
+                      const file = event.target.files[0];
+                      if (file) {
+                        const logoURL = URL.createObjectURL(file);
+                        setPanDocUrl(logoURL);
+                        setPanDoc(file);
+                      }
+                    }
+                  }}
+                />
+                {editable && (
                   <DriveFolderUploadIcon
                     sx={{
                       fontSize: "36px",
@@ -119,17 +203,15 @@ function Document({ document }) {
                       borderRadius: "50%",
                     }}
                   />
-                  <SaveIcon
-                    sx={{
-                      fontSize: "36px",
-                      color: "#fff",
-                      cursor: "pointer",
-                      background: "linear-gradient(45deg, #556cd6, #19857b)",
-                      padding: "8px",
-                      borderRadius: "50%",
-                    }}
-                  />
+                )}
+              </label>
+              {panDoc && (
+                <>
                   <DeleteIcon
+                    onClick={() => {
+                      setPanDocUrl(document?.pan?.documentUrl || "");
+                      setPanDoc(null);
+                    }}
                     sx={{
                       fontSize: "36px",
                       color: "#fff",
@@ -139,9 +221,9 @@ function Document({ document }) {
                       borderRadius: "50%",
                     }}
                   />
-                </Stack>
-              </>
-            </label>
+                </>
+              )}
+            </Box>
           </Box>
         </Box>
 
@@ -159,9 +241,12 @@ function Document({ document }) {
             GSTIN Details
           </Typography>
           <CustomInput
+            error={validationError.gstinNumber}
             label="GSTIN Number"
             value={documentDetails.gstinNumber}
-            onChange={(e) => handleInputChange(e, "gstinNumber")}
+            name={"gstinNumber"}
+            readOnly={!editable}
+            onChange={handleInputChange}
           />
           <Box
             sx={{
@@ -173,7 +258,7 @@ function Document({ document }) {
           >
             <img
               src={
-                documentDetails.gstinImageUrl ||
+                gstinDocUrl ||
                 "https://cdn.pixabay.com/photo/2016/03/31/14/48/sheet-1292828_960_720.png"
               }
               alt="GSTIN"
@@ -185,16 +270,25 @@ function Document({ document }) {
                 border: "1px solid #ccc",
               }}
             />
-            <label htmlFor="gstin-upload">
-              <input
-                id="gstin-upload"
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={(e) => handleFileUpload(e, "gstinImageUrl")}
-              />
-              <>
-                <Stack direction={"row"} spacing={1}>
+            <Box
+              sx={{ display: "flex", justifyContent: "center", gap: "10px" }}
+            >
+              <label>
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  onChange={(event) => {
+                    {
+                      const file = event.target.files[0];
+                      if (file) {
+                        const logoURL = URL.createObjectURL(file);
+                        setGstinDocUrl(logoURL);
+                        setGstinDoc(file);
+                      }
+                    }
+                  }}
+                />
+                {editable && (
                   <DriveFolderUploadIcon
                     sx={{
                       fontSize: "36px",
@@ -205,17 +299,15 @@ function Document({ document }) {
                       borderRadius: "50%",
                     }}
                   />
-                  <SaveIcon
-                    sx={{
-                      fontSize: "36px",
-                      color: "#fff",
-                      cursor: "pointer",
-                      background: "linear-gradient(45deg, #556cd6, #19857b)",
-                      padding: "8px",
-                      borderRadius: "50%",
-                    }}
-                  />
+                )}
+              </label>
+              {gstinDoc && (
+                <>
                   <DeleteIcon
+                    onClick={() => {
+                      setGstinDocUrl(document?.gstin?.documentUrl || "");
+                      setGstinDoc(null);
+                    }}
                     sx={{
                       fontSize: "36px",
                       color: "#fff",
@@ -225,26 +317,55 @@ function Document({ document }) {
                       borderRadius: "50%",
                     }}
                   />
-                </Stack>
-              </>
-            </label>
+                </>
+              )}
+            </Box>
           </Box>
         </Box>
       </Stack>
 
-      {/* Edit & Save Actions */}
-      <Stack
-        direction="row"
-        justifyContent="flex-end"
-        alignItems="center"
-        marginTop="2rem"
+      <Box
+        sx={{
+          textAlign: "right",
+          marginTop: "20px",
+          display: "flex",
+          gap: "20px",
+          justifyContent: "flex-end",
+        }}
       >
-        <CustomButton
-          onClick={() => setIsModalOpen(true)}
-          label="Edit Details"
-          icon={<ModeEditIcon sx={{ marginRight: "8px" }} />}
-        />
-      </Stack>
+        {!editable && (
+          <CustomButton
+            onClick={() => setEditable(true)}
+            label="Edit Details"
+            icon={<ModeEditIcon sx={{ marginRight: "8px" }} />}
+          />
+        )}
+        {editable && (
+          <Stack direction={"row"} spacing={2}>
+            <CustomButton
+              onClick={handleSubmit}
+              label="Save"
+              icon={<SaveIcon sx={{ marginRight: "8px" }} />}
+            />
+            <CustomButton
+              onClick={() => {
+                setDocumentDetails({
+                  panNumber: document?.pan?.documentNumber || "",
+                  gstinNumber: document?.gstin?.documentNumber || "",
+                });
+                setEditable(false);
+                setValidationError({});
+                setGstinDocUrl(document?.gstin?.documentUrl || "");
+                setGstinDoc(null);
+                setPanDocUrl(document?.pan?.documentUrl || "");
+                setPanDoc(null);
+              }}
+              label="Cancel"
+              variant="outlined"
+            />
+          </Stack>
+        )}
+      </Box>
     </Box>
   );
 }
