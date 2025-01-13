@@ -23,7 +23,7 @@ import { PhotoCamera } from "@mui/icons-material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import axios from "axios";
 import { BASE_URL } from "../../utils/baseUrl";
@@ -71,7 +71,6 @@ const validationSchema = Yup.object().shape({
 });
 
 const ManageVariants = () => {
-  const { state } = useLocation();
   const { id, title } = useParams();
 
   const [variants, setVariants] = useState();
@@ -222,7 +221,6 @@ const ManageVariants = () => {
     );
     setOpenEditModal(false);
   };
-  console.log(id, title, state);
   // Handle Delete Dialog
   const handleDelete = (variant) => {
     setVariantToDelete(variant);

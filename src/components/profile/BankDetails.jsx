@@ -156,7 +156,7 @@ function BankDetails({ bankDetails }) {
                 onChange={handleInputChange}
               />
             </Stack>
-            <Stack spacing={3} flex={1}>
+            <Stack spacing={2} flex={1}>
               <CustomInput
                 error={validationError.ifscCode}
                 label="IFSC Code"
