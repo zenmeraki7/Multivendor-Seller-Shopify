@@ -1,18 +1,14 @@
 import React, { useState, useCallback, useEffect } from "react";
 import JoditEditor from "jodit-react";
+import SaveIcon from "@mui/icons-material/Save";
+import { Box, Typography, Card, CardMedia, Button, Stack } from "@mui/material"; // Import MUI components for select fields
 import {
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  Divider,
-  Box,
-  Typography,
-  Card,
-  CardMedia,
-  Button,
-  Stack,
-} from "@mui/material"; // Import MUI components for select fields
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 import { Switch, FormControlLabel } from "@mui/material";
 import axios from "axios";
 import CustomInput from "../../components/SharedComponents/CustomInput";
@@ -20,13 +16,18 @@ import CustomSelect from "../../components/SharedComponents/CustomSelect";
 import IconButton from "@mui/material/IconButton";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { productCreationSchema } from "../../utils/productValidationSchema";
+import {
+  productCreationSchema,
+  productUpdatetionSchema,
+} from "../../utils/productValidationSchema";
 import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
+import CustomButton from "../../components/SharedComponents/CustomButton";
 
 function EditProduct() {
   const { id } = useParams();
+  const [editable, setEditable] = useState(false);
   const [thumbnail, setThumbnail] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [productImages, setProductImages] = useState([null, null, null, null]);
@@ -74,6 +75,52 @@ function EditProduct() {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [product, setProduct] = useState(null);
+  const [imagesIndexes, setImagesIndexes] = useState([]);
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const handleCancel = () => {
+    setOpen(false);
+  };
+  const handleDiscard = () => {
+    setOpen(false);
+    setFormData({
+      title: product.title,
+      description: product.description,
+      brand: product.brand,
+      category: product.category?._id,
+      categoryType: product.categoryType?._id,
+      subcategory: product.subcategory?._id,
+      price: product.price,
+      discountedPrice: product.discountedPrice,
+      stock: product.stock,
+      tags: product.tags?.join(","),
+      shippingDetails: {
+        weight: product.shippingDetails.weight,
+        freeShipping: product.shippingDetails?.freeShipping,
+        shippingCharge: product.shippingDetails?.shippingCharge || 0,
+      },
+      returnPolicy: {
+        isReturnable: product.returnPolicy.isReturnable,
+        returnWindow: product.returnPolicy.returnWindow,
+      },
+      meta: {
+        title: product.meta.title,
+        description: product.meta.description,
+        keywords: product.meta.keywords.join(","),
+      },
+    });
+    setFeatures(product.specifications);
+    setIsFreeShipping(product.shippingDetails.freeShipping);
+    setIsReturnPolicyEnabled(product.returnPolicy.isReturnable);
+    setThumbnailPreview(product.thumbnail.url);
+    setProductImagePreviews(product.images.map((item) => item.url));
+    setEditable(false);
+    setErrors({});
+    setThumbnail(null);
+    setProductImages([null, null, null, null]);
+  };
 
   const fetchProductData = async () => {
     try {
@@ -187,25 +234,35 @@ function EditProduct() {
       setThumbnailPreview(URL.createObjectURL(file));
     }
   };
-
+  console.log(imagesIndexes, "imgInd");
+  console.log(productImages, "proImg");
   const handleProductImageChange = (event, index) => {
     const file = event.target.files[0];
     if (file) {
       const updatedImages = [...productImages];
       updatedImages[index] = file;
       setProductImages(updatedImages);
+      // let filteredArray = [];
+      // if (imagesIndexes.includes(index)) {
+      //   filteredArray = imagesIndexes.filter((item) => item !== index);
+      //   filteredArray.push(index);
+      // } else {
+      //   filteredArray.push(index);
+      // }
+      if (!imagesIndexes.includes(index)) {
+        setImagesIndexes([...imagesIndexes, index]);
+      } else {
+        setImagesIndexes([
+          ...imagesIndexes.filter((item) => item != index),
+          index,
+        ]);
+      }
 
       const updatedPreviews = [...productImagePreviews];
       updatedPreviews[index] = URL.createObjectURL(file);
       setProductImagePreviews(updatedPreviews);
     }
   };
-
-  const handleAddImageField = () => {
-    setProductImages([...productImages, null]);
-    setProductImagePreviews([...productImagePreviews, null]);
-  };
-
   // Handling form field changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -246,7 +303,7 @@ function EditProduct() {
       },
     });
   };
-  console.log(formData);
+  console.log("form data", formData);
   // Handle adding a new specification
   const handleAddFeature = () => {
     setFeatures([...features, { key: "", value: "" }]);
@@ -260,16 +317,16 @@ function EditProduct() {
   console.log(errors);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validImageArr = productImages.filter((item) => item != null);
+    // const validImageArr = productImages.filter((item) => item != null);
 
     try {
       // Validate form data using Yup schema
-      await productCreationSchema.validate(
+      await productUpdatetionSchema.validate(
         {
           ...formData,
           specifications: features,
-          thumbnail,
-          images: validImageArr,
+          // thumbnail,
+          // images: validImageArr,
         },
         { abortEarly: false }
       );
@@ -301,20 +358,21 @@ function EditProduct() {
       );
       formDataToSend.append("specifications", JSON.stringify(features));
       formDataToSend.append("meta", JSON.stringify(formData.meta));
-      formDataToSend.append("thumbnail", thumbnail);
+      if (thumbnail) formDataToSend.append("thumbnail", thumbnail);
 
       // Append images only if they are valid (not null)
-      validImageArr.forEach((img) => {
+      productImages.forEach((img, index) => {
         formDataToSend.append("images", img);
+        img !== null && formDataToSend.append(`imageIndex`, index); // Index reference
       });
 
       // Show a toast notification while submitting
-      toast.loading("Creating product...");
+      toast.loading("Updating product...");
 
       // Make API call using FormData
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${BASE_URL}/api/product/create`,
+        `${BASE_URL}/api/product/update/${id}`,
         formDataToSend,
         {
           headers: {
@@ -326,9 +384,11 @@ function EditProduct() {
 
       // Handle successful product creation
       toast.dismiss();
-      toast.success("Product created successfully!");
-      console.log("Product created successfully:", response.data);
+      handleClose();
+      toast.success("Product Updated successfully!");
+      console.log("Product Updated successfully:", response.data);
     } catch (error) {
+      handleClose();
       console.log(error);
       if (error.name === "ValidationError") {
         // Map Yup validation errors to state
@@ -344,7 +404,7 @@ function EditProduct() {
         toast.dismiss();
         toast.error(
           error.response?.data?.message ||
-            "An error occurred while creating product."
+            "An error occurred while updating product."
         );
       }
     }
@@ -360,9 +420,7 @@ function EditProduct() {
         <Button
           variant="outlined"
           onClick={() =>
-            navigate(`/manage-variant/${product._id}/${product.title}`, {
-              state: product.variants,
-            })
+            navigate(`/manage-variant/${product._id}/${product.title}`)
           }
         >
           Manage variants
@@ -820,9 +878,43 @@ function EditProduct() {
           }
         />
       </div>
-      <Button variant="contained" onClick={handleSubmit}>
-        Save
-      </Button>
+      <Box
+        sx={{
+          textAlign: "right",
+          marginTop: "20px",
+          display: "flex",
+          gap: "20px",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Stack direction={"row"} spacing={2}>
+          <CustomButton
+            onClick={handleOpen}
+            label="Save"
+            icon={<SaveIcon sx={{ marginRight: "8px" }} />}
+          />
+        </Stack>
+      </Box>
+
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Confirm Edit</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to save these changes?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDiscard} color="secondary">
+            Discard
+          </Button>
+          <Button onClick={handleCancel} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} color="primary" autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

@@ -20,17 +20,13 @@ function CustomSelect({
   readOnly = false,
 }) {
   return (
-    <Stack sx={{ marginBottom: "15px", flex: 1 }}>
+    <Stack sx={{ marginY: "5px", flex: 1 }}>
       <FormControl
         fullWidth
         size={small && "small"}
         variant="outlined"
-        style={{ marginTop: "5px" }}
         required={required}
         sx={{
-          marginTop: "5px",
-          marginBottom: "15px",
-
           "& .MuiOutlinedInput-root": {
             borderRadius: "12px",
             transition: "border 0.3s ease, background 0.3s ease",
