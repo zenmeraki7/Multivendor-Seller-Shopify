@@ -419,14 +419,24 @@ function EditProduct() {
     >
       <Stack direction="row" justifyContent={"space-between"}>
         <h3>View and Edit Product</h3>
-        <Button
-          variant="outlined"
-          onClick={() =>
-            navigate(`/manage-variant/${product._id}/${product.title}`)
-          }
-        >
-          Manage variants
-        </Button>
+        <Stack direction={"row"} spacing={2}>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              navigate(`/manage-variant/${product._id}/${product.title}`)
+            }
+          >
+            Manage variants
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              navigate(`/manage-offers/${product._id}/${product.title}`)
+            }
+          >
+            Manage offers
+          </Button>
+        </Stack>
       </Stack>
       <br />
       <div style={{ display: "flex", gap: "10px" }}>
