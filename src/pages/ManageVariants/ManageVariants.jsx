@@ -285,7 +285,7 @@ const ManageVariants = () => {
                 <TableRow key={variant._id}>
                   <TableCell>{variant.attribute}</TableCell>
                   <TableCell>{variant.value}</TableCell>
-                  <TableCell>${variant.additionalPrice}</TableCell>
+                  <TableCell> ₹{variant.additionalPrice}</TableCell>
                   <TableCell>{variant.stock}</TableCell>
                   <TableCell>
                     <img

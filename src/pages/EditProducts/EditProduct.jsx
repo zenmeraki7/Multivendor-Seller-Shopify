@@ -361,10 +361,12 @@ function EditProduct() {
       if (thumbnail) formDataToSend.append("thumbnail", thumbnail);
 
       // Append images only if they are valid (not null)
+      let imageIndex = [];
       productImages.forEach((img, index) => {
         formDataToSend.append("images", img);
-        img !== null && formDataToSend.append(`imageIndex`, index); // Index reference
+        img !== null && imageIndex.push(index); // Index reference
       });
+      formDataToSend.append(`imageIndex`, JSON.stringify(imageIndex)); // Index reference
 
       // Show a toast notification while submitting
       toast.loading("Updating product...");
@@ -417,14 +419,24 @@ function EditProduct() {
     >
       <Stack direction="row" justifyContent={"space-between"}>
         <h3>View and Edit Product</h3>
-        <Button
-          variant="outlined"
-          onClick={() =>
-            navigate(`/manage-variant/${product._id}/${product.title}`)
-          }
-        >
-          Manage variants
-        </Button>
+        <Stack direction={"row"} spacing={2}>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              navigate(`/manage-variant/${product._id}/${product.title}`)
+            }
+          >
+            Manage variants
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() =>
+              navigate(`/manage-offers/${product._id}/${product.title}`)
+            }
+          >
+            Manage offers
+          </Button>
+        </Stack>
       </Stack>
       <br />
       <div style={{ display: "flex", gap: "10px" }}>

@@ -12,6 +12,7 @@ import { Toaster } from "react-hot-toast";
 import EditProduct from "./pages/EditProducts/EditProduct";
 import AddProduct from "./pages/AddProducts/AddProduct";
 import ManageVariants from "./pages/ManageVariants/ManageVariants";
+import ManageOffers from "./pages/ManageOffers/ManageOffers";
 
 function App() {
   return (
@@ -31,6 +32,10 @@ function App() {
           <Route
             path="manage-variant/:id/:title"
             element={<PrivateRoute component={<ManageVariants />} />}
+          />
+          <Route
+            path="manage-offers/:id/:title"
+            element={<PrivateRoute component={<ManageOffers />} />}
           />
           <Route
             path="view-product/:id"
