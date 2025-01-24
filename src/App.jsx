@@ -13,6 +13,7 @@ import EditProduct from "./pages/EditProducts/EditProduct";
 import AddProduct from "./pages/AddProducts/AddProduct";
 import ManageVariants from "./pages/ManageVariants/ManageVariants";
 import ManageOffers from "./pages/ManageOffers/ManageOffers";
+import OrderDetails from "./pages/OrderDetails";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         {/* Wrap all pages inside Layout to ensure header/footer are present */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
+          <Route path="/orders" element={<OrderDetails/>}/>
           <Route
             path="add-product"
             element={<PrivateRoute component={<AddProduct />} />}
@@ -47,6 +49,7 @@ function App() {
             element={<PrivateRoute component={<SellerPro />} />}
           />
         </Route>
+     
       </Routes>
     </>
   );
