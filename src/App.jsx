@@ -16,6 +16,8 @@ import ManageOffers from "./pages/ManageOffers/ManageOffers";
 import OrderDetails from "./pages/OrderDetails";
 import Welcome from "./pages/Welcome";
 import Footer from "./components/Footer";
+import Commission from "./pages/Commission/Commission";
+import Privacy from "./pages/Privacy/Privacy";
 
 function App() {
   return (
@@ -25,18 +27,18 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route
-  path="/welcome"
-  element={
-    <>
-      <Welcome />
-      <Footer />
-    </>
-  }
-/>
+          path="/"
+          element={
+            <>
+              <Welcome />
+              <Footer />
+            </>
+          }
+        />
         {/* Wrap all pages inside Layout to ensure header/footer are present */}
-        <Route path="/" element={<Layout />}>
+        <Route path="/dashboard" element={<Layout />}>
           <Route index element={<Dashboard />} />
-          <Route path="/orders" element={<OrderDetails />} />
+          <Route path="orders" element={<OrderDetails />} />
           <Route
             path="add-product"
             element={<PrivateRoute component={<AddProduct />} />}
@@ -53,11 +55,19 @@ function App() {
             path="view-product/:id"
             element={<PrivateRoute component={<EditProduct />} />}
           />
-          <Route path="/product-list" element={<ProductList />} />
+          <Route path="product-list" element={<ProductList />} />
           <Route
-            path="/sellers"
+            path="sellers"
             element={<PrivateRoute component={<SellerPro />} />}
           />
+          <Route
+           path='commission' 
+           element={<PrivateRoute component={<Commission/>} />} />
+           <Route
+           path='privacy'
+           element={<PrivateRoute component={<Privacy/>} />}
+
+           />
         </Route>
       </Routes>
     </>

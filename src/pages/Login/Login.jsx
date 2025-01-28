@@ -15,7 +15,7 @@ function Login() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    token && navigate("/");
+    token && navigate("/dashboard");
   }, []);
 
   const handleLogin = async (e) => {
