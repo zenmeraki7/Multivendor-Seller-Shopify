@@ -15,8 +15,8 @@ function CustomInput({
   readOnly = false,
 }) {
   return (
-    <Stack sx={{ flex: 1 }}>
-      <TextField
+    <Stack sx={{ flex: 1, width: "100%" }}>     
+     <TextField
         InputProps={{
           readOnly: readOnly,
         }}

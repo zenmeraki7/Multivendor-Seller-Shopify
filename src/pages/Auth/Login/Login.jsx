@@ -2,9 +2,17 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { keyframes } from "@emotion/react"; // Import keyframes from Emotion
 import "./Login.css";
-import signinImage from "../../assets/signin.avif";
-import { BASE_URL } from "../../utils/baseUrl";
+
+import { BASE_URL } from "../../../utils/baseUrl";
+
+// Define the gradient animation
+const gradientAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
 
 function Login() {
   const navigate = useNavigate();
@@ -55,16 +63,21 @@ function Login() {
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    navigate("/forget-pwd");
+    navigate("/forgot-password");
   };
 
   return (
     <motion.div
       className="auth-container"
-      initial={{ opacity: 0, x: 100 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -100 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
+      style={{
+        background: "linear-gradient(-45deg, #f3e5f5, #fff3e0, #f3e5f5, #fff3e0)",
+        backgroundSize: "400% 400%",
+        animation: `${gradientAnimation} 10s ease infinite`,
+      }}
     >
       <motion.div
         className="auth-card"
@@ -74,7 +87,7 @@ function Login() {
       >
         <div className="auth-left">
           <motion.img
-            src={signinImage}
+            src="https://cdn.dribbble.com/users/1785628/screenshots/5676620/media/e8349cbaee4a18d613941c2cc7f70129.gif"
             alt="Sign In"
             initial={{ scale: 1.1 }}
             animate={{ scale: 1 }}
@@ -88,10 +101,27 @@ function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Sign In
+            Log in to your Account
           </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="subtitle"
+          >
+            Welcome back!
+          </motion.p>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && (
+            <motion.div
+              className="error-message"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {error}
+            </motion.div>
+          )}
 
           <motion.form
             initial={{ opacity: 0, y: 20 }}
@@ -102,7 +132,7 @@ function Login() {
             <div className="form-group">
               <input
                 type="email"
-                placeholder="Email Address"
+                placeholder="Email"
                 className="form-control"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -128,15 +158,11 @@ function Login() {
               whileTap={{ scale: 0.95 }}
               disabled={loading}
             >
-              {loading ? "Logging in..." : "CONTINUE"}
+              {loading ? "Logging in..." : "Log in"}
             </motion.button>
 
-            <div
-              className="forgot-password"
-              onClick={handleForgotPassword}
-              style={{ cursor: "pointer", color: "#0072ff", marginTop: "10px" }}
-            >
-              Forget Password?
+            <div className="forgot-password" onClick={handleForgotPassword}>
+              Forgot Password?
             </div>
           </motion.form>
 
@@ -149,7 +175,7 @@ function Login() {
             <p>
               Don't have an account?{" "}
               <a href="#" onClick={handleSignUp}>
-                Sign Up
+                Create an account
               </a>
             </p>
           </motion.div>
