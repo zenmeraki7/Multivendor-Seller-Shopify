@@ -15,6 +15,8 @@ import ManageVariants from "./pages/ManageVariants/ManageVariants";
 import ManageOffers from "./pages/ManageOffers/ManageOffers";
 import OrderDetails from "./pages/OrderDetails";
 import Welcome from "./pages/Welcome";
+import Footer from "./components/Footer";
+
 function App() {
   return (
     <>
@@ -22,7 +24,15 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/welcome" element={<Welcome/>}/>
+        <Route
+  path="/welcome"
+  element={
+    <>
+      <Welcome />
+      <Footer />
+    </>
+  }
+/>
         {/* Wrap all pages inside Layout to ensure header/footer are present */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
