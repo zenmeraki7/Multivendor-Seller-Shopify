@@ -3,8 +3,8 @@ import { Route, Routes } from "react-router-dom";
 import Layout from "./layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/PrivateRoute";
-import Register from "./pages/Register/Register";
-import Login from "./pages/Login/Login";
+import Login from "./pages/Auth/Login/Login";
+import Register from "./pages/Auth/Register/Register";
 import "bootstrap/dist/css/bootstrap.min.css";
 import SellerPro from "./pages/SellerProfile/SellerPro";
 import ProductList from "./pages/ProductList";
@@ -15,6 +15,12 @@ import ManageVariants from "./pages/ManageVariants/ManageVariants";
 import ManageOffers from "./pages/ManageOffers/ManageOffers";
 import OrderDetails from "./pages/OrderDetails";
 import Welcome from "./pages/Welcome";
+import Footer from "./components/Footer";
+import Commission from "./pages/Commission/Commission";
+import Privacy from "./pages/Privacy/Privacy";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
+
 function App() {
   return (
     <>
@@ -22,11 +28,24 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/welcome" element={<Welcome/>}/>
+        <Route path="forgot-password" element={<ForgotPassword/>}/>
+        <Route path="/reset-password" element={<ResetPassword/>}/>
+        <Route
+          path="/"
+          element={
+            <>
+              <Welcome />
+              <Footer />
+            </>
+          }
+        />
         {/* Wrap all pages inside Layout to ensure header/footer are present */}
-        <Route path="/" element={<Layout />}>
+        <Route
+         path="/dashboard" 
+         element={<PrivateRoute component={<Layout />} />}
+         >
           <Route index element={<Dashboard />} />
-          <Route path="/orders" element={<OrderDetails />} />
+          <Route path="orders" element={<OrderDetails />} />
           <Route
             path="add-product"
             element={<PrivateRoute component={<AddProduct />} />}
@@ -43,11 +62,19 @@ function App() {
             path="view-product/:id"
             element={<PrivateRoute component={<EditProduct />} />}
           />
-          <Route path="/product-list" element={<ProductList />} />
+          <Route path="product-list" element={<ProductList />} />
           <Route
-            path="/sellers"
+            path="sellers"
             element={<PrivateRoute component={<SellerPro />} />}
           />
+          <Route
+           path='commission' 
+           element={<PrivateRoute component={<Commission/>} />} />
+           <Route
+           path='privacy'
+           element={<PrivateRoute component={<Privacy/>} />}
+
+           />
         </Route>
       </Routes>
     </>

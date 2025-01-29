@@ -15,12 +15,9 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SettingsIcon from "@mui/icons-material/Settings";
-import PeopleIcon from "@mui/icons-material/People";
 import WidgetsIcon from "@mui/icons-material/Widgets";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import EmailIcon from "@mui/icons-material/Email";
-import TranslateIcon from "@mui/icons-material/Translate";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import { useNavigate } from "react-router-dom";
 
@@ -35,24 +32,16 @@ function Navbox() {
   const navigate = useNavigate();
 
   const menuItems = [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/" },
-    { text: "Configuration", icon: <SettingsIcon />, path: "/configuration" },
-    { text: "Sellers", icon: <PeopleIcon />, path: "/sellers" },
-    { text: "Orders", icon: <AssignmentIcon />, path: "/orders" },
-    { text: "Commission", icon: <MonetizationOnIcon />, path: "/commission" },
-    {
-      text: "Mail Configuration",
-      icon: <EmailIcon />,
-      path: "/mail-configuration",
-    },
-    { text: "Translation", icon: <TranslateIcon />, path: "/translation" },
+    { text: "Overview", icon: <DashboardIcon />, path: "/dashboard" },
+    { text: "Orders", icon: <AssignmentIcon />, path: "/dashboard/orders" },
+    { text: "Commission", icon: <MonetizationOnIcon />, path: "/dashboard/commission" },
   ];
 
   return (
     <Box
       sx={{
         width: 300,
-        backgroundColor: "#f0f4f8",
+        backgroundColor: "#f0f4f8", // Grey background for the entire Navbox
         height: "100vh",
         boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
         display: "flex",
@@ -66,14 +55,14 @@ function Navbox() {
             <ListItem disablePadding>
               <ListItemButton
                 onClick={() => {
-                  // setActiveItem(item.text);
+                  setActiveItem(item.text); // Set the active item
                   if (item.path) navigate(item.path);
                 }}
                 sx={{
                   backgroundColor:
-                    activeItem === item.text ? "#c8d8e4" : "inherit",
+                    activeItem === item.text ? "#ffffff" : "inherit", // White background for the active item
                   "&:hover": {
-                    backgroundColor: "#c8d8e4",
+                    backgroundColor: "#ffffff", // White background on hover
                   },
                   transition: "background-color 0.3s",
                 }}
@@ -102,36 +91,38 @@ function Navbox() {
 
         {/* Products Accordion */}
         <Accordion
-        elevation={0}
+          elevation={0}
           expanded={expanded === "products"}
           onChange={handleAccordionChange("products")}
-          // sx={{
-          //   backgroundColor: expanded === "products" ? "#c8d8e4" : "inherit",
-          //   "&:hover": {
-          //     backgroundColor: "#c8d8e4",
-          //   },
-          // }}
+          sx={{
+            backgroundColor: "#f0f4f8", // Grey background for the accordion
+          }}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            // sx={{ color: expanded === "products" ? "#3a4b58" : "#556b78" }}
+            sx={{
+              backgroundColor:
+                activeItem === "Products" ? "#ffffff" : "inherit", // White background for the active accordion
+            }}
           >
             <WidgetsIcon sx={{ marginRight: 2 }} />
             <Typography>Products</Typography>
           </AccordionSummary>
-          <AccordionDetails>
+          <AccordionDetails sx={{ backgroundColor: "#f0f4f8" }}>
             <List disablePadding>
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => navigate("/add-product")}
-                  // sx={{
-                  //   pl: 4,
-                  //   backgroundColor:
-                  //     activeItem === "Add Products" ? "#c8d8e4" : "inherit",
-                  //   "&:hover": {
-                  //     backgroundColor: "#c8d8e4",
-                  //   },
-                  // }}
+                  onClick={() => {
+                    setActiveItem("Add Products"); // Set the active item
+                    navigate("/dashboard/add-product");
+                  }}
+                  sx={{
+                    backgroundColor:
+                      activeItem === "Add Products" ? "#ffffff" : "inherit", // White background for the active item
+                    "&:hover": {
+                      backgroundColor: "#ffffff", // White background on hover
+                    },
+                  }}
                 >
                   <ListItemIcon>
                     <AddShoppingCartIcon />
@@ -141,20 +132,81 @@ function Navbox() {
               </ListItem>
               <ListItem disablePadding>
                 <ListItemButton
-                  onClick={() => navigate("/product-list")}
-                  // sx={{
-                  //   pl: 4,
-                  //   backgroundColor:
-                  //     activeItem === "Product Manage" ? "#c8d8e4" : "inherit",
-                  //   "&:hover": {
-                  //     backgroundColor: "#c8d8e4",
-                  //   },
-                  // }}
+                  onClick={() => {
+                    setActiveItem("Product Manage"); // Set the active item
+                    navigate("/dashboard/product-list");
+                  }}
+                  sx={{
+                    backgroundColor:
+                      activeItem === "Product Manage" ? "#ffffff" : "inherit", // White background for the active item
+                    "&:hover": {
+                      backgroundColor: "#ffffff", // White background on hover
+                    },
+                  }}
                 >
                   <ListItemIcon>
                     <WidgetsIcon />
                   </ListItemIcon>
                   <ListItemText primary="Product Manage" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Settings Accordion */}
+        <Accordion
+          elevation={0}
+          expanded={expanded === "settings"}
+          onChange={handleAccordionChange("settings")}
+          sx={{
+            backgroundColor: "#f0f4f8", // Grey background for the accordion
+          }}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              backgroundColor:
+                activeItem === "Settings" ? "#ffffff" : "inherit", // White background for the active accordion
+            }}
+          >
+            <SettingsIcon sx={{ marginRight: 2 }} />
+            <Typography>Settings</Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ backgroundColor: "#f0f4f8" }}>
+            <List disablePadding>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setActiveItem("Account"); // Set the active item
+                    navigate("/dashboard/sellers");
+                  }}
+                  sx={{
+                    backgroundColor:
+                      activeItem === "Account" ? "#ffffff" : "inherit", // White background for the active item
+                    "&:hover": {
+                      backgroundColor: "#ffffff", // White background on hover
+                    },
+                  }}
+                >
+                  <ListItemText primary="Account" sx={{ pl: 4 }} />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setActiveItem("Privacy"); // Set the active item
+                    navigate("/dashboard/privacy");
+                  }}
+                  sx={{
+                    backgroundColor:
+                      activeItem === "Privacy" ? "#ffffff" : "inherit", // White background for the active item
+                    "&:hover": {
+                      backgroundColor: "#ffffff", // White background on hover
+                    },
+                  }}
+                >
+                  <ListItemText primary="Privacy" sx={{ pl: 4 }} />
                 </ListItemButton>
               </ListItem>
             </List>

@@ -24,49 +24,49 @@ function Header() {
           Demo-Zen-Meraki
         </Typography>
 
-        <Button color="inherit" sx={{ mr: 4, textTransform: "none" }}>
+        {/* <Button color="inherit" sx={{ mr: 4, textTransform: "none" }}>
           Seller Dashboard
-        </Button>
+        </Button> */}
 
-        <IconButton
+        {/* <IconButton
           color="inherit"
           sx={{ mr: 3 }}
           onClick={() => navigate("/")}
         >
           <HomeIcon />
-        </IconButton>
+        </IconButton> */}
 
         <IconButton color="inherit" sx={{ mr: 3 }}>
           <NotificationsIcon />
         </IconButton>
-        <Button
+        {/* <Button
           color="inherit"
           sx={{ mr: 3, textTransform: "none" }}
           onClick={() => navigate("/register")}
         >
           <HowToRegIcon /> SignUp
-        </Button>
-        <Button
+        </Button> */}
+        {/* <Button
           color="inherit"
           sx={{ mr: 3, textTransform: "none" }}
           onClick={() => navigate("/login")}
         >
           <LoginIcon /> SignIn
-        </Button>
+        </Button> */}
 
-        {/* <Button
+        <Button
           color="inherit"
           sx={{ mr: 3, textTransform: "none" }}
           onClick={() => navigate("/")}
         >
           <LogoutIcon /> Logout
-        </Button> */}
+        </Button>
 
         <Button
           color="inherit"
           className="fs-1"
           sx={{ mr: 3 }}
-          onClick={() => navigate("/sellers")}
+          onClick={() => navigate("/dashboard/sellers")}
         >
           <PersonIcon />
         </Button>
