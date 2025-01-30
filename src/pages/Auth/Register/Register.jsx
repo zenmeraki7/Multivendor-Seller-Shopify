@@ -22,7 +22,7 @@ import Header from "../../../components/AuthPageHeader";
 const steps = [
   "Personal Details",
   "Verify Email", // New step for OTP verification
-  "GST Documents",
+  " Documents",
   "Bank Details",
 ];
 

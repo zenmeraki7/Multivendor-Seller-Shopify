@@ -34,20 +34,42 @@ function PersonalDetails({ personalData }) {
   console.log(logoUrl, "lgogo");
   const [states, setStates] = useState([]);
   const [countries, setCountries] = useState([]);
+  const [businessTypes, setBusinessTypes] = useState([]);
   const [validationError, setValidationError] = useState({});
   console.log(validationError);
   useEffect(() => {
-    // Fetch countries
     axios
       .get(`${BASE_URL}/api/countries`)
-      .then((response) => setCountries(response.data))
+      .then((response) => {
+        console.log("Fetched Countries:", response.data);
+        setCountries(response.data);
+      })
       .catch((err) => console.error("Error fetching countries:", err));
 
-    // Fetch states based on the default country (India)
     axios
       .get(`${BASE_URL}/api/states?country=India`)
-      .then((response) => setStates(response.data))
+      .then((response) => {
+        console.log("Fetched States:", response.data);
+        setStates(response.data);
+      })
       .catch((err) => console.error("Error fetching states:", err));
+
+    axios
+      .get(`${BASE_URL}/api/business-type/all`)
+      .then((response) => {
+        console.log("Fetched Business Types:", response.data);
+        const businessTypesData = response.data?.data || [];
+        const formattedData = businessTypesData.map((type) => ({
+          _id: type._id || type.id,
+          name: type.name || type.businessTypeName || type.type,
+        }));
+        console.log("Formatted Business Types:", formattedData);
+        setBusinessTypes(formattedData);
+      })
+      .catch((err) => {
+        console.error("Error fetching business types:", err);
+        setBusinessTypes([]);
+      });
   }, []);
 
   const handleLogoUpload = (event) => {
@@ -333,14 +355,6 @@ function PersonalDetails({ personalData }) {
           >
             {[
               {
-                label: "Company Name",
-                value: personalInfo.companyName,
-                name: "companyName",
-                handleChange,
-                editable,
-                error: validationError.companyName,
-              },
-              {
                 label: "Full Name",
                 value: personalInfo.fullName,
                 name: "fullName",
@@ -348,6 +362,15 @@ function PersonalDetails({ personalData }) {
                 editable,
                 error: validationError.fullName,
               },
+              {
+                label: "Company Name",
+                value: personalInfo.companyName,
+                name: "companyName",
+                handleChange,
+                editable,
+                error: validationError.companyName,
+              },
+
               {
                 label: "Email",
                 value: personalInfo.email,
@@ -435,7 +458,7 @@ function PersonalDetails({ personalData }) {
                 name: "country",
                 handleChange,
                 editable,
-                menuItems: countries,
+                MenuItems: countries || [], // Ensure not null
                 error: validationError.country,
               },
               {
@@ -444,20 +467,28 @@ function PersonalDetails({ personalData }) {
                 name: "state",
                 handleChange,
                 editable,
-                menuItems: states,
+                MenuItems: states || [], // Ensure not null
                 error: validationError.state,
+              },
+              {
+                label: "Business Type",
+                value: personalInfo.businessType || "",
+                name: "businessType",
+                handleChange,
+                editable,
+                MenuItems: businessTypes || [],
+                error: validationError.businessType,
               },
             ].map((field) => (
               <CustomSelect
-                error={field.error}
-                small={true}
                 key={field.label}
                 label={field.label}
                 value={field.value}
                 name={field.name}
-                readOnly={!field.editable}
                 onChange={field.handleChange}
-                MenuItems={field.menuItems}
+                MenuItems={field.MenuItems}
+                readOnly={!field.editable}
+                error={field.error}
               />
             ))}
           </Box>

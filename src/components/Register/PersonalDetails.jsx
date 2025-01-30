@@ -74,6 +74,7 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
     state: "",
     country: "India",
     companyName: "",
+    businessStructure: "",
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -81,7 +82,8 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
   const [error, setError] = useState("");
   const [states, setStates] = useState([]);
   const [countries, setCountries] = useState([]);
-
+  const [businessTypes, setBusinessTypes] = useState([]);
+  const [selectedBusinessType, setSelectedBusinessType] = useState("");
   useEffect(() => {
     // Fetch countries
     axios
@@ -94,7 +96,24 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
       .get(`${BASE_URL}/api/states?country=India`)
       .then((response) => setStates(response.data))
       .catch((err) => console.error("Error fetching states:", err));
+    // Fetch business types
+    axios
+      .get(`${BASE_URL}/api/business-type/all`)
+      .then((response) => {
+        console.log("Business Types API Response:", response.data);
+        if (response.data.success && Array.isArray(response.data.data)) {
+          setBusinessTypes(response.data.data); // Corrected path
+        } else {
+          console.error("Invalid or empty business types data:", response.data);
+          setBusinessTypes([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching business types:", err);
+        setBusinessTypes([]);
+      });
   }, []);
+
   console.log(formValues);
   const validationSchema = Yup.object({
     fullName: Yup.string().trim().required("Full name is required."),
@@ -115,6 +134,7 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
     state: Yup.string().required("State is required."),
     country: Yup.string().required("Country is required."),
     companyName: Yup.string().trim().required("Company name is required."),
+    businessStructure: Yup.string().required("Business structure is required."), // Added this line
   });
 
   const handleBlur = (e) => {
@@ -287,16 +307,34 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
             </CustomSelect>
           </FormControl>
         </Box>
-        <InputField
-          fullWidth
-          label="Company Name"
-          name="companyName"
-          value={formValues.companyName}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={formErrors.companyName}
-          helperText={formErrors.companyName}
-        />
+
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <InputField
+            fullWidth
+            label="Company Name"
+            name="companyName"
+            value={formValues.companyName}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={formErrors.companyName}
+            helperText={formErrors.companyName}
+          />
+          <FormControl fullWidth>
+            <InputLabel>Business Structure</InputLabel>
+            <CustomSelect
+            label="Business Structure"
+              name="businessStructure"
+              value={formValues.businessStructure}
+              onChange={handleChange}
+            >
+              {businessTypes.map((type) => (
+                <MenuItem key={type._id} value={type.name}>
+                  {type.name}
+                </MenuItem>
+              ))}
+            </CustomSelect>
+          </FormControl>
+        </Box>
       </Stack>
       {error && <Box sx={{ color: "red", mt: 2 }}>{error}</Box>}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 4 }}>

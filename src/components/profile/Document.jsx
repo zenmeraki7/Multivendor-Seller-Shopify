@@ -13,8 +13,8 @@ import toast from "react-hot-toast";
 
 const documentValidationSchema = Yup.object({
   gstinNumber: Yup.string()
-    .required("GSTIN Document Number is required")
-    .matches(/^[A-Z0-9]{15}$/, "Invalid GSTIN format"),
+    .required("GSTIN/VAT Document Number is required")
+    .matches(/^[A-Z0-9]{15}$/, "Invalid GSTIN/VAT format"),
   panNumber: Yup.string()
     .required("PAN Card Document Number is required")
     .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"),
@@ -238,11 +238,11 @@ function Document({ document }) {
           }}
         >
           <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-            GSTIN Details
+            GSTIN/VAT Details
           </Typography>
           <CustomInput
             error={validationError.gstinNumber}
-            label="GSTIN Number"
+            label="GSTIN/VAT Number"
             value={documentDetails.gstinNumber}
             name={"gstinNumber"}
             readOnly={!editable}

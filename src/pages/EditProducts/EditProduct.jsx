@@ -24,6 +24,7 @@ import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomButton from "../../components/SharedComponents/CustomButton";
+import { logoutUser } from "../../utils/authutils";
 
 function EditProduct() {
   const { id } = useParams();
@@ -170,6 +171,9 @@ function EditProduct() {
     } catch (err) {
       console.log(err);
       toast.error("Error fetching product data");
+      if (error.response && (error.response.status === 404 || error.response.status === 401)) {
+        logoutUser(); // Call logoutUser if 404 or 401 status code
+      }
       //   setLoading(false);
     }
   };
@@ -189,6 +193,9 @@ function EditProduct() {
       console.log(
         err.response?.data?.message || "Failed to fetch sub categories."
       );
+      if (error.response && (error.response.status === 404 || error.response.status === 401)) {
+        logoutUser(); // Call logoutUser if 404 or 401 status code
+      }
     }
   };
 
@@ -206,6 +213,9 @@ function EditProduct() {
       setCategories(response.data.data || []);
     } catch (err) {
       console.log(err.response?.data?.message || "Failed to fetch categories.");
+      if (error.response && (error.response.status === 404 || error.response.status === 401)) {
+        logoutUser(); // Call logoutUser if 404 or 401 status code
+      }
     }
   };
 
@@ -220,6 +230,9 @@ function EditProduct() {
       setCategoryTypes(response.data.data);
     } catch (err) {
       console.log(err.message || "Failed to fetch category types.");
+      if (error.response && (error.response.status === 404 || error.response.status === 401)) {
+        logoutUser(); // Call logoutUser if 404 or 401 status code
+      }
     }
   };
 
