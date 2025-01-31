@@ -52,13 +52,13 @@ const DocumentUpload = ({ handleNext }) => {
     },
     validationSchema: Yup.object({
       gstinDocumentNumber: Yup.string()
-        .required("GSTIN Document Number is required")
-        .matches(/^[A-Z0-9]{15}$/, "Invalid GSTIN format"),
+        .required("GSTIN/VAT Document Number is required")
+        .matches(/^[A-Z0-9]{15}$/, "Invalid GSTIN/VAT format"),
       panCardDocumentNumber: Yup.string()
         .required("PAN Card Document Number is required")
         .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"),
       gstinDocumentImage: Yup.mixed()
-        .required("GSTIN document is required")
+        .required("GSTIN/VAT document is required")
         .test(
           "fileSize",
           "File size is too large. Max 5MB",
@@ -114,11 +114,11 @@ const DocumentUpload = ({ handleNext }) => {
           {/* GSTIN Document Section */}
           <Box>
             <Typography variant="h6" gutterBottom>
-              Upload GSTIN
+              Upload GSTIN/VAT
             </Typography>
             <InputField
               fullWidth
-              label="GSTIN Document Number"
+              label="GSTIN/VAT Document Number"
               name="gstinDocumentNumber"
               value={formik.values.gstinDocumentNumber}
               onChange={formik.handleChange}
