@@ -22,180 +22,138 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import PaymentIcon from "@mui/icons-material/Payment";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function Navbox() {
-  const [activeItem, setActiveItem] = useState("");
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : false);
+    setExpanded(isExpanded ? panel : "");
   };
-
-  const navigate = useNavigate();
 
   const menuItems = [
     { text: "Overview", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Orders", icon: <AssignmentIcon />, path: "/dashboard/orders" },
-    { text: "Commission", icon: <MonetizationOnIcon />, path: "/dashboard/commission" },
+    {
+      text: "Commission",
+      icon: <MonetizationOnIcon />,
+      path: "/dashboard/commission",
+    },
+    {
+      text: "Settings",
+      icon: <SettingsIcon />,
+      subItems: [
+        {
+          text: "Account",
+          icon: <AccountCircleIcon />,
+          path: "/dashboard/sellers",
+        },
+        { text: "Privacy", icon: <LockIcon />, path: "/dashboard/privacy" },
+        { text: "Payment Details", icon: <PaymentIcon />, path: "/dashboard" },
+        { text: "Feedback", icon: <FeedbackIcon />, path: "/dashboard" },
+        {
+          text: "Merchant Notifications",
+          icon: <NotificationsActiveIcon />,
+          path: "/dashboard",
+        },
+      ],
+    },
   ];
+
+  const renderMenuItems = (items, depth = 0) =>
+    items.map((item) => (
+      <React.Fragment key={item.text}>
+        {item.subItems ? (
+          <Accordion
+            elevation={0}
+            expanded={expanded === item.text}
+            onChange={handleAccordionChange(item.text)}
+            sx={{
+              boxShadow: "none",
+              "&:before": { display: "none" }, // Remove the default border
+              color: "#000",
+              background: "#e0e0e0",
+            }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon sx={{ color: "#000" }} />}
+              sx={{
+                "&:hover": { backgroundColor: "#e0e0e0" }, // Hover effect
+                borderRadius: 1, // Rounded corners
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: "40px" }}>{item.icon}</ListItemIcon>
+              <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                {item.text}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <List
+                disablePadding
+                sx={{ display: "flex", flexDirection: "column", gap: "10px" }}
+              >
+                {renderMenuItems(item.subItems, depth + 1)}
+              </List>
+            </AccordionDetails>
+          </Accordion>
+        ) : (
+          <ListItem disablePadding sx={{}}>
+            <ListItemButton
+              onClick={() => item.path && navigate(item.path)}
+              sx={{
+                borderRadius: 1, // Rounded corners
+                background:
+                  location.pathname === item.path
+                    ? "linear-gradient(45deg, #556cd6, #19857b)"
+                    : "#e0e0e0", // Active item background
+                "&:hover": { backgroundColor: "#e0e0e0" }, // Hover effect
+                transition: "background-color 0.2s",
+                color: location.pathname === item.path ? "#fff" : "#000",
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: "40px" }}>{item.icon}</ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{
+                  fontWeight: location.pathname === item.path ? 600 : 500, // Bold for active item
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+        )}
+      </React.Fragment>
+    ));
 
   return (
     <Box
       sx={{
         width: 300,
-        backgroundColor: "#f0f4f8", // Grey background for the entire Navbox
-        height: "100vh",
+        backgroundColor: "#f5f5f5",
+        height: "91vh",
         boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
         display: "flex",
         flexDirection: "column",
-        pt: 2,
+        p: 0.5,
+        overflowY: "auto",
+        "&::-webkit-scrollbar": {
+          width: "4px",
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "#f5f5f5",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: "#bdbdbd",
+          borderRadius: "4px",
+          "&:hover": {
+            backgroundColor: "#9e9e9e",
+          },
+        },
       }}
     >
-      <List>
-        {menuItems.map((item) => (
-          <ListItem disablePadding key={item.text}>
-            <ListItemButton
-              onClick={() => {
-                setActiveItem(item.text);
-                navigate(item.path);
-              }}
-              sx={{
-                backgroundColor: activeItem === item.text ? "#ffffff" : "inherit",
-                "&:hover": { backgroundColor: "#ffffff" },
-                transition: "background-color 0.3s",
-              }}
-            >
-              <ListItemIcon sx={{ color: activeItem === item.text ? "#3a4b58" : "#556b78" }}>
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontWeight: activeItem === item.text ? "bold" : "normal",
-                  color: activeItem === item.text ? "#3a4b58" : "#556b78",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
-
-        {/* Settings Accordion */}
-        <Accordion
-          elevation={0}
-          expanded={expanded === "settings"}
-          onChange={handleAccordionChange("settings")}
-          sx={{ backgroundColor: "#f0f4f8" }}
-        >
-        <AccordionSummary
-  expandIcon={<ExpandMoreIcon />}
-  sx={{
-    backgroundColor: activeItem === "Settings" ? "#ffffff" : "inherit",
-  }}
->
-  <SettingsIcon sx={{ marginRight: 2, color: "#556b78" }} />
-  <Typography sx={{ color: "#556b78", fontWeight: "normal" }}>Settings</Typography>
-</AccordionSummary>
-
-          <AccordionDetails sx={{ backgroundColor: "#f0f4f8" }}>
-            <List disablePadding>
-            <ListItem disablePadding>
-  <ListItemButton
-    onClick={() => {
-      setActiveItem("Account");
-      navigate("/dashboard/sellers");
-    }}
-    sx={{
-      backgroundColor: activeItem === "Account" ? "#ffffff" : "inherit",
-      "&:hover": { backgroundColor: "#ffffff" },
-    }}
-  >
-    <ListItemIcon>
-      <AccountCircleIcon />
-    </ListItemIcon>
-    <ListItemText primary="Account" />
-  </ListItemButton>
-</ListItem>
-
-<ListItem disablePadding>
-  <ListItemButton
-    onClick={() => {
-      setActiveItem("Privacy");
-      navigate("/dashboard/privacy");
-    }}
-    sx={{
-      backgroundColor: activeItem === "Privacy" ? "#ffffff" : "inherit",
-      "&:hover": { backgroundColor: "#ffffff" },
-    }}
-  >
-    <ListItemIcon>
-      <LockIcon />
-    </ListItemIcon>
-    <ListItemText primary="Privacy" />
-  </ListItemButton>
-</ListItem>
-
-
-              {/* Payment Details */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setActiveItem("Payment Details");
-                    navigate("/dashboard/payment-details");
-                  }}
-                  sx={{
-                    backgroundColor: activeItem === "Payment Details" ? "#ffffff" : "inherit",
-                    "&:hover": { backgroundColor: "#ffffff" },
-                  }}
-                >
-                  <ListItemIcon>
-                    <PaymentIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Payment Details" />
-                </ListItemButton>
-              </ListItem>
-
-              {/* Feedback */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setActiveItem("Feedback");
-                    navigate("/dashboard/feedback");
-                  }}
-                  sx={{
-                    backgroundColor: activeItem === "Feedback" ? "#ffffff" : "inherit",
-                    "&:hover": { backgroundColor: "#ffffff" },
-                  }}
-                >
-                  <ListItemIcon>
-                    <FeedbackIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Feedback" />
-                </ListItemButton>
-              </ListItem>
-
-              {/* Merchant Notifications */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setActiveItem("Merchant Notifications");
-                    navigate("/dashboard/merchant-notifications");
-                  }}
-                  sx={{
-                    backgroundColor: activeItem === "Merchant Notifications" ? "#ffffff" : "inherit",
-                    "&:hover": { backgroundColor: "#ffffff" },
-                  }}
-                >
-                  <ListItemIcon>
-                    <NotificationsActiveIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Merchant Notifications" />
-                </ListItemButton>
-              </ListItem>
-
-            </List>
-          </AccordionDetails>
-        </Accordion>
+      <List sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {renderMenuItems(menuItems)}
       </List>
     </Box>
   );
