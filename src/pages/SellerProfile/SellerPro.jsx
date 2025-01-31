@@ -42,6 +42,10 @@ function SellerPro() {
           err.response?.data?.message ||
             "An error occurred while fetching data."
         ); // Store error message
+        if (err.response.status == 401 || err.response.status == 404) {
+          localStorage.removeItem("token");
+          window.location.reload();
+        }
       } finally {
         setLoading(false); // Set loading to false after API call
       }

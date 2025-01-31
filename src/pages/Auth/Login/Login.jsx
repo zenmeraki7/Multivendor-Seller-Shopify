@@ -6,6 +6,7 @@ import { keyframes } from "@emotion/react"; // Import keyframes from Emotion
 import "./Login.css";
 
 import { BASE_URL } from "../../../utils/baseUrl";
+import CustomeError from "../../../components/SharedComponents/CustomeError";
 
 // Define the gradient animation
 const gradientAnimation = keyframes`
@@ -74,7 +75,8 @@ function Login() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
       style={{
-        background: "linear-gradient(-45deg, #f3e5f5, #fff3e0, #f3e5f5, #fff3e0)",
+        background:
+          "linear-gradient(-45deg, #f3e5f5, #fff3e0, #f3e5f5, #fff3e0)",
         backgroundSize: "400% 400%",
         animation: `${gradientAnimation} 10s ease infinite`,
       }}
@@ -112,16 +114,7 @@ function Login() {
             Welcome back!
           </motion.p>
 
-          {error && (
-            <motion.div
-              className="error-message"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              {error}
-            </motion.div>
-          )}
+          {error && <CustomeError error={error} />}
 
           <motion.form
             initial={{ opacity: 0, y: 20 }}
