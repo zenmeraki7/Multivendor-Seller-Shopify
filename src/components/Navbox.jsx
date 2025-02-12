@@ -24,6 +24,8 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import PaymentIcon from "@mui/icons-material/Payment";
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import ReviewsIcon from '@mui/icons-material/Reviews';
 import { useLocation, useNavigate } from "react-router-dom";
 
 function Navbox() {
@@ -59,6 +61,8 @@ function Navbox() {
         },
       ],
     },
+    { text: "Transcation", icon: <ReceiptLongIcon />, path: "/dashboard/transaction" },
+    { text: "Review", icon: <ReviewsIcon />, path: "/dashboard/review" },
     {
       text: "Settings",
       icon: <SettingsIcon />,
