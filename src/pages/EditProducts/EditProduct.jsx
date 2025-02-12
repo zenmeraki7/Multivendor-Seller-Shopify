@@ -213,7 +213,7 @@ function EditProduct() {
       setCategories(response.data.data || []);
     } catch (err) {
       console.log(err.response?.data?.message || "Failed to fetch categories.");
-      if (error.response && (error.response.status === 404 || error.response.status === 401)) {
+      if (err.response && (err.response.status === 404 || err.response.status === 401)) {
         logoutUser(); // Call logoutUser if 404 or 401 status code
       }
     }
@@ -436,7 +436,7 @@ function EditProduct() {
           <Button
             variant="outlined"
             onClick={() =>
-              navigate(`/manage-variant/${product._id}/${product.title}`)
+              navigate(`/dashboard/manage-variant/${product._id}/${product.title}`)
             }
           >
             Manage variants
@@ -444,7 +444,7 @@ function EditProduct() {
           <Button
             variant="outlined"
             onClick={() =>
-              navigate(`/manage-offers/${product._id}/${product.title}`)
+              navigate(`/dashboard/manage-offers/${product._id}/${product.title}`)
             }
           >
             Manage offers

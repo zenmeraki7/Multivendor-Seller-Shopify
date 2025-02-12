@@ -12,6 +12,8 @@ import {
   AccordionDetails,
   Typography,
 } from "@mui/material";
+import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
+import WidgetsIcon from "@mui/icons-material/Widgets";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -40,6 +42,22 @@ function Navbox() {
       text: "Commission",
       icon: <MonetizationOnIcon />,
       path: "/dashboard/commission",
+    },
+    {
+      text: "Manage Products",
+      icon: <SettingsIcon />,
+      subItems: [
+        {
+          text: "Product List",
+          icon: <WidgetsIcon />,
+          path: "/dashboard/product-list",
+        },
+        {
+          text: "Add Product",
+          icon: <AddShoppingCartIcon />,
+          path: "/dashboard/add-product",
+        },
+      ],
     },
     {
       text: "Settings",

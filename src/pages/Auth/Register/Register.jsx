@@ -38,7 +38,7 @@ export default function Register() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    token && navigate("/");
+    token && navigate("/dashboard");
   }, []);
 
   const handleNext = () => {

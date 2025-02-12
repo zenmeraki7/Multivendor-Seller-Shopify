@@ -267,7 +267,7 @@ const ProductList = () => {
                       variant="outlined"
                       color="primary"
                       size="small"
-                      onClick={() => navigate(`/view-product/${product._id}`)} // Replace with your logic
+                      onClick={() => navigate(`/dashboard/view-product/${product._id}`)} // Replace with your logic
                     >
                       View
                     </Button>
