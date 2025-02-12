@@ -1,3 +1,196 @@
-.card:hover {
-    transform: scale(1.05);
+/* Layout */
+.dashboard-container {
+  padding: 1.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  background-color: #f8fafc;
+}
+
+.grid-container {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 768px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
   }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.grid-cols-2 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Card Styles */
+.card {
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.card-header {
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Stat Card */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stat-card-icon {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  background-color: #f8fafc;
+  margin-right: 1rem;
+}
+
+.stat-card-title {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.stat-card-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.stat-card-trend {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.trend-up {
+  color: #22c55e;
+}
+
+.trend-down {
+  color: #ef4444;
+}
+
+/* Table Styles */
+.table-container {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-shipped {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-delivered {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+/* Chart Container */
+.chart-container {
+  height: 20rem;
+}
+
+/* Alert Styles */
+.alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  margin-bottom: 1rem;
+}
+
+.alert-warning {
+  background-color: #fef3c7;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.alert-success {
+  background-color: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.alert-info {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+/* Button Styles */
+.filter-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.filter-button-active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.filter-button-inactive {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.filter-button-inactive:hover {
+  background-color: #e2e8f0;
+}
