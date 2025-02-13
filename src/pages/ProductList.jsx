@@ -175,7 +175,7 @@ const ProductList = () => {
           </Select>
           <Select size="small" defaultValue="" displayEmpty>
             <MenuItem value="">
-              <em>Product Category</em>
+              <em>Category-Type</em>
             </MenuItem>
             {/* Populate categories dynamically if possible */}
             <MenuItem value="Fashion">Fashion</MenuItem>
@@ -183,17 +183,24 @@ const ProductList = () => {
           </Select>
           <Select size="small" defaultValue="" displayEmpty>
             <MenuItem value="">
-              <em>Product Type</em>
+              <em>Category</em>
             </MenuItem>
             <MenuItem value="Type1">Type1</MenuItem>
             <MenuItem value="Type2">Type2</MenuItem>
           </Select>
           <Select size="small" defaultValue="" displayEmpty>
             <MenuItem value="">
-              <em>Additional Options</em>
+              <em>Sub-Category</em>
             </MenuItem>
             <MenuItem value="Option1">Option1</MenuItem>
             <MenuItem value="Option2">Option2</MenuItem>
+          </Select>
+          <Select size="small" defaultValue="" displayEmpty>
+            <MenuItem value="">
+              <em>Status</em>
+            </MenuItem>
+            <MenuItem value="Option1">Active</MenuItem>
+            <MenuItem value="Option2">Inactive</MenuItem>
           </Select>
           <Button variant="contained" color="primary">
             APPLY
@@ -213,7 +220,7 @@ const ProductList = () => {
               <TableCell sx={{ color: "primary.main" }}>PRODUCT NAME</TableCell>
               <TableCell sx={{ color: "primary.main" }}>STOCK</TableCell>
               <TableCell sx={{ color: "primary.main" }}>PRICE</TableCell>
-              <TableCell sx={{ color: "primary.main" }}>CATEGORY</TableCell>
+              <TableCell sx={{ color: "primary.main" }}>CATEGORY TYPE</TableCell>
               <TableCell sx={{ color: "primary.main" }}>STATUS</TableCell>
               <TableCell sx={{ color: "primary.main" }}>
                 LAST MODIFIED
