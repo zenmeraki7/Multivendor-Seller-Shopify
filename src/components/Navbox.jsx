@@ -1,20 +1,17 @@
 import React, { useState } from "react";
 import {
   Box,
-  Divider,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Collapse,
   Typography,
+  alpha,
 } from "@mui/material";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import WidgetsIcon from "@mui/icons-material/Widgets";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import SettingsIcon from "@mui/icons-material/Settings";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -26,6 +23,8 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import PaymentIcon from "@mui/icons-material/Payment";
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ReviewsIcon from '@mui/icons-material/Reviews';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useLocation, useNavigate } from "react-router-dom";
 
 function Navbox() {
@@ -33,148 +32,134 @@ function Navbox() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpanded(isExpanded ? panel : "");
+  const handleExpand = (panel) => {
+    setExpanded(expanded === panel ? "" : panel);
   };
 
   const menuItems = [
     { text: "Overview", icon: <DashboardIcon />, path: "/dashboard" },
     { text: "Orders", icon: <AssignmentIcon />, path: "/dashboard/orders" },
-    {
-      text: "Commission",
-      icon: <MonetizationOnIcon />,
-      path: "/dashboard/commission",
-    },
+    { text: "Commission", icon: <MonetizationOnIcon />, path: "/dashboard/commission" },
     {
       text: "Manage Products",
       icon: <SettingsIcon />,
       subItems: [
-        {
-          text: "Product List",
-          icon: <WidgetsIcon />,
-          path: "/dashboard/product-list",
-        },
-        {
-          text: "Add Product",
-          icon: <AddShoppingCartIcon />,
-          path: "/dashboard/add-product",
-        },
+        { text: "Product List", icon: <WidgetsIcon />, path: "/dashboard/product-list" },
+        { text: "Add Product", icon: <AddShoppingCartIcon />, path: "/dashboard/add-product" },
       ],
     },
-    { text: "Transcation", icon: <ReceiptLongIcon />, path: "/dashboard/transaction" },
+    { text: "Transaction", icon: <ReceiptLongIcon />, path: "/dashboard/transaction" },
     { text: "Review", icon: <ReviewsIcon />, path: "/dashboard/review" },
     {
       text: "Settings",
       icon: <SettingsIcon />,
       subItems: [
-        {
-          text: "Account",
-          icon: <AccountCircleIcon />,
-          path: "/dashboard/sellers",
-        },
+        { text: "Account", icon: <AccountCircleIcon />, path: "/dashboard/sellers" },
         { text: "Privacy", icon: <LockIcon />, path: "/dashboard/privacy" },
         { text: "Payment Details", icon: <PaymentIcon />, path: "/dashboard" },
         { text: "Feedback", icon: <FeedbackIcon />, path: "/dashboard" },
-        {
-          text: "Merchant Notifications",
-          icon: <NotificationsActiveIcon />,
-          path: "/dashboard",
-        },
+        { text: "Merchant Notifications", icon: <NotificationsActiveIcon />, path: "/dashboard" },
       ],
     },
   ];
 
   const renderMenuItems = (items, depth = 0) =>
-    items.map((item) => (
-      <React.Fragment key={item.text}>
-        {item.subItems ? (
-          <Accordion
-            elevation={0}
-            expanded={expanded === item.text}
-            onChange={handleAccordionChange(item.text)}
+    items.map((item) => {
+      const isActive = location.pathname === item.path;
+      const isExpanded = expanded === item.text;
+
+      return (
+        <React.Fragment key={item.text}>
+          <ListItem
+            disablePadding
             sx={{
-              boxShadow: "none",
-              "&:before": { display: "none" }, // Remove the default border
-              color: "#000",
-              background: "#e0e0e0",
+              mb: 0.5,
+              pl: depth * 2,
             }}
           >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon sx={{ color: "#000" }} />}
-              sx={{
-                "&:hover": { backgroundColor: "#e0e0e0" }, // Hover effect
-                borderRadius: 1, // Rounded corners
-              }}
-            >
-              <ListItemIcon sx={{ minWidth: "40px" }}>{item.icon}</ListItemIcon>
-              <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                {item.text}
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <List
-                disablePadding
-                sx={{ display: "flex", flexDirection: "column", gap: "10px" }}
-              >
-                {renderMenuItems(item.subItems, depth + 1)}
-              </List>
-            </AccordionDetails>
-          </Accordion>
-        ) : (
-          <ListItem disablePadding sx={{}}>
             <ListItemButton
-              onClick={() => item.path && navigate(item.path)}
+              onClick={() => item.subItems ? handleExpand(item.text) : navigate(item.path)}
               sx={{
-                borderRadius: 1, // Rounded corners
-                background:
-                  location.pathname === item.path
-                    ? "linear-gradient(45deg, #556cd6, #19857b)"
-                    : "#e0e0e0", // Active item background
-                "&:hover": { backgroundColor: "#e0e0e0" }, // Hover effect
-                transition: "background-color 0.2s",
-                color: location.pathname === item.path ? "#fff" : "#000",
+                borderRadius: 2,
+                backgroundColor: isActive 
+                  ? (theme) => alpha(theme.palette.primary.main, 0.1)
+                  : 'transparent',
+                color: isActive 
+                  ? (theme) => theme.palette.primary.main
+                  : (theme) => theme.palette.text.primary,
+                '&:hover': {
+                  backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.08),
+                },
+                transition: 'all 0.2s ease-in-out',
+                position: 'relative',
+                py: 1.5,
               }}
             >
-              <ListItemIcon sx={{ minWidth: "40px" }}>{item.icon}</ListItemIcon>
-              <ListItemText
-                primary={item.text}
-                primaryTypographyProps={{
-                  fontWeight: location.pathname === item.path ? 600 : 500, // Bold for active item
+              <ListItemIcon
+                sx={{
+                  minWidth: 40,
+                  color: isActive 
+                    ? (theme) => theme.palette.primary.main
+                    : (theme) => theme.palette.text.secondary,
                 }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: isActive || isExpanded ? 600 : 500,
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    {item.text}
+                  </Typography>
+                }
               />
+              {item.subItems && (
+                isExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />
+              )}
             </ListItemButton>
           </ListItem>
-        )}
-      </React.Fragment>
-    ));
+          {item.subItems && (
+            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {renderMenuItems(item.subItems, depth + 1)}
+              </List>
+            </Collapse>
+          )}
+        </React.Fragment>
+      );
+    });
 
   return (
     <Box
       sx={{
-        width: 300,
-        backgroundColor: "#f5f5f5",
-        height: "91vh",
-        boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-        display: "flex",
-        flexDirection: "column",
-        p: 0.5,
-        overflowY: "auto",
-        "&::-webkit-scrollbar": {
-          width: "4px",
+        width: 280,
+        height: '100vh',
+        backgroundColor: (theme) => theme.palette.background.paper,
+        borderRight: (theme) => `1px solid ${theme.palette.divider}`,
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto',
+        '&::-webkit-scrollbar': {
+          width: 6,
         },
-        "&::-webkit-scrollbar-track": {
-          backgroundColor: "#f5f5f5",
+        '&::-webkit-scrollbar-track': {
+          backgroundColor: 'transparent',
         },
-        "&::-webkit-scrollbar-thumb": {
-          backgroundColor: "#bdbdbd",
-          borderRadius: "4px",
-          "&:hover": {
-            backgroundColor: "#9e9e9e",
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.1),
+          borderRadius: 3,
+          '&:hover': {
+            backgroundColor: (theme) => alpha(theme.palette.primary.main, 0.2),
           },
         },
       }}
     >
-      <List sx={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+      <List sx={{ p: 2 }}>
         {renderMenuItems(menuItems)}
       </List>
     </Box>
