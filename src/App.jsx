@@ -20,6 +20,9 @@ import Commission from "./pages/Commission/Commission";
 import Privacy from "./pages/Privacy/Privacy";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import TransactionPage from "./pages/Transaction/transaction";
+import ReviewPage from "./pages/Review/Review";
+import Verification from "./pages/Verification/Verification";
 
 function App() {
   return (
@@ -27,9 +30,13 @@ function App() {
       <Toaster />
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route
+            path="/verification"
+            element={<PrivateRoute component={<Verification />} />}
+          />
         <Route path="/register" element={<Register />} />
-        <Route path="forgot-password" element={<ForgotPassword/>}/>
-        <Route path="/reset-password" element={<ResetPassword/>}/>
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/"
           element={
@@ -41,9 +48,9 @@ function App() {
         />
         {/* Wrap all pages inside Layout to ensure header/footer are present */}
         <Route
-         path="/dashboard" 
-         element={<PrivateRoute component={<Layout />} />}
-         >
+          path="/dashboard"
+          element={<PrivateRoute component={<Layout />} />}
+        >
           <Route index element={<Dashboard />} />
           <Route path="orders" element={<OrderDetails />} />
           <Route
@@ -68,13 +75,22 @@ function App() {
             element={<PrivateRoute component={<SellerPro />} />}
           />
           <Route
-           path='commission' 
-           element={<PrivateRoute component={<Commission/>} />} />
-           <Route
-           path='privacy'
-           element={<PrivateRoute component={<Privacy/>} />}
+            path='commission'
+            element={<PrivateRoute component={<Commission />} />} />
+          <Route
+            path='privacy'
+            element={<PrivateRoute component={<Privacy />} />}
 
-           />
+          />
+          <Route
+            path="transaction"
+            element={<PrivateRoute component={<TransactionPage />} />}
+          />
+           <Route
+            path="review"
+            element={<PrivateRoute component={<ReviewPage />} />}
+          />
+          
         </Route>
       </Routes>
     </>

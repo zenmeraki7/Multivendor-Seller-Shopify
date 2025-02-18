@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useState } from "react";
 import {
   AppBar,
   Box,
@@ -16,18 +17,9 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-// import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
-// import EmojiObjectsIcon from "@mui/icons-material/EmojiObjects";
-// import GroupsIcon from "@mui/icons-material/Groups";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
-import AutoGraphIcon from "@mui/icons-material/AutoGraph";
-import SecurityIcon from "@mui/icons-material/Security";
-import SpeedIcon from "@mui/icons-material/Speed";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import IntegrationInstructionsIcon from "@mui/icons-material/IntegrationInstructions";
-import AnalyticsIcon from "@mui/icons-material/Analytics";
 import MenuIcon from "@mui/icons-material/Menu";
 import {
   Tablet,
@@ -38,7 +30,10 @@ import {
   TrendingUp,
   Building2,
   Lightbulb,
-  Users
+  Users,
+  ArrowUp,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 import "./Welcome.css";
@@ -48,8 +43,6 @@ import { useNavigate } from "react-router-dom";
 function Welcome() {
   const navigate = useNavigate();
   const theme = useTheme();
-  // const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  // const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleClick = () => {
     navigate("/register");
@@ -68,6 +61,7 @@ function Welcome() {
   const closeMobileMenu = () => {
     setMobileMenuAnchor(null);
   };
+
   const styles = {
     container: {
       maxWidth: '1400px',
@@ -159,6 +153,121 @@ function Welcome() {
     },
   };
 
+  const dashboardStyles = {
+    container: {
+      maxWidth: '1400px',
+      margin: '0 auto',
+      padding: '64px 24px',
+      backgroundColor: '#f8faf8',
+    },
+    header: {
+      textAlign: 'center',
+      marginBottom: '64px',
+    },
+    title: {
+      fontSize: window.innerWidth < 768 ? '2rem' : '2.5rem',
+      fontWeight: 'bold',
+      marginBottom: '24px',
+      background: 'linear-gradient(45deg, #173B18, #2E7D32)',
+      WebkitBackgroundClip: 'text',
+      WebkitTextFillColor: 'transparent',
+      fontFamily: '"Playfair Display", serif',
+    },
+    subtitle: {
+      color: '#666',
+      fontSize: window.innerWidth < 768 ? '1rem' : '1.25rem',
+      maxWidth: '800px',
+      margin: '0 auto',
+      lineHeight: 1.6,
+    },
+
+
+    grid: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+      gap: '20px',
+      padding: '0 16px',
+    },
+    card: {
+      width: 'calc(25% - 20px)',
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      padding: '32px',
+      textAlign: 'center',
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      transition: 'all 0.3s ease',
+      position: 'relative',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+    },
+    iconContainer: {
+      backgroundColor: '#f0f7ff',
+      borderRadius: '12px',
+      padding: '12px',
+      width: 'fit-content',
+      margin: '0 auto 16px auto',
+      transition: 'all 0.3s ease',
+    },
+    iconContainerHover: {
+      transform: 'scale(1.1)',
+      backgroundColor: '#e6f0ff',
+    },
+    cardTitle: {
+      fontSize: '1.5rem',
+      fontWeight: 'bold',
+      marginBottom: '16px',
+      color: '#333',
+      margin: 0,
+    },
+    cardDescription: {
+      color: '#666',
+      fontSize: '1rem',
+      lineHeight: 1.6,
+      margin: '0 0 24px 0',
+      flex: '1',
+    },
+    button: {
+      backgroundColor: '#173B18',
+      color: 'white',
+      border: 'none',
+      borderRadius: '30px',
+      padding: '12px 24px',
+      fontSize: '1rem',
+      fontWeight: '600',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      textTransform: 'uppercase',
+      letterSpacing: '0.5px',
+    },
+    buttonHover: {
+      backgroundColor: '#2E7D32',
+      transform: 'translateY(-3px)',
+      boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+    },
+    progressBar: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '4px',
+      backgroundColor: '#2E7D32',
+      width: '0%',
+      transition: 'width 0.3s ease',
+    },
+    helperText: {
+      fontSize: '12px',
+      color: '#888',
+      marginTop: '12px',
+      fontStyle: 'italic',
+    }
+  };
+
+  const [hoveredCard, setHoveredCard] = React.useState(null);
+  const [hoveredDetail, setHoveredDetail] = React.useState(null);
+  const [hoveredButton, setHoveredButton] = React.useState(null);
+
+
   const features = [
     {
       icon: <Building2 size={48} />,
@@ -179,6 +288,7 @@ function Welcome() {
       details: ["Trust & Integrity", "Innovation", "Customer Success"]
     }
   ];
+
   const additionalFeatures = [
     {
       icon: <Tablet />,
@@ -212,8 +322,80 @@ function Welcome() {
     }
   ];
 
-  const [hoveredCard, setHoveredCard] = React.useState(null);
-  const [hoveredDetail, setHoveredDetail] = React.useState(null);
+  const soldproducts = [
+    {
+      title: "Top Sold Products",
+      description: "Track and analyze your best-performing products with detailed insights and sales metrics.",
+      icon: "📈",
+      buttonText: "VIEW ALL PRODUCTS"
+    },
+    {
+      title: "Recent Registered Sellers",
+      description: "Monitor new seller registrations and manage your growing marketplace community.",
+      icon: "👥",
+      buttonText: "VIEW ALL SELLERS"
+    },
+    {
+      title: "Recent Orders",
+      description: "Stay updated with real-time order notifications and comprehensive order management.",
+      icon: "🛍️",
+      buttonText: "VIEW ALL ORDERS"
+    },
+    {
+      title: "Out of Stock Products",
+      description: "Efficiently manage inventory with automated alerts for low-stock and out-of-stock items.",
+      icon: "📦",
+      buttonText: "VIEW ALL PRODUCTS"
+    }
+  ];
+
+  const [expandedId, setExpandedId] = useState(null);
+  const faqs = [
+    {
+      id: 1,
+      question: "How can I install the app?",
+      answer: "You can install the app from your device's app store. Search for 'Zen-Meraki' and click the install button. Follow the on-screen instructions to complete the installation."
+    },
+    {
+      id: 2,
+      question: "How can I set the vendor (or sellers) commission?",
+      answer: "Navigate to the Vendor Management section in your dashboard. Select the commission tab and set your desired percentage. You can set different rates for different product categories."
+    },
+    {
+      id: 3,
+      question: "Do I need to approve each vendor request, every time a new vendor request arrives?",
+      answer: "Yes, for security purposes, each new vendor request requires manual approval. You can find pending requests in the Vendor Approval section of your dashboard."
+    },
+    {
+      id: 4,
+      question: "How can I view the total earnings of the vendor and the commission from vendor?",
+      answer: "Access the Analytics dashboard and select 'Vendor Earnings' from the dropdown menu. You'll see a detailed breakdown of earnings and commissions for each vendor."
+    },
+    {
+      id: 5,
+      question: "Can the merchant set individual commission for the vendors added to the store?",
+      answer: "Yes, merchants can set custom commission rates for individual vendors. This can be done through the Vendor Settings page in your admin dashboard."
+    },
+    {
+      id: 6,
+      question: "How can I add digital (downloadable) product to the store?",
+      answer: "When creating a new product, select 'Digital Product' as the product type. You can then upload your digital files and set download limits and expiration dates."
+    },
+    {
+      id: 7,
+      question: "Can I add more than one seller at a time?",
+      answer: "Yes, you can bulk import sellers using our CSV template. Go to Vendor Management and select 'Bulk Import' to get started."
+    }
+  ]
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+
+  }
+
 
   return (
     <div>
@@ -549,6 +731,165 @@ function Welcome() {
           ))}
         </div>
       </div>
+
+      {/* next section */}
+      <div style={dashboardStyles.container}>
+        <div style={dashboardStyles.header}>
+          <h2 style={dashboardStyles.title}>Marketplace Dashboard</h2>
+          <p style={dashboardStyles.subtitle}>
+            Take control of your marketplace with our comprehensive dashboard featuring real-time analytics and management tools.
+          </p>
+        </div>
+
+        <div style={dashboardStyles.grid}>
+          {soldproducts.map((feature, index) => (
+            <div
+              key={index}
+              style={{
+                ...dashboardStyles.card,
+                transform: hoveredCard === index ? 'translateY(-10px)' : 'none',
+                boxShadow: hoveredCard === index ? '0 20px 40px rgba(0, 0, 0, 0.1)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
+              }}
+              onMouseEnter={() => setHoveredCard(index)}
+              onMouseLeave={() => setHoveredCard(null)}
+            >
+              <div style={{
+                ...dashboardStyles.progressBar,
+                width: hoveredCard === index ? '100%' : '0%',
+              }} />
+
+              <div style={{
+                ...dashboardStyles.iconContainer,
+                ...(hoveredCard === index ? dashboardStyles.iconContainerHover : {})
+              }}>
+                <span style={{ fontSize: '32px' }}>{feature.icon}</span>
+              </div>
+
+              <h3 style={dashboardStyles.cardTitle}>{feature.title}</h3>
+              <p style={dashboardStyles.cardDescription}>{feature.description}</p>
+
+              <button
+                style={{
+                  ...dashboardStyles.button,
+                  ...(hoveredButton === index ? dashboardStyles.buttonHover : {})
+                }}
+                onMouseEnter={() => setHoveredButton(index)}
+                onMouseLeave={() => setHoveredButton(null)}
+              >
+                {feature.buttonText}
+              </button>
+
+              <p style={dashboardStyles.helperText}>
+                Click on the Button above to View all the Details for all {
+                  feature.title.includes('Products') ? 'Products' :
+                    feature.title.includes('Sellers') ? 'Sellers' : 'Orders'
+                }.
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* faq section */}
+      <div style={{
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '48px 16px',
+        backgroundColor: '#f8faf8',
+        borderRadius: '16px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{
+          backgroundColor: '#173B18',
+          padding: '10px',
+          borderRadius: '12px 12px 0 0',
+          textAlign: 'center'
+        }}>
+          <h2 style={{
+            fontSize: '2rem',
+            fontWeight: 'bold',
+            color: 'white',
+            marginBottom: '8px'
+          }}>
+            Frequently Asked Questions
+          </h2>
+          <p style={{
+            color: '#e0f2e9',
+            fontSize: '1rem'
+          }}>
+            Find answers to common questions about our platform
+          </p>
+        </div>
+
+        <div style={{
+          padding: '24px',
+          backgroundColor: 'white',
+          borderRadius: '0 0 12px 12px'
+        }}>
+          {faqs.map((faq) => (
+            <div key={faq.id} style={{
+              borderBottom: '1px solid #e0e0e0',
+              transition: 'all 0.3s ease',
+              ':hover': { backgroundColor: '#f8faf8' }
+            }}>
+              <button
+                onClick={() => setExpandedId(expandedId === faq.id ? null : faq.id)}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <span style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 'bold',
+                    color: '#173B18'
+                  }}>
+                    {faq.id}
+                  </span>
+                  <h3 style={{
+                    fontSize: '1.125rem',
+                    fontWeight: '600',
+                    color: '#333',
+                    textAlign: 'left'
+                  }}>
+                    {faq.question}
+                  </h3>
+                </div>
+                {expandedId === faq.id ? (
+                  <ChevronUp style={{ color: '#173B18', fontSize: '1.5rem' }} />
+                ) : (
+                  <ChevronDown style={{ color: '#173B18', fontSize: '1.5rem' }} />
+                )}
+              </button>
+
+              <div style={{
+                padding: '0 16px 16px 64px',
+                maxHeight: expandedId === faq.id ? '200px' : '0',
+                overflow: 'hidden',
+                transition: 'max-height 0.3s ease, opacity 0.3s ease',
+                opacity: expandedId === faq.id ? '1' : '0'
+              }}>
+                <p style={{
+                  color: '#666',
+                  fontSize: '1rem',
+                  lineHeight: '1.6'
+                }}>
+                  {faq.answer}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
 
       {/* Contact Section */}
       <Container
