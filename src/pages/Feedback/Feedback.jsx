@@ -153,7 +153,7 @@ const Feedback = () => {
 
   // Sample seller data
   const seller = {
-    name: "John's Electronics",
+    name: "Multi-vendor Seller",
     id: "SE123",
     averageRating: 4.5,
     totalReviews: 128
