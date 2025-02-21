@@ -56,9 +56,9 @@ function Navbox() {
       subItems: [
         { text: "Account", icon: <AccountCircleIcon />, path: "/dashboard/sellers" },
         { text: "Privacy", icon: <LockIcon />, path: "/dashboard/privacy" },
-        { text: "Payment Details", icon: <PaymentIcon />, path: "/dashboard" },
-        { text: "Feedback", icon: <FeedbackIcon />, path: "/dashboard" },
-        { text: "Merchant Notifications", icon: <NotificationsActiveIcon />, path: "/dashboard" },
+        { text: "Payment Details", icon: <PaymentIcon />, path: "/dashboard/payment" },
+        { text: "Feedback", icon: <FeedbackIcon />, path: "/dashboard/feedback" },
+        { text: "Merchant Notifications", icon: <NotificationsActiveIcon />, path: "/dashboard/merchant-notification" },
       ],
     },
   ];

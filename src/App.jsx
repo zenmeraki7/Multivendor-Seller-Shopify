@@ -23,6 +23,9 @@ import ResetPassword from "./pages/Auth/ResetPassword";
 import TransactionPage from "./pages/Transaction/transaction";
 import ReviewPage from "./pages/Review/Review";
 import Verification from "./pages/Verification/Verification";
+import PaymentDetails from "./pages/Payment/PaymentDetails";
+import MerchantNotification from "./pages/MerchantNotifications/MerchantNotification";
+import Feedback from "./pages/Feedback/Feedback";
 
 function App() {
   return (
@@ -31,9 +34,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
-            path="/verification"
-            element={<PrivateRoute component={<Verification />} />}
-          />
+          path="/verification"
+          element={<PrivateRoute component={<Verification />} />}
+        />
         <Route path="/register" element={<Register />} />
         <Route path="forgot-password" element={<ForgotPassword/>}/>
         <Route path="/reset-password/:token" element={<ResetPassword/>}/>
@@ -86,11 +89,15 @@ function App() {
             path="transaction"
             element={<PrivateRoute component={<TransactionPage />} />}
           />
-           <Route
+          <Route
             path="review"
             element={<PrivateRoute component={<ReviewPage />} />}
           />
           
+          <Route path="payment" element={<PaymentDetails />} />
+          <Route path="merchant-notification" element={<MerchantNotification />} />
+          <Route path="feedback" element={<Feedback />} />
+
         </Route>
       </Routes>
     </>
