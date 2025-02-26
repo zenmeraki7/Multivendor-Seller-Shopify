@@ -32,6 +32,7 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Separate state for actual search query
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -64,6 +65,7 @@ const ProductList = () => {
             page,
             limit: itemsPerPage,
             ...filters, // Spread the filters
+            search: searchQuery, // Use the committed search term
           },
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -116,24 +118,18 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters]);
+  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
 
   useEffect(() => {
     fetchFilterOptions();
   }, []);
 
-  // Handle Search
-  useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredProducts(products);
-    } else {
-      const lowercasedTerm = searchTerm.toLowerCase();
-      const filtered = products.filter((product) =>
-        product.title.toLowerCase().includes(lowercasedTerm)
-      );
-      setFilteredProducts(filtered);
-    }
-  }, [searchTerm, products]);
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearchQuery(searchTerm);
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
   // Handle Page Change
   const handlePageChange = (event, value) => {
@@ -184,20 +180,24 @@ const ProductList = () => {
 
       {/* Search Bar */}
       <Box display="flex" justifyContent="flex-end" alignItems="center" mb={2}>
-        <TextField
-          placeholder="Search Product"
-          size="small"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ width: "300px" }}
-        />
+        <form onSubmit={handleSearchSubmit} style={{ width: "300px" }}>
+          <TextField
+            placeholder="Search Product"
+            size="small"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton type="submit" size="small">
+                    <Search />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </form>
       </Box>
 
       {/* Filters and Actions */}
@@ -325,6 +325,8 @@ const ProductList = () => {
                 subcategory: "",
                 categoryType: "",
               });
+              setSearchTerm("");
+              setSearchQuery("");
               setCurrentPage(1);
               fetchProducts(1);
             }}
@@ -410,7 +412,7 @@ const ProductList = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                <TableCell colSpan={8} style={{ textAlign: "center" }}>
                   No products available.
                 </TableCell>
               </TableRow>

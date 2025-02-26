@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  Search,
-  Download,
-  Refresh,
-} from "@mui/icons-material";
+import { Search, Download, Refresh } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -244,7 +240,9 @@ function OrderDetails() {
         />
         <CardContent>
           {/* Search Bar */}
-          <Box sx={{ display: "flex", gap: 2, marginBottom: 2, width: "400px" }}>
+          <Box
+            sx={{ display: "flex", gap: 2, marginBottom: 2, width: "400px" }}
+          >
             <Box sx={{ position: "relative", flex: 1 }}>
               <Search
                 sx={{
@@ -265,22 +263,38 @@ function OrderDetails() {
           </Box>
 
           {/* Orders Table */}
-          <TableContainer sx={{marginTop:'40px'}}>
+          <TableContainer sx={{ marginTop: "40px" }}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "primary.main"}}>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Product</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>User</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Category</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Price</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Delivery</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Date</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Order Status</TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>Action</TableCell>
+                <TableRow sx={{ backgroundColor: "primary.main" }}>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Product
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    User
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Category
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Price
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Order Delivery
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Order Date
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Order Status
+                  </TableCell>
+                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                    Action
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-              {paginatedOrders.map((order, index) => (
+                {paginatedOrders.map((order, index) => (
                   <TableRow key={index}>
                     {/* Product Column */}
                     <TableCell>
@@ -350,8 +364,8 @@ function OrderDetails() {
               </TableBody>
             </Table>
           </TableContainer>
-           {/* Pagination */}
-           <Box
+          {/* Pagination */}
+          <Box
             sx={{
               display: "flex",
               justifyContent: "center",
@@ -364,7 +378,7 @@ function OrderDetails() {
               onChange={handlePageChange}
               color="primary"
             />
-            </Box>
+          </Box>
         </CardContent>
       </Card>
     </div>
