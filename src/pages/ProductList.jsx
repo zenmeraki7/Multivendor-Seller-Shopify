@@ -32,9 +32,24 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); // Separate state for actual search query
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [filters, setFilters] = useState({
+    inStock: "",
+    price: "",
+    isActive: "",
+    category: "",
+    subcategory: "",
+    categoryType: "",
+  });
+
+  const [filterOptions, setFilterOptions] = useState({
+    categoryTypes: [],
+    categories: [],
+    subcategories: [],
+  });
 
   const itemsPerPage = 10; // Adjust items per page as needed
 
@@ -46,15 +61,19 @@ const ProductList = () => {
       const response = await axios.get(
         `${BASE_URL}/api/product/all-seller-product`,
         {
-          params: { page, limit: itemsPerPage },
+          params: {
+            page,
+            limit: itemsPerPage,
+            ...filters, // Spread the filters
+            search: searchQuery, // Use the committed search term
+          },
           headers: {
-            authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure the token is stored correctly
+            authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
 
       const { data, totalPages } = response.data;
-
       setProducts(data);
       setFilteredProducts(data);
       setTotalPages(totalPages);
@@ -65,22 +84,52 @@ const ProductList = () => {
     }
   };
 
+  // Add function to fetch filter options
+  const fetchFilterOptions = async () => {
+    try {
+      const [categoryTypesRes, categoriesRes, subcategoriesRes] =
+        await Promise.all([
+          axios.get(`${BASE_URL}/api/category-type/all`, {
+            headers: {
+              authorization:` Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+          axios.get(`${BASE_URL}/api/category/all`, {
+            headers: {
+              authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+          axios.get(`${BASE_URL}/api/subcategory/all`, {
+            headers: {
+              authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }),
+        ]);
+
+      setFilterOptions({
+        categoryTypes: categoryTypesRes.data?.data || [],
+        categories: categoriesRes.data?.data || [],
+        subcategories: subcategoriesRes.data?.data || [],
+      });
+    } catch (err) {
+      console.error("Error fetching filter options:", err);
+    }
+  };
+
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage]);
+  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
 
-  // Handle Search
   useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredProducts(products);
-    } else {
-      const lowercasedTerm = searchTerm.toLowerCase();
-      const filtered = products.filter((product) =>
-        product.title.toLowerCase().includes(lowercasedTerm)
-      );
-      setFilteredProducts(filtered);
-    }
-  }, [searchTerm, products]);
+    fetchFilterOptions();
+  }, []);
+
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearchQuery(searchTerm);
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
   // Handle Page Change
   const handlePageChange = (event, value) => {
@@ -131,20 +180,24 @@ const ProductList = () => {
 
       {/* Search Bar */}
       <Box display="flex" justifyContent="flex-end" alignItems="center" mb={2}>
-        <TextField
-          placeholder="Search Product"
-          size="small"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Search />
-              </InputAdornment>
-            ),
-          }}
-          sx={{ width: "300px" }}
-        />
+        <form onSubmit={handleSearchSubmit} style={{ width: "300px" }}>
+          <TextField
+            placeholder="Search Product"
+            size="small"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton type="submit" size="small">
+                    <Search />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </form>
       </Box>
 
       {/* Filters and Actions */}
@@ -161,44 +214,123 @@ const ProductList = () => {
             color="error"
             sx={{ textDecoration: "underline" }}
           >
-            Trash: {/* Implement trash count if applicable */}0
+            Trash: 0
           </Typography>
         </Typography>
         <Box display="flex" gap={1}>
-          {/* Example Filters - Implement actual filtering logic as needed */}
-          <Select size="small" defaultValue="" displayEmpty>
+          <Select
+            size="small"
+            value={filters.inStock}
+            onChange={(e) =>
+              setFilters({ ...filters, inStock: e.target.value })
+            }
+            displayEmpty
+          >
             <MenuItem value="">
               <em>Stock</em>
             </MenuItem>
-            <MenuItem value="In Stock">In Stock</MenuItem>
-            <MenuItem value="Out of Stock">Out of Stock</MenuItem>
+            <MenuItem value="true">In Stock</MenuItem>
+            <MenuItem value="false">Out of Stock</MenuItem>
           </Select>
-          <Select size="small" defaultValue="" displayEmpty>
+
+          <Select
+            size="small"
+            value={filters.categoryType}
+            onChange={(e) =>
+              setFilters({ ...filters, categoryType: e.target.value })
+            }
+            displayEmpty
+          >
             <MenuItem value="">
-              <em>Product Category</em>
+              <em>Category-Type</em>
             </MenuItem>
-            {/* Populate categories dynamically if possible */}
-            <MenuItem value="Fashion">Fashion</MenuItem>
-            <MenuItem value="Electronics">Electronics</MenuItem>
+            {filterOptions.categoryTypes.map((type) => (
+              <MenuItem key={type._id} value={type._id}>
+                {type.name}
+              </MenuItem>
+            ))}
           </Select>
-          <Select size="small" defaultValue="" displayEmpty>
+
+          <Select
+            size="small"
+            value={filters.category}
+            onChange={(e) =>
+              setFilters({ ...filters, category: e.target.value })
+            }
+            displayEmpty
+          >
             <MenuItem value="">
-              <em>Product Type</em>
+              <em>Category</em>
             </MenuItem>
-            <MenuItem value="Type1">Type1</MenuItem>
-            <MenuItem value="Type2">Type2</MenuItem>
+            {filterOptions.categories.map((category) => (
+              <MenuItem key={category._id} value={category._id}>
+                {category.name}
+              </MenuItem>
+            ))}
           </Select>
-          <Select size="small" defaultValue="" displayEmpty>
+
+          <Select
+            size="small"
+            value={filters.subcategory}
+            onChange={(e) =>
+              setFilters({ ...filters, subcategory: e.target.value })
+            }
+            displayEmpty
+          >
             <MenuItem value="">
-              <em>Additional Options</em>
+              <em>Sub-Category</em>
             </MenuItem>
-            <MenuItem value="Option1">Option1</MenuItem>
-            <MenuItem value="Option2">Option2</MenuItem>
+            {filterOptions.subcategories.map((subcategory) => (
+              <MenuItem key={subcategory._id} value={subcategory._id}>
+                {subcategory.name}
+              </MenuItem>
+            ))}
           </Select>
-          <Button variant="contained" color="primary">
+
+          <Select
+            size="small"
+            value={filters.isActive}
+            onChange={(e) =>
+              setFilters({ ...filters, isActive: e.target.value })
+            }
+            displayEmpty
+          >
+            <MenuItem value="">
+              <em>Status</em>
+            </MenuItem>
+            <MenuItem value="true">Active</MenuItem>
+            <MenuItem value="false">Inactive</MenuItem>
+          </Select>
+
+          {/* <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setCurrentPage(1);
+              fetchProducts(1);
+            }}
+          >
             APPLY
-          </Button>
-          <Button variant="outlined" color="secondary">
+          </Button> */}
+
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => {
+              setFilters({
+                inStock: "",
+                price: "",
+                isActive: "",
+                category: "",
+                subcategory: "",
+                categoryType: "",
+              });
+              setSearchTerm("");
+              setSearchQuery("");
+              setCurrentPage(1);
+              fetchProducts(1);
+            }}
+          >
             CLEAR
           </Button>
         </Box>
@@ -213,7 +345,9 @@ const ProductList = () => {
               <TableCell sx={{ color: "primary.main" }}>PRODUCT NAME</TableCell>
               <TableCell sx={{ color: "primary.main" }}>STOCK</TableCell>
               <TableCell sx={{ color: "primary.main" }}>PRICE</TableCell>
-              <TableCell sx={{ color: "primary.main" }}>CATEGORY</TableCell>
+              <TableCell sx={{ color: "primary.main" }}>
+                CATEGORY TYPE
+              </TableCell>
               <TableCell sx={{ color: "primary.main" }}>STATUS</TableCell>
               <TableCell sx={{ color: "primary.main" }}>
                 LAST MODIFIED
@@ -267,7 +401,9 @@ const ProductList = () => {
                       variant="outlined"
                       color="primary"
                       size="small"
-                      onClick={() => navigate(`/dashboard/view-product/${product._id}`)} // Replace with your logic
+                      onClick={() =>
+                        navigate(`/dashboard/view-product/${product._id}`)
+                      } // Replace with your logic
                     >
                       View
                     </Button>
@@ -276,7 +412,7 @@ const ProductList = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} style={{ textAlign: "center" }}>
+                <TableCell colSpan={8} style={{ textAlign: "center" }}>
                   No products available.
                 </TableCell>
               </TableRow>
