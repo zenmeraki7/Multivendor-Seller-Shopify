@@ -91,6 +91,7 @@ const ProductList = () => {
         await Promise.all([
           axios.get(`${BASE_URL}/api/category-type/all`, {
             headers: {
+              authorization:` Bearer ${localStorage.getItem("token")}`,
               authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
@@ -118,18 +119,24 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
+  }, [currentPage, filters]);
 
   useEffect(() => {
     fetchFilterOptions();
   }, []);
 
-  // Handle search submission
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setSearchQuery(searchTerm);
-    setCurrentPage(1); // Reset to first page when searching
-  };
+  // Handle Search
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredProducts(products);
+    } else {
+      const lowercasedTerm = searchTerm.toLowerCase();
+      const filtered = products.filter((product) =>
+        product.title.toLowerCase().includes(lowercasedTerm)
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [searchTerm, products]);
 
   // Handle Page Change
   const handlePageChange = (event, value) => {
