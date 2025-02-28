@@ -119,24 +119,23 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters]);
+  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
+  
 
   useEffect(() => {
     fetchFilterOptions();
   }, []);
 
-  // Handle Search
   useEffect(() => {
-    if (searchTerm === "") {
-      setFilteredProducts(products);
-    } else {
-      const lowercasedTerm = searchTerm.toLowerCase();
-      const filtered = products.filter((product) =>
-        product.title.toLowerCase().includes(lowercasedTerm)
-      );
-      setFilteredProducts(filtered);
-    }
-  }, [searchTerm, products]);
+    fetchFilterOptions();
+  }, []);
+
+  // Handle search submission
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setSearchQuery(searchTerm);
+    setCurrentPage(1); // Reset to first page when searching
+  };
 
   // Handle Page Change
   const handlePageChange = (event, value) => {
