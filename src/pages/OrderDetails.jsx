@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  Search,
-  Download,
-  Refresh,
-} from "@mui/icons-material";
+import { Search, Download, Refresh } from "@mui/icons-material";
 import {
   Card,
   CardContent,
@@ -275,7 +271,9 @@ function OrderDetails() {
         />
         <CardContent>
           {/* Search Bar */}
-          <Box sx={{ display: "flex", gap: 2, marginBottom: 2, width: "400px" }}>
+          <Box
+            sx={{ display: "flex", gap: 2, marginBottom: 2, width: "400px" }}
+          >
             <Box sx={{ position: "relative", flex: 1 }}>
               <TableInput
                 id="search-category"
@@ -299,10 +297,10 @@ function OrderDetails() {
           </Box>
 
           {/* Orders Table */}
-          <TableContainer sx={{ marginTop: '40px' }}>
+          <TableContainer sx={{marginTop:'40px'}}>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "primary.main" }}>
+                <TableRow sx={{ backgroundColor: "primary.main"}}>
                   <TableCell sx={{ color: "white", fontWeight: "bold" }}>Product</TableCell>
                   <TableCell sx={{ color: "white", fontWeight: "bold" }}>User</TableCell>
                   <TableCell sx={{ color: "white", fontWeight: "bold" }}>Category</TableCell>

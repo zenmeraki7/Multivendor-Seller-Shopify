@@ -119,23 +119,24 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
-  // }, [currentPage, filters]);
+  }, [currentPage, filters]);
 
   useEffect(() => {
     fetchFilterOptions();
   }, []);
 
+  // Handle Search
   useEffect(() => {
-    fetchFilterOptions();
-  }, []);
-
-  // Handle search submission
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setSearchQuery(searchTerm);
-    setCurrentPage(1); // Reset to first page when searching
-  };
+    if (searchTerm === "") {
+      setFilteredProducts(products);
+    } else {
+      const lowercasedTerm = searchTerm.toLowerCase();
+      const filtered = products.filter((product) =>
+        product.title.toLowerCase().includes(lowercasedTerm)
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [searchTerm, products]);
 
   // Handle Page Change
   const handlePageChange = (event, value) => {
