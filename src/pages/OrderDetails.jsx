@@ -374,7 +374,8 @@ function OrderDetails() {
                     </TableCell>
 
                     {/* Action Column */}
-                    <TableButton 
+                    <TableCell>
+                        <TableButton
                         isSmall
                           variant="contained"
                           onClick={() =>
@@ -383,6 +384,7 @@ function OrderDetails() {
                         >
                           View
                         </TableButton>
+                      </TableCell>
                     {/* <TableCell>
                       <Button variant="contained" color="primary">
                         View
