@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Box, Typography, Link, Button } from "@mui/material";
 import { keyframes } from "@emotion/react";
+import axios from "axios";
+import { BASE_URL } from "../../utils/baseUrl";
 
 // Animation for the background gradient
 const gradientAnimation = keyframes`
@@ -17,6 +19,19 @@ const ForgotPassword = () => {
     setEmail(e.target.value);
   };
 
+  const handleSubmit = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/vendor/forgot-password`,
+        { email }
+      );
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  console.log(email);
   return (
     <Box
       sx={{
@@ -140,6 +155,7 @@ const ForgotPassword = () => {
                 background: "linear-gradient(45deg, #2575fc, #6a11cb)",
               },
             }}
+            onClick={handleSubmit}
           >
             Send Reset Link
           </Button>

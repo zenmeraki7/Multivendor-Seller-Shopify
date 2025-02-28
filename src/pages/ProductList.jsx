@@ -61,12 +61,7 @@ const ProductList = () => {
       const response = await axios.get(
         `${BASE_URL}/api/product/all-seller-product`,
         {
-          params: {
-            page,
-            limit: itemsPerPage,
-            ...filters, // Spread the filters
-            search: searchQuery, // Use the committed search term
-          },
+          params: { page, limit: itemsPerPage },
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -84,41 +79,9 @@ const ProductList = () => {
     }
   };
 
-  // Add function to fetch filter options
-  const fetchFilterOptions = async () => {
-    try {
-      const [categoryTypesRes, categoriesRes, subcategoriesRes] =
-        await Promise.all([
-          axios.get(`${BASE_URL}/api/category-type/all`, {
-            headers: {
-              authorization:` Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-          axios.get(`${BASE_URL}/api/category/all`, {
-            headers: {
-              authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-          axios.get(`${BASE_URL}/api/subcategory/all`, {
-            headers: {
-              authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }),
-        ]);
-
-      setFilterOptions({
-        categoryTypes: categoryTypesRes.data?.data || [],
-        categories: categoriesRes.data?.data || [],
-        subcategories: subcategoriesRes.data?.data || [],
-      });
-    } catch (err) {
-      console.error("Error fetching filter options:", err);
-    }
-  };
-
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
+  }, [currentPage]);
 
   useEffect(() => {
     fetchFilterOptions();
@@ -311,26 +274,8 @@ const ProductList = () => {
             }}
           >
             APPLY
-          </Button> */}
-
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => {
-              setFilters({
-                inStock: "",
-                price: "",
-                isActive: "",
-                category: "",
-                subcategory: "",
-                categoryType: "",
-              });
-              setSearchTerm("");
-              setSearchQuery("");
-              setCurrentPage(1);
-              fetchProducts(1);
-            }}
-          >
+          </Button>
+          <Button variant="outlined" color="secondary">
             CLEAR
           </Button>
         </Box>
