@@ -25,6 +25,8 @@ import { Search, Refresh, Edit } from "@mui/icons-material";
 import axios from "axios"; // Alternatively, use your axiosInstance
 import { BASE_URL } from "../utils/baseUrl";
 import { useNavigate } from "react-router-dom";
+import TableInput from "../components/SharedComponents/TableButton/TableInput";
+import TableSelect from "../components/SharedComponents/TableButton/TableSelect";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -91,7 +93,7 @@ const ProductList = () => {
         await Promise.all([
           axios.get(`${BASE_URL}/api/category-type/all`, {
             headers: {
-              authorization:` Bearer ${localStorage.getItem("token")}`,
+              authorization: ` Bearer ${localStorage.getItem("token")}`,
               authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
@@ -120,7 +122,7 @@ const ProductList = () => {
   useEffect(() => {
     fetchProducts(currentPage);
   }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
-  
+
 
   useEffect(() => {
     fetchFilterOptions();
@@ -187,22 +189,26 @@ const ProductList = () => {
       {/* Search Bar */}
       <Box display="flex" justifyContent="flex-end" alignItems="center" mb={2}>
         <form onSubmit={handleSearchSubmit} style={{ width: "300px" }}>
-          <TextField
-            placeholder="Search Product"
-            size="small"
+
+          <TableInput
+            id="search-category"
+            name="search"
+            placeholder="Search Category Type"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            fullWidth
+            label="Search"
+            type="text"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton type="submit" size="small">
-                    <Search />
-                  </IconButton>
+                  <Search />
                 </InputAdornment>
               ),
             }}
+            sx={{ width: "300px" }}
           />
+
+
         </form>
       </Box>
 
@@ -224,22 +230,46 @@ const ProductList = () => {
           </Typography>
         </Typography>
         <Box display="flex" gap={1}>
-          <Select
-            size="small"
+
+          <TableSelect
+            id="stock-filter"
+            name="Stock"
             value={filters.inStock}
             onChange={(e) =>
               setFilters({ ...filters, inStock: e.target.value })
             }
             displayEmpty
-          >
-            <MenuItem value="">
-              <em>Stock</em>
-            </MenuItem>
-            <MenuItem value="true">In Stock</MenuItem>
-            <MenuItem value="false">Out of Stock</MenuItem>
-          </Select>
+            label="Stock"
+            MenuItems={[
+              { value: "", label: "All" },
+              { value: "true", label: "In Stock" },
+              { value: "false", label: "Out of Stock" },
+              // { value: "pending", label: "Pending" },
+            ]}
+          />
 
-          <Select
+          {/* <TableSelect
+            id="category-type-filter"
+            name="Category Type"
+            value={filters.categoryType}
+            onChange={(e) =>
+              setFilters({ ...filters, categoryType: e.target.value })
+            }
+            displayEmpty
+            label="Category Type"
+            MenuItems={[
+              <MenuItem key="" value="">
+                <em>Category-Type</em>
+              </MenuItem>,
+              ...filterOptions.categoryTypes.map((type) => (
+                <MenuItem key={type._id} value={type._id}>
+                  {type.name}
+                </MenuItem>
+              )),
+            ]}
+          /> */}
+
+          {/* <Select
             size="small"
             value={filters.categoryType}
             onChange={(e) =>
@@ -255,7 +285,7 @@ const ProductList = () => {
                 {type.name}
               </MenuItem>
             ))}
-          </Select>
+          </Select> */}
 
           <Select
             size="small"
