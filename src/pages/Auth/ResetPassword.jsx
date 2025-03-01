@@ -14,7 +14,7 @@ const ResetPassword = () => {
     newPassword: "",
     confirmPassword: "",
   });
-
+  console.log(formData);
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,7 +33,8 @@ const ResetPassword = () => {
         alignItems: "center",
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(-45deg, #f3e5f5, #fff3e0, #f3e5f5, #fff3e0)",
+        background:
+          "linear-gradient(-45deg, #f3e5f5, #fff3e0, #f3e5f5, #fff3e0)",
         backgroundSize: "400% 400%",
         animation: `${gradientAnimation} 10s ease infinite`,
       }}

@@ -1,3 +1,4 @@
+// seller ptoduct listing
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -25,6 +26,9 @@ import { Search, Refresh, Edit } from "@mui/icons-material";
 import axios from "axios"; // Alternatively, use your axiosInstance
 import { BASE_URL } from "../utils/baseUrl";
 import { useNavigate } from "react-router-dom";
+import TableInput from "../components/SharedComponents/TableButton/TableInput";
+import TableSelect from "../components/SharedComponents/TableButton/TableSelect";
+import TableButton from "../components/SharedComponents/TableButton/TableButton";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -91,7 +95,7 @@ const ProductList = () => {
         await Promise.all([
           axios.get(`${BASE_URL}/api/category-type/all`, {
             headers: {
-              authorization: `Bearer ${localStorage.getItem("token")}`,
+              authorization: ` Bearer ${localStorage.getItem("token")}`,
             },
           }),
           axios.get(`${BASE_URL}/api/category/all`, {
@@ -119,6 +123,11 @@ const ProductList = () => {
   useEffect(() => {
     fetchProducts(currentPage);
   }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
+
+
+  useEffect(() => {
+    fetchFilterOptions();
+  }, []);
 
   useEffect(() => {
     fetchFilterOptions();
@@ -179,26 +188,38 @@ const ProductList = () => {
       </Box>
 
       {/* Search Bar */}
-      <Box display="flex" justifyContent="flex-end" alignItems="center" mb={2}>
-        <form onSubmit={handleSearchSubmit} style={{ width: "300px" }}>
-          <TextField
-            placeholder="Search Product"
-            size="small"
+      <Box
+        display="flex"
+        justifyContent="flex-end"
+        alignItems="center"
+        mb={2}
+        width="100%"
+        pr={0} // Ensures no extra padding at the right
+      >
+        <form
+          onSubmit={handleSearchSubmit}
+          style={{ width: "300px", display: "flex", justifyContent: "flex-end" }}
+        >
+          <TableInput
+            id="search-category"
+            name="search"
+            placeholder="Search Category Type"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            fullWidth
+            label="Search"
+            type="text"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton type="submit" size="small">
-                    <Search />
-                  </IconButton>
+                  <Search />
                 </InputAdornment>
               ),
             }}
+            sx={{ width: "100%", marginRight: 0 }} // Ensures no extra space
           />
         </form>
       </Box>
+
 
       {/* Filters and Actions */}
       <Box
@@ -218,104 +239,101 @@ const ProductList = () => {
           </Typography>
         </Typography>
         <Box display="flex" gap={1}>
-          <Select
-            size="small"
+          <TableSelect
+            id="stock-filter"
+            name="Stock"
             value={filters.inStock}
             onChange={(e) =>
               setFilters({ ...filters, inStock: e.target.value })
             }
             displayEmpty
-          >
-            <MenuItem value="">
-              <em>Stock</em>
-            </MenuItem>
-            <MenuItem value="true">In Stock</MenuItem>
-            <MenuItem value="false">Out of Stock</MenuItem>
-          </Select>
+            label="Stock"
+            MenuItems={[
+              { value: "", label: "All" },
+              { value: "true", label: "In Stock" },
+              { value: "false", label: "Out of Stock" },
+              // { value: "pending", label: "Pending" },
+            ]}
+          />
 
-          <Select
-            size="small"
+
+          <TableSelect
+            id="category-type-filter"
+            name="Category Type"
             value={filters.categoryType}
             onChange={(e) =>
               setFilters({ ...filters, categoryType: e.target.value })
             }
             displayEmpty
-          >
-            <MenuItem value="">
-              <em>Category-Type</em>
-            </MenuItem>
-            {filterOptions.categoryTypes.map((type) => (
-              <MenuItem key={type._id} value={type._id}>
-                {type.name}
-              </MenuItem>
-            ))}
-          </Select>
+            label="Category Type"
+            MenuItems={[
+              { value: "", label: "All" }, // First option as "All"
+              ...filterOptions.categoryTypes.map((type) => ({
+                value: type._id,
+                label: type.name,
+              })),
+            ]}
+          />
 
-          <Select
-            size="small"
+          <TableSelect
+            id="category-filter"
+            name="Category"
             value={filters.category}
             onChange={(e) =>
               setFilters({ ...filters, category: e.target.value })
             }
             displayEmpty
-          >
-            <MenuItem value="">
-              <em>Category</em>
-            </MenuItem>
-            {filterOptions.categories.map((category) => (
-              <MenuItem key={category._id} value={category._id}>
-                {category.name}
-              </MenuItem>
-            ))}
-          </Select>
+            label="Category "
+            MenuItems={[
+              { value: "", label: "All" }, // First option as "All"
+              ...filterOptions.categories.map((category) => ({
+                value: category._id,
+                label: category.name,
+              })),
+            ]}
 
-          <Select
-            size="small"
+          />
+
+          <TableSelect
+            id="subcategory-filter"
+            name="Sub-category"
             value={filters.subcategory}
             onChange={(e) =>
               setFilters({ ...filters, subcategory: e.target.value })
             }
             displayEmpty
-          >
-            <MenuItem value="">
-              <em>Sub-Category</em>
-            </MenuItem>
-            {filterOptions.subcategories.map((subcategory) => (
-              <MenuItem key={subcategory._id} value={subcategory._id}>
-                {subcategory.name}
-              </MenuItem>
-            ))}
-          </Select>
+            label="Sub-category Type"
+            MenuItems={[
+              { value: "", label: "All" }, // First option as "All"
+              ...filterOptions.subcategories.map((subcategory) => ({
+                value: subcategory._id,
+                label: subcategory.name,
+              })),
+            ]}
 
-          <Select
-            size="small"
+          />
+
+          <TableSelect
+            id="status-filter"
+            name="Status"
             value={filters.isActive}
             onChange={(e) =>
               setFilters({ ...filters, isActive: e.target.value })
             }
             displayEmpty
-          >
-            <MenuItem value="">
-              <em>Status</em>
-            </MenuItem>
-            <MenuItem value="true">Active</MenuItem>
-            <MenuItem value="false">Inactive</MenuItem>
-          </Select>
+            label="Status"
+            MenuItems={[
+              { value: "", label: "Status" },
+              { value: "true", label: "Approved" },
+              { value: "false", label: "Pending" },
 
-          {/* <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              setCurrentPage(1);
-              fetchProducts(1);
-            }}
-          >
-            APPLY
-          </Button> */}
+            ]}
+          />
 
-          <Button
+          
+
+          <TableButton
             variant="outlined"
-            color="secondary"
             onClick={() => {
               setFilters({
                 inStock: "",
@@ -330,9 +348,12 @@ const ProductList = () => {
               setCurrentPage(1);
               fetchProducts(1);
             }}
+            style={{ height: "56px" }}
           >
-            CLEAR
-          </Button>
+            Clear
+          </TableButton>
+
+          
         </Box>
       </Box>
 
@@ -348,6 +369,12 @@ const ProductList = () => {
               <TableCell sx={{ color: "primary.main" }}>
                 CATEGORY TYPE
               </TableCell>
+              <TableCell sx={{ color: "primary.main" }}>
+                CATEGORY
+              </TableCell>
+              {/* <TableCell sx={{ color: "primary.main" }}>
+                SUB-CATEGORY TYPE
+              </TableCell> */}
               <TableCell sx={{ color: "primary.main" }}>STATUS</TableCell>
               <TableCell sx={{ color: "primary.main" }}>
                 LAST MODIFIED
@@ -371,7 +398,9 @@ const ProductList = () => {
                       }}
                     />
                   </TableCell>
-                  <TableCell>{product.title}</TableCell>
+                  <TableCell>
+                    {product.title.length > 20 ? `${product.title.slice(0, 20)}...` : product.title}
+                  </TableCell>
                   <TableCell>
                     {product.stock > 0
                       ? `In stock (${product.stock})`
@@ -381,11 +410,13 @@ const ProductList = () => {
                   <TableCell>
                     {product?.categoryType?.name || "Unavailable"}
                   </TableCell>
+                  <TableCell>{product?.category?.name || "Unavailable"}</TableCell>
+                  {/* <TableCell>{product?.subcategory?.name || "Unavailable"}</TableCell> */}
                   <TableCell>
                     <Chip
                       label={product.isApproved ? "Approved" : "Pending"}
                       color={product.isApproved ? "success" : "error"}
-                      variant="outlined"
+                      variant="contained"
                       sx={{
                         fontWeight: "bold",
                         textTransform: "uppercase",
@@ -396,18 +427,20 @@ const ProductList = () => {
                   <TableCell>
                     {new Date(product.createdAt).toLocaleDateString()}
                   </TableCell>
+
                   <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      size="small"
+                    <TableButton
+                      isSmall
+                      variant="contained"
                       onClick={() =>
                         navigate(`/dashboard/view-product/${product._id}`)
                       } // Replace with your logic
                     >
                       View
-                    </Button>
+                    </TableButton>
                   </TableCell>
+
+
                 </TableRow>
               ))
             ) : (
