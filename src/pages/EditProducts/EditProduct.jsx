@@ -949,7 +949,7 @@ function EditProduct() {
             Discard
           </Button>
           <Button onClick={handleCancel} color="secondary">
-            Cancel
+            Cancel 
           </Button>
           <Button onClick={handleSubmit} color="primary" autoFocus>
             Confirm
