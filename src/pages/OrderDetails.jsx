@@ -11,15 +11,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  TextField,
   Box,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
   Pagination,
   InputAdornment,
+  Chip
 } from "@mui/material";
 import TableInput from "../components/SharedComponents/TableButton/TableInput";
 import TableButton from "../components/SharedComponents/TableButton/TableButton";
@@ -349,27 +344,13 @@ function OrderDetails() {
 
                     {/* Order Status Column */}
                     <TableCell>
-                      <Typography
-                        sx={{
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          backgroundColor:
-                            order.status === "Canceled"
-                              ? "#f8d7da"
-                              : order.status === "Shipped"
-                                ? "#d1ecf1"
-                                : "#ffeeba",
-                          color:
-                            order.status === "Canceled"
-                              ? "#721c24"
-                              : order.status === "Shipped"
-                                ? "#0c5460"
-                                : "#856404",
-                        }}
-                      >
-                        {order.status}
-                      </Typography>
+                      <Chip
+                        label={ order.status}
+                        color={ order.status === "Shipped" ? "success" : "error"}
+                      />
+                   
                     </TableCell>
+
 
                     {/* Action Column */}
                     <TableCell>

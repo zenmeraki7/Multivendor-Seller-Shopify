@@ -1,3 +1,4 @@
+// seller ptoduct listing
 import React, { useEffect, useState } from "react";
 import {
   Box,
@@ -68,14 +69,14 @@ const ProductList = () => {
             page,
             limit: itemsPerPage,
             ...filters, // Spread the filters
-            search: searchQuery, // Use the committed search term
+            search: searchQuery, // Use the committed search term for global search
           },
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-
+  
       const { data, totalPages } = response.data;
       setProducts(data);
       setFilteredProducts(data);
@@ -95,7 +96,6 @@ const ProductList = () => {
           axios.get(`${BASE_URL}/api/category-type/all`, {
             headers: {
               authorization: ` Bearer ${localStorage.getItem("token")}`,
-              authorization: `Bearer ${localStorage.getItem("token")}`,
             },
           }),
           axios.get(`${BASE_URL}/api/category/all`, {
@@ -122,7 +122,7 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
+  }, [currentPage, filters, searchQuery]);
 
 
   useEffect(() => {
@@ -144,6 +144,10 @@ const ProductList = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
+// Handle search input change
+const handleSearchChange = (e) => {
+  setSearchTerm(e.target.value);
+};
 
   if (loading) {
     return (
@@ -189,36 +193,38 @@ const ProductList = () => {
 
       {/* Search Bar */}
       <Box
-        display="flex"
-        justifyContent="flex-end"
-        alignItems="center"
-        mb={2}
-        width="100%"
-        pr={0} // Ensures no extra padding at the right
-      >
-        <form
-          onSubmit={handleSearchSubmit}
-          style={{ width: "300px", display: "flex", justifyContent: "flex-end" }}
-        >
-          <TableInput
-            id="search-category"
-            name="search"
-            placeholder="Search Category Type"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            label="Search"
-            type="text"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ width: "100%", marginRight: 0 }} // Ensures no extra space
-          />
-        </form>
-      </Box>
+  display="flex"
+  justifyContent="flex-end"
+  alignItems="center"
+  mb={2}
+  width="100%"
+>
+  <form
+    onSubmit={handleSearchSubmit}
+    style={{ width: "300px", display: "flex", justifyContent: "flex-end" }}
+  >
+    <TableInput
+      id="search-product"
+      name="search"
+      placeholder="Search Product, Category, Subcategory"
+      value={searchTerm}
+      onChange={handleSearchChange} // Correctly updating searchTerm
+      label="Search"
+      type="text"
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton type="submit">
+              <Search />
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+      sx={{ width: "100%", marginRight: 0 }}
+    />
+  </form>
+</Box>
+
 
 
       {/* Filters and Actions */}
@@ -280,7 +286,7 @@ const ProductList = () => {
             name="Category"
             value={filters.category}
             onChange={(e) =>
-              setFilters({ ...filters, categoryType: e.target.value })
+              setFilters({ ...filters, category: e.target.value })
             }
             displayEmpty
             label="Category "
@@ -324,8 +330,8 @@ const ProductList = () => {
             label="Status"
             MenuItems={[
               { value: "", label: "Status" },
-              { value: "true", label: "Active" },
-              { value: "false", label: "Inactive" },
+              { value: "true", label: "Approved" },
+              { value: "false", label: "Pending" },
 
             ]}
           />
@@ -416,7 +422,7 @@ const ProductList = () => {
                     <Chip
                       label={product.isApproved ? "Approved" : "Pending"}
                       color={product.isApproved ? "success" : "error"}
-                      variant="outlined"
+                      variant="contained"
                       sx={{
                         fontWeight: "bold",
                         textTransform: "uppercase",
