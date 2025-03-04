@@ -1,9 +1,58 @@
 import React, { useState } from 'react';
-import { Star, ThumbsUp, MessageCircle, Flag, Search, Filter, ChevronDown } from 'lucide-react';
+import {
+  Box,
+  Typography,
+  Container,
+  Paper,
+  Tabs,
+  Tab,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Card,
+  CardContent,
+  Chip,
+  Button,
+  InputAdornment,
+  Divider,
+  Grid,
+  IconButton,
+  Rating,
+  Avatar,
+  Tooltip,
+  Badge,
+  useTheme,
+  useMediaQuery,
+  Pagination
+} from '@mui/material';
+
+import {
+  Search,
+  Flag,
+  ThumbUp,
+  Message,
+  ExpandMore,
+  FilterList,
+  VerifiedUser,
+  Sort
+} from '@mui/icons-material';
 
 const ReviewPage = () => {
-  const [activeTab, setActiveTab] = useState('product');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [activeTab, setActiveTab] = useState(0);
   const [selectedRating, setSelectedRating] = useState('all');
+  const [page, setPage] = useState(1);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
 
   // Sample review data
   const reviews = [
@@ -17,7 +66,8 @@ const ReviewPage = () => {
       seller: "TechHub Store",
       helpful: 24,
       replies: 3,
-      verified: true
+      verified: true,
+      avatar: "S"
     },
     {
       id: 2,
@@ -29,232 +79,324 @@ const ReviewPage = () => {
       seller: "Electronics Plus",
       helpful: 15,
       replies: 1,
-      verified: true
+      verified: true,
+      avatar: "J"
     }
   ];
 
-  const StarRating = ({ rating }) => {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {[...Array(5)].map((_, index) => (
-          <Star
-            key={index}
-            size={18}
-            style={{
-              fill: index < rating ? '#fbbf24' : 'none',
-              stroke: '#fbbf24',
-              marginRight: '2px'
-            }}
-          />
-        ))}
-      </div>
-    );
-  };
-
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb', padding: '32px' }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        padding: '24px'
-      }}>
-        {/* Header */}
-        <div style={{ marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '8px' }}>Reviews & Ratings</h1>
-          <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
-            <button
-              onClick={() => setActiveTab('product')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '6px',
-                backgroundColor: activeTab === 'product' ? '#3b82f6' : 'transparent',
-                color: activeTab === 'product' ? 'white' : 'black',
-                border: activeTab === 'product' ? 'none' : '1px solid #e5e7eb',
-                cursor: 'pointer'
-              }}
+    <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default, py: 4 }}>
+      <Container maxWidth="lg">
+        <Paper 
+          elevation={2} 
+          sx={{ 
+            p: { xs: 2, md: 4 }, 
+            borderRadius: 2,
+            border: `1px solid ${theme.palette.divider}`
+          }}
+        >
+          {/* Header */}
+          <Box sx={{ mb: 4 }}>
+            <Typography 
+              variant="h4" 
+              component="h1" 
+              fontWeight={600} 
+              mb={2}
+              color="primary.main"
             >
-              Product Reviews
-            </button>
-            <button
-              onClick={() => setActiveTab('seller')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '6px',
-                backgroundColor: activeTab === 'seller' ? '#3b82f6' : 'transparent',
-                color: activeTab === 'seller' ? 'white' : 'black',
-                border: activeTab === 'seller' ? 'none' : '1px solid #e5e7eb',
-                cursor: 'pointer'
-              }}
-            >
-              Seller Ratings
-            </button>
-          </div>
-        </div>
+              Reviews & Ratings
+            </Typography>
+            
+            <Tabs
+  value={activeTab}
+  onChange={handleTabChange}
+  sx={{ 
+    mt: 2,
+    '& .MuiTab-root': {
+      fontWeight: 500,
+      minHeight: 48
+    }
+  }}
+  indicatorColor="primary"
+  textColor="primary"
+  variant={isMobile ? "fullWidth" : "standard"}
+>
+  <Tab 
+    label={
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        {!isMobile && (
+          <Badge 
+            badgeContent={reviews.length} 
+            color="primary" 
+            sx={{ mr: 2 }} // Increased margin here to create the gap
+          />
+        )}
+        <Typography>Product Reviews</Typography>
+      </Box>
+    } 
+  />
+  <Tab label="Seller Ratings" />
+</Tabs>
+          </Box>
 
-        {/* Filters */}
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          marginBottom: '24px',
-          padding: '16px',
-          backgroundColor: '#f9fafb',
-          borderRadius: '8px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ position: 'relative', flexGrow: 1 }}>
-            <Search style={{
-              position: 'absolute',
-              left: '12px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: '#9ca3af'
-            }} />
-            <input
-              type="text"
-              placeholder="Search reviews..."
-              style={{
-                width: '100%',
-                padding: '8px 12px 8px 40px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '6px'
-              }}
-            />
-          </div>
-          
-          <select
-            value={selectedRating}
-            onChange={(e) => setSelectedRating(e.target.value)}
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              backgroundColor: 'white'
+          {/* Filters */}
+          <Paper 
+            variant="outlined" 
+            sx={{ 
+              p: { xs: 2, md: 3 }, 
+              mb: 4, 
+              borderRadius: 2, 
+              bgcolor: theme.palette.background.default,
+              boxShadow: 'none'
             }}
           >
-            <option value="all">All Ratings</option>
-            <option value="5">5 Stars</option>
-            <option value="4">4 Stars</option>
-            <option value="3">3 Stars</option>
-            <option value="2">2 Stars</option>
-            <option value="1">1 Star</option>
-          </select>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  placeholder="Search reviews..."
+                  variant="outlined"
+                  size="small"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+              
+              <Grid item xs={6} md={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <FilterList fontSize="small" sx={{ mr: 0.5 }} />
+                      Rating
+                    </Box>
+                  </InputLabel>
+                  <Select
+                    value={selectedRating}
+                    onChange={(e) => setSelectedRating(e.target.value)}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <FilterList fontSize="small" sx={{ mr: 0.5 }} />
+                        Rating
+                      </Box>
+                    }
+                  >
+                    <MenuItem value="all">All Ratings</MenuItem>
+                    <MenuItem value="5">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Rating value={5} readOnly size="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">(5 Stars)</Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="4">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Rating value={4} readOnly size="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">(4 Stars)</Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="3">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Rating value={3} readOnly size="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">(3 Stars)</Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="2">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Rating value={2} readOnly size="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">(2 Stars)</Typography>
+                      </Box>
+                    </MenuItem>
+                    <MenuItem value="1">
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Rating value={1} readOnly size="small" sx={{ mr: 1 }} />
+                        <Typography variant="body2">(1 Star)</Typography>
+                      </Box>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              
+              <Grid item xs={6} md={3}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Sort fontSize="small" sx={{ mr: 0.5 }} />
+                      Sort By
+                    </Box>
+                  </InputLabel>
+                  <Select
+                    defaultValue="recent"
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Sort fontSize="small" sx={{ mr: 0.5 }} />
+                        Sort By
+                      </Box>
+                    }
+                  >
+                    <MenuItem value="recent">Most Recent</MenuItem>
+                    <MenuItem value="highest">Highest Rated</MenuItem>
+                    <MenuItem value="lowest">Lowest Rated</MenuItem>
+                    <MenuItem value="helpful">Most Helpful</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Paper>
 
-          <select
-            style={{
-              padding: '8px 12px',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              backgroundColor: 'white'
-            }}
-          >
-            <option>Most Recent</option>
-            <option>Highest Rated</option>
-            <option>Lowest Rated</option>
-            <option>Most Helpful</option>
-          </select>
-        </div>
+          {/* Summary Stats */}
+          <Box sx={{ mb: 4, px: 2, py: 2, bgcolor: 'primary.50', borderRadius: 2, display: { xs: 'none', md: 'block' } }}>
+            <Grid container spacing={3}>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2" color="primary.main" gutterBottom>
+                  Average Rating
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography variant="h4" fontWeight={600}>4.5</Typography>
+                  <Rating value={4.5} readOnly precision={0.5} />
+                </Box>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2" color="primary.main" gutterBottom>
+                  Total Reviews
+                </Typography>
+                <Typography variant="h4" fontWeight={600}>{reviews.length}</Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="subtitle2" color="primary.main" gutterBottom>
+                  Verified Purchases
+                </Typography>
+                <Typography variant="h4" fontWeight={600}>100%</Typography>
+              </Grid>
+            </Grid>
+          </Box>
 
-        {/* Reviews List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {reviews.map((review) => (
-            <div
-              key={review.id}
-              style={{
-                padding: '20px',
-                border: '1px solid #e5e7eb',
-                borderRadius: '8px'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                    <span style={{ fontWeight: '500' }}>{review.username}</span>
-                    {review.verified && (
-                      <span style={{
-                        backgroundColor: '#dcfce7',
-                        color: '#166534',
-                        padding: '2px 8px',
-                        borderRadius: '9999px',
-                        fontSize: '12px'
-                      }}>
-                        Verified Purchase
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <StarRating rating={review.rating} />
-                    <span style={{ color: '#6b7280', fontSize: '14px' }}>{review.date}</span>
-                  </div>
-                </div>
-                <button style={{
-                  padding: '4px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '4px',
-                  backgroundColor: 'white'
-                }}>
-                  <Flag size={16} />
-                </button>
-              </div>
+          {/* Reviews List */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {reviews.map((review) => (
+              <Card 
+                key={review.id} 
+                variant="outlined" 
+                sx={{ 
+                  borderRadius: 2,
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    boxShadow: 3,
+                    transform: 'translateY(-2px)'
+                  }
+                }}
+              >
+                <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: 'primary.main', 
+                          width: 40, 
+                          height: 40,
+                          mr: 1.5,
+                          fontWeight: 600 
+                        }}
+                      >
+                        {review.avatar}
+                      </Avatar>
+                      <Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="subtitle1" fontWeight={600}>
+                            {review.username}
+                          </Typography>
+                          {review.verified && (
+                            <Tooltip title="Verified Purchase">
+                              <Chip
+                                icon={<VerifiedUser fontSize="small" />}
+                                label="Verified"
+                                size="small"
+                                color="success"
+                                variant="outlined"
+                              />
+                            </Tooltip>
+                          )}
+                        </Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Rating value={review.rating} readOnly size="small" precision={0.5} />
+                          <Typography variant="caption" color="text.secondary">
+                            {review.date}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                    <Tooltip title="Report">
+                      <IconButton size="small">
+                        <Flag fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
 
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ fontWeight: '500', marginBottom: '4px' }}>{review.productName}</div>
-                <div style={{ color: '#6b7280', fontSize: '14px' }}>Sold by: {review.seller}</div>
-              </div>
+                  <Box sx={{ mb: 2, ml: { xs: 0, md: 7 } }}>
+                    <Typography variant="subtitle2" fontWeight={600} color="primary.dark">
+                      {review.productName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Sold by: {review.seller}
+                    </Typography>
+                  </Box>
 
-              <p style={{ marginBottom: '16px', lineHeight: '1.5' }}>{review.content}</p>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      mb: 2, 
+                      lineHeight: 1.6,
+                      ml: { xs: 0, md: 7 }
+                    }}
+                  >
+                    {review.content}
+                  </Typography>
 
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <button style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '6px 12px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  backgroundColor: 'white'
-                }}>
-                  <ThumbsUp size={16} />
-                  <span>Helpful ({review.helpful})</span>
-                </button>
-                <button style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '6px 12px',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  backgroundColor: 'white'
-                }}>
-                  <MessageCircle size={16} />
-                  <span>Reply ({review.replies})</span>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+                  <Divider sx={{ my: 2 }} />
 
-        {/* Load More Button */}
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <button style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '8px 16px',
-            border: '1px solid #e5e7eb',
-            borderRadius: '6px',
-            backgroundColor: 'white',
-            margin: '0 auto',
-            cursor: 'pointer'
-          }}>
-            <span>Load More Reviews</span>
-            <ChevronDown size={16} />
-          </button>
-        </div>
-      </div>
-    </div>
+                  <Box sx={{ display: 'flex', gap: 2, ml: { xs: 0, md: 7 } }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      startIcon={<ThumbUp fontSize="small" />}
+                      sx={{ borderRadius: 6 }}
+                    >
+                      Helpful ({review.helpful})
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      startIcon={<Message fontSize="small" />}
+                      sx={{ borderRadius: 6 }}
+                    >
+                      Reply ({review.replies})
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+
+          {/* Pagination */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <Pagination 
+              count={3} 
+              page={page} 
+              onChange={handlePageChange} 
+              color="primary" 
+              showFirstButton 
+              showLastButton
+              size={isMobile ? "small" : "medium"}
+            />  
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

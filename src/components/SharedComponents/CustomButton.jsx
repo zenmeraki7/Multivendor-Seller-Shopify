@@ -1,5 +1,5 @@
-import { Button } from "@mui/material";
 import React from "react";
+import { Button } from "@mui/material";
 
 const CustomButton = ({ onClick, icon, label, variant = "contained" }) => {
   return (
@@ -7,14 +7,20 @@ const CustomButton = ({ onClick, icon, label, variant = "contained" }) => {
       onClick={onClick}
       variant={variant}
       sx={{
-        background:
-          variant == "contained" && "linear-gradient(45deg, #556cd6, #19857b)",
-        color: variant == "contained" && "#fff",
-        borderRadius: "8px",
-        textTransform: "none",
-        padding: "8px 16px",
-        marginTop: "1rem",
-        alignSelf: "flex-start",
+        backgroundColor: variant === "contained" ? "#2563EB" : "transparent",
+        color: variant === "contained" ? "#ffffff" : "#2563EB",
+        fontWeight: 500,
+        borderRadius: "10px",
+        padding: "10px 13px",
+        fontSize: "14px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        gap: "8px", // Space between icon and text
+        transition: "all 0.2s ease",
+        "&:hover": {
+          backgroundColor: variant === "contained" ? "#1E40AF" : "#E3E8EF",
+        },
       }}
     >
       {icon}

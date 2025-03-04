@@ -74,7 +74,7 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
     state: "",
     country: "India",
     companyName: "",
-    businessStructure: "",
+    businessType: "",
   });
 
   const [formErrors, setFormErrors] = useState({});
@@ -134,7 +134,7 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
     state: Yup.string().required("State is required."),
     country: Yup.string().required("Country is required."),
     companyName: Yup.string().trim().required("Company name is required."),
-    businessStructure: Yup.string().required("Business structure is required."), // Added this line
+    businessType: Yup.string().required("Business structure is required."), // Added this line
   });
 
   const handleBlur = (e) => {
@@ -322,13 +322,13 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
           <FormControl fullWidth>
             <InputLabel>Business Structure</InputLabel>
             <CustomSelect
-            label="Business Structure"
-              name="businessStructure"
-              value={formValues.businessStructure}
+              label="Business Structure"
+              name="businessType"
+              value={formValues.businessType}
               onChange={handleChange}
             >
               {businessTypes.map((type) => (
-                <MenuItem key={type._id} value={type.name}>
+                <MenuItem key={type._id} value={type._id}>
                   {type.name}
                 </MenuItem>
               ))}
