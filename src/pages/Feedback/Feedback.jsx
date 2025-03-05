@@ -1,157 +1,37 @@
 import React, { useState } from 'react';
-import { Star, ThumbsUp } from 'lucide-react';
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f9fafb',
-    padding: '48px 16px'
-  },
-  wrapper: {
-    // maxWidth: '800px',
-    margin: '0 auto',
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: '12px',
-    border: '1px solid #e5e7eb',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-    padding: '32px',
-    marginBottom: '32px'
-  },
-  title: {
-    fontSize: '24px',
-    fontWeight: '600',
-    color: '#1f2937',
-    marginBottom: '24px'
-  },
-  sellerInfo: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
-    padding: '12px 16px',
-    borderRadius: '8px',
-    marginBottom: '24px'
-  },
-  sellerText: {
-    fontSize: '14px',
-    color: '#4b5563'
-  },
-  ratingContainer: {
-    marginBottom: '24px'
-  },
-  ratingLabel: {
-    fontSize: '14px',
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: '12px',
-    display: 'block'
-  },
-  starContainer: {
-    display: 'flex',
-    gap: '8px'
-  },
-  starButton: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '0',
-    transition: 'transform 0.2s',
-  },
-  textarea: {
-    width: '100%',
-    height: '128px',
-    padding: '12px',
-    borderRadius: '8px',
-    border: '1px solid #e5e7eb',
-    marginBottom: '24px',
-    resize: 'none',
-    fontSize: '14px'
-  },
-  submitButton: {
-    width: '100%',
-    backgroundColor: 'blue',
-    color: 'white',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    border: 'none',
-    fontWeight: '500',
-    cursor: 'pointer',
-    transition: 'background-color 0.2s'
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#3498db',
-    cursor: 'not-allowed'
-  },
-  successMessage: {
-    textAlign: 'center',
-    padding: '48px 0'
-  },
-  successText: {
-    color: '#059669',
-    fontSize: '20px',
-    marginBottom: '16px'
-  },
-  reviewContainer: {
-    borderBottom: '1px solid #e5e7eb',
-    paddingBottom: '32px',
-    marginBottom: '32px'
-  },
-  reviewHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px'
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px'
-  },
-  userAvatar: {
-    width: '40px',
-    height: '40px',
-    backgroundColor: '#dbeafe',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#2563eb',
-    fontWeight: '500'
-  },
-  userName: {
-    fontWeight: '500',
-    color: '#1f2937'
-  },
-  reviewDate: {
-    fontSize: '14px',
-    color: '#6b7280'
-  },
-  reviewText: {
-    color: '#4b5563',
-    lineHeight: '1.5',
-    marginBottom: '16px'
-  },
-  helpfulButton: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    fontSize: '14px',
-    color: '#6b7280',
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer'
-  }
-};
+import { 
+  Typography, 
+  Box, 
+  Card, 
+  CardContent, 
+  Container, 
+  Rating, 
+  TextField, 
+  Button, 
+  Divider, 
+  Avatar, 
+  Paper, 
+  Grid,
+  Chip,
+  Stack
+} from '@mui/material';
+import {
+  ThumbUp,
+  Star,
+  EmojiEvents,
+  CalendarToday,
+  Person,
+  Message,
+  CheckCircle
+} from '@mui/icons-material';
 
 const Feedback = () => {
   const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [helpfulReviews, setHelpfulReviews] = useState({});
 
-  // Sample seller data
+  // Seller data
   const seller = {
     name: "Multi-vendor Seller",
     id: "SE123",
@@ -159,22 +39,22 @@ const Feedback = () => {
     totalReviews: 128
   };
 
-  // Sample previous reviews
+  // Previous reviews
   const previousReviews = [
     {
       id: 1,
       userName: "Sarah M.",
       rating: 5,
       date: "2025-02-15",
-      feedback: "Excellent service! The product arrived earlier than expected and was exactly as described. John was very helpful with all my questions.",
+      feedback: "Excellent service! The product arrived earlier than expected and was exactly as described. The seller was very responsive to all my inquiries throughout the process.",
       helpful: 24
     },
     {
       id: 2,
-      userName: "Mike R.",
+      userName: "Michael R.",
       rating: 4,
       date: "2025-02-10",
-      feedback: "Good experience overall. The item was in perfect condition. Would have given 5 stars but shipping took a bit longer than expected.",
+      feedback: "Professional experience overall. The item was in perfect condition and well-packaged. Would have given 5 stars but shipping took slightly longer than the estimated delivery window.",
       helpful: 12
     },
     {
@@ -182,7 +62,7 @@ const Feedback = () => {
       userName: "Emily K.",
       rating: 5,
       date: "2025-02-05",
-      feedback: "Outstanding customer service! Had an issue with my order and John resolved it immediately. Will definitely buy from this seller again.",
+      feedback: "Outstanding customer service! Had a minor issue with my order and the seller resolved it immediately. Their attention to detail and commitment to customer satisfaction is commendable.",
       helpful: 31
     }
   ];
@@ -206,131 +86,284 @@ const Feedback = () => {
     });
   };
 
+  const markHelpful = (reviewId) => {
+    setHelpfulReviews({
+      ...helpfulReviews,
+      [reviewId]: !helpfulReviews[reviewId]
+    });
+  };
+
+  const getColorFromRating = (rating) => {
+    if (rating >= 4.5) return 'success';
+    if (rating >= 3.5) return 'primary';
+    if (rating >= 2.5) return 'warning';
+    return 'error';
+  };
+
   return (
-    <div style={styles.container}>
-      <div style={styles.wrapper}>
+    <Box sx={{ bgcolor: '#f8f9fa', minHeight: '100vh', py: 5 }}>
+      <Container maxWidth="md">
+        {/* Seller Overview Card */}
+        <Card sx={{ mb: 4, borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <CardContent sx={{ p: 3 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Avatar sx={{ bgcolor: '#e3f2fd', color: 'primary.main', width: 48, height: 48 }}>
+                  <Person fontSize="medium" />
+                </Avatar>
+                <Box>
+                  <Typography variant="h6" fontWeight="600">
+                    {seller.name}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Seller ID: {seller.id}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ textAlign: 'right' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 1 }}>
+                  <Star fontSize="small" style={{ color: '#faaf00' }} />
+                  <Typography variant="h6" fontWeight="600" component="span">
+                    {seller.averageRating}
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Based on {seller.totalReviews} reviews
+                </Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
         {/* Feedback Form */}
-        <div style={styles.card}>
-          <h2 style={styles.title}>Rate Your Experience with {seller.name}</h2>
-          
-          {!submitted ? (
-            <form onSubmit={handleSubmit}>
-              <div style={styles.sellerInfo}>
-                <span style={styles.sellerText}>Seller ID: {seller.id}</span>
-                <div style={{display: 'flex', alignItems: 'center', gap: '4px'}}>
-                  <Star fill="#facc15" color="#facc15" size={16} />
-                  <span style={{fontWeight: '500'}}>{seller.averageRating}</span>
-                  <span style={styles.sellerText}>({seller.totalReviews} reviews)</span>
-                </div>
-              </div>
+        <Card sx={{ mb: 4, borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography variant="h5" component="h2" gutterBottom fontWeight="600" color="primary.dark">
+              Provide Your Feedback
+            </Typography>
+            
+            {!submitted ? (
+              <Box component="form" onSubmit={handleSubmit}>
+                <Box sx={{ mb: 4 }}>
+                  <Typography 
+                    variant="subtitle1" 
+                    component="label"
+                    sx={{ display: 'block', color: 'text.primary', mb: 1, fontWeight: 500 }}
+                  >
+                    Rate Your Experience
+                  </Typography>
+                  <Rating
+                    name="rating"
+                    size="large"
+                    value={rating}
+                    onChange={(_, newValue) => {
+                      setRating(newValue);
+                    }}
+                    sx={{ color: '#faaf00' }}
+                  />
+                </Box>
 
-              <div style={styles.ratingContainer}>
-                <label style={styles.ratingLabel}>Your Rating</label>
-                <div style={styles.starContainer}>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      style={styles.starButton}
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      onClick={() => setRating(star)}
-                    >
-                      <Star
-                        size={40}
-                        fill={star <= (hoverRating || rating) ? '#facc15' : 'none'}
-                        color={star <= (hoverRating || rating) ? '#facc15' : '#e5e7eb'}
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
+                <TextField
+                  fullWidth
+                  label="Your Feedback"
+                  multiline
+                  rows={4}
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Share details about your experience with this seller..."
+                  required
+                  variant="outlined"
+                  sx={{ 
+                    mb: 4,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 1.5
+                    }
+                  }}
+                />
 
-              <textarea
-                style={styles.textarea}
-                placeholder="Share your experience with this seller..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                required
-              />
-
-              <button
-                type="submit"
-                style={{
-                  ...styles.submitButton,
-                  ...((!rating || !feedback) && styles.submitButtonDisabled)
-                }}
-                disabled={!rating || !feedback}
-              >
-                Submit Feedback
-              </button>
-            </form>
-          ) : (
-            <div style={styles.successMessage}>
-              <div style={styles.successText}>Thank you for your feedback!</div>
-              <button
-                onClick={() => {
-                  setSubmitted(false);
-                  setRating(0);
-                  setFeedback('');
-                }}
-                style={{color: '#2563eb', fontWeight: '500', background: 'none', border: 'none', cursor: 'pointer'}}
-              >
-                Submit another review
-              </button>
-            </div>
-          )}
-        </div>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  size="large"
+                  disabled={!rating || !feedback}
+                  sx={{ 
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    borderRadius: 1.5
+                  }}
+                >
+                  Submit Feedback
+                </Button>
+              </Box>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <Avatar sx={{ bgcolor: '#e8f5e9', width: 64, height: 64, mx: 'auto', mb: 3 }}>
+                  <CheckCircle fontSize="large" style={{ color: '#2e7d32' }} />
+                </Avatar>
+                <Typography variant="h6" color="success.main" gutterBottom fontWeight="600">
+                  Thank you for your feedback
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ maxWidth: '80%', mx: 'auto', mb: 3 }}>
+                  Your review helps us maintain the quality of our marketplace and assists other customers in making informed decisions.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setSubmitted(false);
+                    setRating(0);
+                    setFeedback('');
+                  }}
+                  sx={{ 
+                    textTransform: 'none',
+                    borderRadius: 1.5
+                  }}
+                >
+                  Submit Another Review
+                </Button>
+              </Box>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Previous Reviews */}
-        <div style={styles.card}>
-          <h2 style={styles.title}>Previous Reviews</h2>
-          {previousReviews.map((review, index) => (
-            <div 
-              key={review.id} 
-              style={{
-                ...styles.reviewContainer,
-                marginBottom: index === previousReviews.length - 1 ? 0 : '32px',
-                borderBottom: index === previousReviews.length - 1 ? 'none' : '1px solid #e5e7eb'
-              }}
-            >
-              <div style={styles.reviewHeader}>
-                <div style={styles.userInfo}>
-                  <div style={styles.userAvatar}>
-                    {review.userName.charAt(0)}
-                  </div>
-                  <div>
-                    <div style={styles.userName}>{review.userName}</div>
-                    <div style={{display: 'flex', gap: '2px', marginTop: '4px'}}>
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={16}
-                          fill={i < review.rating ? '#facc15' : 'none'}
-                          color={i < review.rating ? '#facc15' : '#e5e7eb'}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <span style={styles.reviewDate}>{formatDate(review.date)}</span>
-              </div>
-              <p style={styles.reviewText}>{review.feedback}</p>
-              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
-                <button style={styles.helpfulButton}>
-                  <ThumbsUp size={16} />
-                  <span>Helpful</span>
-                </button>
-                <span style={{color: '#6b7280'}}>·</span>
-                <span style={{fontSize: '14px', color: '#6b7280'}}>
-                  {review.helpful} people found this helpful
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+        <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.06)', mb: 4 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
+              <Typography variant="h5" component="h2" fontWeight="600" color="primary.dark">
+                Customer Reviews
+              </Typography>
+              <Chip 
+                icon={<Star fontSize="small" />}
+                label={`${seller.averageRating} / 5`}
+                color={getColorFromRating(seller.averageRating)} 
+                variant="outlined"
+                sx={{ fontWeight: 500 }}
+              />
+            </Box>
+            
+            <Stack spacing={4}>
+              {previousReviews.map((review, index) => (
+                <React.Fragment key={review.id}>
+                  {index > 0 && <Divider sx={{ my: 1 }} />}
+                  <Paper elevation={0} sx={{ p: 0 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                      <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Avatar sx={{ bgcolor: 'primary.light', color: 'primary.contrastText' }}>
+                          {review.userName.charAt(0)}
+                        </Avatar>
+                        <Box>
+                          <Typography variant="subtitle1" fontWeight="500">
+                            {review.userName}
+                          </Typography>
+                          <Rating 
+                            value={review.rating} 
+                            readOnly 
+                            size="small" 
+                            sx={{ color: '#faaf00', mt: 0.5 }}
+                          />
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'text.secondary' }}>
+                        <CalendarToday fontSize="small" />
+                        <Typography variant="caption" sx={{ fontWeight: 500 }}>
+                          {formatDate(review.date)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Typography variant="body1" paragraph sx={{ color: 'text.primary', lineHeight: 1.7, mb: 3 }}>
+                      {review.feedback}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Button
+                        startIcon={<ThumbUp fontSize="small" />}
+                        size="small"
+                        variant={helpfulReviews[review.id] ? "contained" : "outlined"}
+                        color={helpfulReviews[review.id] ? "primary" : "primary"}
+                        onClick={() => markHelpful(review.id)}
+                        sx={{ 
+                          borderRadius: 6, 
+                          textTransform: 'none',
+                          px: 2,
+                          fontWeight: 500
+                        }}
+                      >
+                        Helpful
+                      </Button>
+                      <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {review.helpful + (helpfulReviews[review.id] ? 1 : 0)} people found this review helpful
+                      </Typography>
+                    </Box>
+                  </Paper>
+                </React.Fragment>
+              ))}
+            </Stack>
+          </CardContent>
+        </Card>
+        
+        {/* Stats Cards */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.04)', height: '100%' }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Avatar sx={{ bgcolor: 'primary.light', width: 40, height: 40, mr: 2 }}>
+                    <Person fontSize="small" style={{ color: '#fff' }} />
+                  </Avatar>
+                  <Typography color="text.secondary" variant="subtitle2" fontWeight="500">
+                    Total Reviews
+                  </Typography>
+                </Box>
+                <Typography variant="h4" fontWeight="600" color="text.primary">
+                  {seller.totalReviews}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.04)', height: '100%' }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Avatar sx={{ bgcolor: 'primary.light', width: 40, height: 40, mr: 2 }}>
+                    <Star fontSize="small" style={{ color: '#fff' }} />
+                  </Avatar>
+                  <Typography color="text.secondary" variant="subtitle2" fontWeight="500">
+                    Average Rating
+                  </Typography>
+                </Box>
+                <Typography variant="h4" fontWeight="600" color="text.primary">
+                  {seller.averageRating}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ borderRadius: 2, boxShadow: '0 2px 12px rgba(0,0,0,0.04)', height: '100%' }}>
+              <CardContent sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <Avatar sx={{ bgcolor: 'primary.light', width: 40, height: 40, mr: 2 }}>
+                    <Message fontSize="small" style={{ color: '#fff' }} />
+                  </Avatar>
+                  <Typography color="text.secondary" variant="subtitle2" fontWeight="500">
+                    Response Rate
+                  </Typography>
+                </Box>
+                <Typography variant="h4" fontWeight="600" color="text.primary">
+                  98%
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 

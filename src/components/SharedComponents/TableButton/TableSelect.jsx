@@ -11,7 +11,7 @@ function TableSelect({ id, name, value, onChange, label, MenuItems = [] }) {
     <FormControl
       variant="outlined"
       sx={{
-        width: "120px", // Reduced width
+        width: "150px", // Reduced width
         height: "50px", // Reduced height
         marginBottom: "5px",
         borderRadius: "8px",

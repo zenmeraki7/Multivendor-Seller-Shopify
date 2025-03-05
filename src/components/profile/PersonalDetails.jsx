@@ -287,7 +287,7 @@ function PersonalDetails({ personalData }) {
                   fontSize: "36px",
                   color: "#fff",
                   cursor: "pointer",
-                  background: "linear-gradient(45deg, #556cd6, #19857b)",
+                  backgroundColor: "#2563EB",
                   padding: "8px",
                   borderRadius: "50%",
                 }}

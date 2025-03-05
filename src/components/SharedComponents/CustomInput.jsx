@@ -1,65 +1,36 @@
 import React from "react";
 import TextField from "@mui/material/TextField";
-import { Stack, Typography } from "@mui/material";
-function CustomInput({
-  id,
-  name,
-  label,
-  placeholder,
-  value,
-  onChange,
-  type,
-  required = true,
-  error,
-  small,
-  readOnly = false,
-}) {
+function CustomInput({ id, name, label, placeholder, value, onChange,type="text" ,readOnly}) {
   return (
-    <Stack sx={{ flex: 1, width: "100%" }}>     
-     <TextField
-        InputProps={{
-          readOnly: readOnly,
-        }}
-        id={id}
-        name={name}
-        label={label}
-        placeholder={placeholder}
-        fullWidth
-        variant="outlined"
-        value={value}
-        onChange={(e) => onChange(e)}
-        type={type}
-        required={required}
-        size={small && "small"}
-        sx={{
-          marginTop: "5px",
-          marginBottom: "5px",
-          "& .MuiOutlinedInput-root": {
-            borderRadius: "12px",
-            transition: "border 0.3s ease, background 0.3s ease",
+    <TextField
+      id={id}
+      name={name}
+      label={label}
+      placeholder={placeholder}
+      readOnly={readOnly}
+      fullWidth
+      variant="outlined"
+      value={value}
+      onChange={onChange}
+      type={type}
+      sx={{
+        height: "56px", // Ensure same height as Select
+        "& .MuiOutlinedInput-root": {
+          height: "56px", // Match Select height
+          borderRadius: "8px",
+          "& fieldset": {
+            borderColor: "#1976d2",
+            borderRadius: "8px",
           },
-          "& .MuiOutlinedInput-root.Mui-focused": {
-            backgroundColor: "#e3f2fd",
-            borderColor: "#1e88e5",
+          "&:hover fieldset": {
+            borderColor: "#1976d2",
           },
-          "& .MuiInputLabel-root.Mui-focused": {
-            color: "#1e88e5",
+          "&.Mui-focused fieldset": {
+            borderColor: "#1976d2",
           },
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#bbdefb",
-          },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#1e88e5",
-          },
-          "& .MuiSelect-icon": {
-            color: "#1e88e5", // Change the dropdown icon color
-          },
-        }}
-      />
-      <Typography color="error" variant="body2">
-        {error}
-      </Typography>
-    </Stack>
+        },
+      }}
+    />
   );
 }
 
