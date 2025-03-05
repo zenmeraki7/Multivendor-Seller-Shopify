@@ -115,7 +115,7 @@ function Header() {
                 backgroundColor: "rgba(255, 255, 255, 0.1)",
               },
             }}
-            onClick={() => navigate("/admin")}
+            onClick={() => navigate("/dashboard/sellers")}
           >
             <PersonIcon />
           </IconButton>
