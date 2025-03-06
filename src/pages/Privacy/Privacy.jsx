@@ -19,6 +19,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CustomButton from "../../components/SharedComponents/CustomButton";
 import CustomInput from "../../components/SharedComponents/CustomInput";
+import { BASE_URL } from "../../utils/baseUrl";
+import toast from "react-hot-toast";
+import * as yup from "yup";
 
 function Privacy() {
   // Modal states
@@ -42,6 +45,10 @@ function Privacy() {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
+  const [error, setError] = useState({})
+
+
+
   // Modal handlers
   const handleEmailModalOpen = () => setOpenEmailModal(true);
   const handleEmailModalClose = () => {
@@ -51,6 +58,8 @@ function Privacy() {
     setEmailError("");
   };
 
+
+
   const handlePasswordModalOpen = () => setOpenPasswordModal(true);
   const handlePasswordModalClose = () => {
     setOpenPasswordModal(false);
@@ -59,7 +68,21 @@ function Privacy() {
     setConfirmPassword("");
     setPasswordError("");
     setConfirmPasswordError("");
+    setError({})
   };
+  const validationSchema = yup.object({
+    currentPassword: yup.string()
+      .min(8, "Password must be at least 8 characters long.")
+      .required("Current password is required"),
+    newPassword: yup.string()
+      .min(8, "Password must be at least 8 characters long.")
+      .required("New password is required"),
+    confirmPassword: yup.string()
+      .oneOf([yup.ref("newPassword"), null], "Passwords must match"),
+
+  })
+
+
 
   // Form validation
   const validateEmail = (email) => {
@@ -94,38 +117,67 @@ function Privacy() {
     handleEmailModalClose();
   };
 
-  const handleSavePassword = () => {
-    const currentPasswordError = !currentPasswordForChange
-      ? "Current password is required"
-      : "";
-    const newPasswordError = validatePassword(newPassword);
-    let confirmError = "";
+  const handleSavePassword = async () => {
 
-    if (!confirmPassword) {
-      confirmError = "Please confirm your new password";
-    } else if (newPassword !== confirmPassword) {
-      confirmError = "Passwords do not match";
-    }
-
-    setPasswordError(newPasswordError);
-    setConfirmPasswordError(confirmError);
-
-    if (currentPasswordError || newPasswordError || confirmError) {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // console.log("No token found");
+      toast.error("Please login to continue");
       return;
     }
 
-    console.log("Current Password:", currentPasswordForChange);
-    console.log("New Password:", newPassword);
-    console.log("Confirm Password:", confirmPassword);
-    handlePasswordModalClose(); // Close the modal after action
+    // if (newPassword !== confirmPassword) {
+    //   toast.error("Passwords do not match")
+    //   setConfirmPasswordError("Passwords do not match");
 
-    
+    //   return;
+    // }
+
+    try {
+      await validationSchema.validate({ newPassword: newPassword, currentPassword: currentPasswordForChange, confirmPassword: confirmPassword },{ abortEarly: false })
+      setError({})
+      const response = await fetch(`${BASE_URL}/api/vendor/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: currentPasswordForChange,
+          newPassword: newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+
+        toast.success("Password updated successfully", data.message);
+        // console.log("Password updated successfully:", data.message);
+        setCurrentPasswordForChange("");
+        setNewPassword("");
+        setConfirmPassword("");
+        handlePasswordModalClose(); // ✅ Close the modal on success
+      } else {
+        toast.error("Error", data.message)
+      }
+    } catch (error) {
+      const formattedErrors = {};
+      error.inner.forEach((error) => {
+        formattedErrors[error.path] = error.message;
+      });
+      setError(formattedErrors);
+      toast.dismiss()
+      toast.error("Request failed:", error)
 
 
-    // API call would go here
-    handlePasswordModalClose();
+    }
   };
+  console.log(error);
+  console.log(currentPasswordForChange);
   
+  
+
 
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
@@ -313,6 +365,7 @@ function Privacy() {
                 }}
               />
 
+
               <CustomInput
                 label="Current Password"
                 type={showCurrentPassword ? "text" : "password"}
@@ -433,6 +486,7 @@ function Privacy() {
                   ),
                 }}
               />
+              {error.currentPassword && <p style={{ color: "red" }}>{error.currentPassword}</p>}
 
               <CustomInput
                 label="New Password"
@@ -468,6 +522,8 @@ function Privacy() {
                   ),
                 }}
               />
+              {error.newPassword && <p style={{ color: "red" }}>{error.newPassword}</p>}
+              
 
               <CustomInput
                 label="Confirm New Password"
@@ -505,6 +561,7 @@ function Privacy() {
                   ),
                 }}
               />
+              {error.confirmPassword && <p style={{ color: "red" }}>{error.confirmPassword}</p>}
             </Box>
 
             <Box
