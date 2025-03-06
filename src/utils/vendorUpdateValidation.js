@@ -27,4 +27,6 @@ export const vendorUpdateSchema = Yup.object().shape({
       .matches(/^[0-9]{10}$/, "Support phone number must be exactly 10 digits.")
       .notRequired(),
   }),
+ sellerPolicy:Yup.string().required("Seller Policy is required."),
+
 });
