@@ -8,7 +8,7 @@ import CustomButton from "../SharedComponents/CustomButton";
 import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
 
-const SellerPolicy = ({ initialPolicy, token }) => {
+const SellerPolicy = ({ initialPolicy }) => {
   const [policy, setPolicy] = useState(initialPolicy);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -18,42 +18,48 @@ const SellerPolicy = ({ initialPolicy, token }) => {
   }, [initialPolicy]);
 
   const handleSave = async () => {
+    const token = localStorage.getItem("token");
+
     if (!token) {
       toast.error("Authentication error. Please log in again.");
       return;
     }
-
+  
     if (policy === initialPolicy) {
       toast.info("No changes detected.");
       setIsEditing(false);
       return;
     }
-
+  
     try {
       setLoading(true);
       toast.loading("Updating Seller Policy...");
-
+  
       const response = await fetch(`${BASE_URL}/api/vendor/update-details`, {
-        method: "PUT",
+        method: "put",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ sellerPolicy: policy }), // ✅ Send only sellerPolicy
+        body: JSON.stringify({ 
+          sellerPolicy: policy 
+        }),
       });
-
+  
       const data = await response.json();
       toast.dismiss();
-
+  
       if (response.ok) {
         toast.success("Seller policy updated successfully!");
         setIsEditing(false);
       } else {
         toast.error(data.message || "Failed to update policy");
+        console.error("Update error:", data);
       }
     } catch (err) {
       toast.dismiss();
       toast.error("Something went wrong! Please try again.");
+      console.error(err);
     } finally {
       setLoading(false);
     }

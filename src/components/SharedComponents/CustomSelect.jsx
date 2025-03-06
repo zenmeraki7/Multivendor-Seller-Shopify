@@ -60,9 +60,10 @@ function CustomSelect({
           fullWidth
         >
           {MenuItems.map((item, index) => (
-            <MenuItem key={index} value={item._id}>
-              {item.name}
-            </MenuItem>
+           <MenuItem key={index} value={item.value}>  
+           {item.label}  
+         </MenuItem>
+         
           ))}
         </Select>
       </FormControl>
