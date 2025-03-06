@@ -11,6 +11,8 @@ import {
   TextField,
   Stack,
 } from "@mui/material";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import DriveFolderUploadIcon from "@mui/icons-material/DriveFolderUpload";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -173,12 +175,16 @@ function PersonalDetails({ personalData }) {
   };
 
   console.log(personalInfo);
-  const handleChange = (e) => {
-    console.log("first");
-    const { value, name } = e.target;
-    console.log(value, name);
-    setPersonalInfo({ ...personalInfo, [name]: value });
+  const handleChange = (e, isQuill = false) => {
+    if (isQuill) {
+      const { name, value } = e; // Quill sends { name, value } instead of an event
+      setPersonalInfo((prev) => ({ ...prev, [name]: value }));
+    } else {
+      const { name, value } = e.target;
+      setPersonalInfo((prev) => ({ ...prev, [name]: value }));
+    }
   };
+
   console.log(supportData);
   const handleChangeSupport = (e) => {
     console.log("first");
@@ -221,12 +227,12 @@ function PersonalDetails({ personalData }) {
         <Box
           sx={{
             flex: "1 1 300px",
-            border: "1px solid #e0e0e0",
-            borderRadius: "12px",
             padding: "1.5rem",
+            textAlign: "center",
             boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
             backgroundColor: "#f9f9f9",
-            textAlign: "center",
+            border: "1px solid #e0e0e0",
+            borderRadius: "12px",
           }}
         >
           <Typography
@@ -250,7 +256,6 @@ function PersonalDetails({ personalData }) {
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 15px",
-              backgroundColor: "#f5f5f5",
             }}
           >
             {logoUrl ? (
@@ -287,7 +292,7 @@ function PersonalDetails({ personalData }) {
                   fontSize: "36px",
                   color: "#fff",
                   cursor: "pointer",
-                  background: "linear-gradient(45deg, #556cd6, #19857b)",
+                  backgroundColor: "#2563EB",
                   padding: "8px",
                   borderRadius: "50%",
                 }}
@@ -491,11 +496,77 @@ function PersonalDetails({ personalData }) {
                 error={field.error}
               />
             ))}
+            {/* Store & Seller Description - Two Column Layout */}
+            <Box
+              sx={{
+                gridColumn: "span 2", // Ensures it spans the full width of the grid
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "2rem",
+                marginTop: "2rem",
+              }}
+            >
+              {[
+                {
+                  label: "Store Description",
+                  value: personalInfo.storeDescription || "",
+                  name: "storeDescription",
+                  error: validationError.storeDescription,
+                },
+                {
+                  label: "Seller Description",
+                  value: personalInfo.sellerDescription || "",
+                  name: "sellerDescription",
+                  error: validationError.sellerDescription,
+                },
+              ].map((field) => (
+                <Box
+                  key={field.name}
+                  sx={{
+                    flex: 1, // Equal width for both editors
+                    minWidth: 0, // Prevents overflow
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    padding: "15px",
+                    backgroundColor: "#fff",
+                    boxShadow: "0px 2px 5px rgba(11, 11, 12, 0.1)",
+                  }}
+                >
+                  <Typography sx={{ marginBottom: "8px", fontWeight: "bold" }}>
+                    {field.label}
+                  </Typography>
+                  <ReactQuill
+                    value={field.value}
+                    onChange={(content) =>
+                      handleChange({ name: field.name, value: content }, true)
+                    }
+                    readOnly={!editable}
+                    theme="snow"
+                    style={{
+                      background: "#fff",
+                      height: "150px",
+                      border: "none",
+                      borderRadius: "0",
+                      overflow: "hidden",
+                    }}
+                  />
+                  {field.error && (
+                    <Typography
+                      color="error"
+                      variant="body2"
+                      sx={{ mt: "8px" }}
+                    >
+                      {field.error}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </Box>
           </Box>
           <Box
             sx={{
               textAlign: "right",
-              marginTop: "20px",
+              marginTop: "50px",
               display: "flex",
               gap: "20px",
             }}

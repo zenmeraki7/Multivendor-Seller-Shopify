@@ -70,7 +70,7 @@ const ProductList = () => {
             page,
             limit: itemsPerPage,
             ...filters, // Spread the filters
-            search: searchQuery, // Use the committed search term
+            search: searchQuery, // Use the committed search term for global search
           },
           headers: {
             authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -78,6 +78,7 @@ const ProductList = () => {
         }
       );
       console.log("API Response:", response.data);
+  
       const { data, totalPages } = response.data;
       setProducts(data);
       setFilteredProducts(data);
@@ -124,7 +125,7 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts(currentPage);
-  }, [currentPage, filters, searchQuery]); // Only depend on searchQuery, not searchTerm
+  }, [currentPage, filters, searchQuery]);
 
   useEffect(() => {
     if (searchTerm === "") {
@@ -181,6 +182,10 @@ const ProductList = () => {
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
+// Handle search input change
+const handleSearchChange = (e) => {
+  setSearchTerm(e.target.value);
+};
 
   if (loading) {
     return (
@@ -226,36 +231,38 @@ const ProductList = () => {
 
       {/* Search Bar */}
       <Box
-        display="flex"
-        justifyContent="flex-end"
-        alignItems="center"
-        mb={2}
-        width="100%"
-        pr={0} // Ensures no extra padding at the right
-      >
-        <form
-          onSubmit={handleSearchSubmit}
-          style={{ width: "300px", display: "flex", justifyContent: "flex-end" }}
-        >
-          <TableInput
-            id="search-category"
-            name="search"
-            placeholder="Search Category Type"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            label="Search"
-            type="text"
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Search />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ width: "100%", marginRight: 0 }} // Ensures no extra space
-          />
-        </form>
-      </Box>
+  display="flex"
+  justifyContent="flex-end"
+  alignItems="center"
+  mb={2}
+  width="100%"
+>
+  <form
+    onSubmit={handleSearchSubmit}
+    style={{ width: "300px", display: "flex", justifyContent: "flex-end" }}
+  >
+    <TableInput
+      id="search-product"
+      name="search"
+      placeholder="Search Product, Category, Subcategory"
+      value={searchTerm}
+      onChange={handleSearchChange} // Correctly updating searchTerm
+      label="Search"
+      type="text"
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton type="submit">
+              <Search />
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+      sx={{ width: "100%", marginRight: 0 }}
+    />
+  </form>
+</Box>
+
 
 
       {/* Filters and Actions */}

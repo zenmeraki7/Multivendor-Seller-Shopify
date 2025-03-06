@@ -1,166 +1,215 @@
 import React, { useEffect, useState } from "react";
 import "./SellerPro.css";
-import { Box, Typography, Grid, Tabs, Tab, Alert } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  Alert,
+  AlertTitle,
+  CircularProgress,
+  Container,
+  Paper,
+  Divider,
+} from "@mui/material";
 import axios from "axios";
 import PersonalDetails from "../../components/profile/PersonalDetails";
 import Document from "../../components/profile/Document";
 import BankDetails from "../../components/profile/BankDetails";
 import { BASE_URL } from "../../utils/baseUrl";
+import SellerPolicy from "../../components/profile/SellerPolicy";
 
 function SellerPro() {
-  const [data, setData] = useState(null); // State to store API response
-  const [error, setError] = useState(null); // State to store any error
-  const [loading, setLoading] = useState(false); // State to show loading status
-  const [value, setValue] = useState(0);
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token"); // Retrieve token
-      console.log("Retrieved Token:", token);
+    const fetchProfileData = async () => {
+      const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error("No token found in localStorage");
-        setError("Authentication token is missing.");
+        setError("Authentication required. Please log in again.");
         return;
       }
-      setLoading(true); // Set loading to true before the API call
+
+      setLoading(true);
+
       try {
         const response = await axios.get(`${BASE_URL}/api/vendor/auth-token`, {
           headers: {
-            authorization: `Bearer ${token}`, // Add Bearer token to headers
+            authorization: `Bearer ${token}`,
           },
         });
-        setData(response.data); // Store the response data in state
-        console.log("API Response:", response.data);
+
+        setData(response.data);
       } catch (err) {
-        console.error("Error fetching data:", err);
-        setError(
-          err.response?.data?.message ||
-            "An error occurred while fetching data."
-        ); // Store error message
-        if (err.response.status == 401 || err.response.status == 404) {
+        const errorMessage =
+          err.response?.data?.message || "Failed to load profile data.";
+        setError(errorMessage);
+
+        if (err.response?.status === 401 || err.response?.status === 404) {
           localStorage.removeItem("token");
           window.location.reload();
         }
       } finally {
-        setLoading(false); // Set loading to false after API call
+        setLoading(false);
       }
     };
-    fetchData(); // Call the fetchData function
-  }, []); // Dependency array
 
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Typography>Error: {error}</Typography>;
+    fetchProfileData();
+  }, []);
 
-  // Add a check to ensure data is not null before trying to render child components
+  // Loading state
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress size={60} thickness={4} />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading your profile...
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Alert severity="error" variant="filled" sx={{ borderRadius: 2 }}>
+          <AlertTitle>Error</AlertTitle>
+          {error}
+        </Alert>
+      </Container>
+    );
+  }
+
+  const showVerificationAlert = data && !data.user.isVerified;
+  const showBankDetailsAlert =
+    data && !data?.user?.KycProvidedDetails?.bankDetails;
+  const showDocumentAlert = data && !data?.user?.KycProvidedDetails?.PAN;
+
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      <Box sx={{ flex: 1, padding: "10px" }}>
-        {/* Profile Header */}
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Paper
+        elevation={3}
+        sx={{
+          borderRadius: 3,
+          overflow: "hidden",
+          border: "1px solid #e0e0e0",
+        }}
+      >
+        {/* Header */}
         <Box
-          className="profile-container"
           sx={{
-            padding: "10px",
-            backgroundColor: "#f4f7fc",
-            borderRadius: "12px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
-            border: "1px solid #e0e0e0",
+            p: 4,
+            background: "linear-gradient(120deg, #2563eb 0%, #3b82f6 100%)",
+            color: "white",
           }}
         >
-          {/* Title */}
-          {/* <Typography
-            variant="h4"
-            sx={{
-              fontWeight: "bold",
-              // textAlign: "center",
-              marginBottom: "10px",
-              color: "rgba(37, 89, 222, 1)",
-              background:
-                "linear-gradient(90deg, rgba(37,89,222,1) 0%, rgba(0,212,255,1) 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Seller Profile
-          </Typography> */}
-
-          {/* Subtitle */}
-          <Typography
-            variant="body1"
-            sx={{
-              textAlign: "center",
-              color: "#6b7280",
-              fontSize: "16px",
-              maxWidth: "600px",
-            }}
-          >
-            Welcome to your profile page! Manage your business details, contact
-            information, and more from here.
+          <Typography variant="h4" fontWeight="700" gutterBottom>
+            Seller Dashboard
+          </Typography>
+          <Typography variant="body1">
+            Manage your business details, documents, and banking information
+            from this central dashboard.
           </Typography>
         </Box>
-        {!loading && !data?.user.isVerified && (
-          <Box sx={{ width: "100%", marginY: 2 }}>
-            <Alert severity="info" sx={{ borderRadius: 2 }}>
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                Thank you for your registration! Your request is currently under
-                review. Please note that your registration has not been approved
-                yet. We will notify you once your profile has been reviewed and
-                approved by our admin team. We appreciate your patience and
-                understanding.
-              </Typography>
-            </Alert>
-          </Box>
-        )}
-        {!loading && !data?.user?.KycProvidedDetails?.bankDetails && (
-          <Box sx={{ width: "100%", marginBottom: 2 }}>
-            <Alert severity="warning" sx={{ borderRadius: 2 }}>
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                Please provide your bank information to complete your
-                registration and await admin approval.
-              </Typography>
-            </Alert>
-          </Box>
-        )}
-        {!loading && !data?.user?.KycProvidedDetails?.PAN && (
-          <Box sx={{ width: "100%", marginBottom: 2 }}>
-            <Alert severity="warning" sx={{ borderRadius: 2 }}>
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                Please provide your PAN and GSTIN information to complete your
-                registration and await admin approval.
-              </Typography>
-            </Alert>
+
+        {/* Alerts */}
+        {(showVerificationAlert ||
+          showBankDetailsAlert ||
+          showDocumentAlert) && (
+          <Box sx={{ p: 3, bgcolor: "#f8fafc" }}>
+            {showVerificationAlert && (
+              <Alert
+                severity="info"
+                sx={{ mb: 2, borderRadius: 1 }}
+                variant="outlined"
+              >
+                <AlertTitle>Verification Pending</AlertTitle>
+                Thank you for your registration! Your account is currently under
+                review. We will notify you once your profile has been approved
+                by our team.
+              </Alert>
+            )}
+
+            {showBankDetailsAlert && (
+              <Alert
+                severity="warning"
+                sx={{ mb: showDocumentAlert ? 2 : 0, borderRadius: 1 }}
+                variant="outlined"
+              >
+                <AlertTitle>Bank Details Required</AlertTitle>
+                Please add your banking information to complete your
+                registration and proceed with verification.
+              </Alert>
+            )}
+
+            {showDocumentAlert && (
+              <Alert
+                severity="warning"
+                sx={{ borderRadius: 1 }}
+                variant="outlined"
+              >
+                <AlertTitle>Documents Required</AlertTitle>
+                Please upload your PAN and GSTIN documents to complete your
+                registration and proceed with verification.
+              </Alert>
+            )}
           </Box>
         )}
 
+        <Divider />
+
+        {/* Tabs */}
         <Box sx={{ width: "100%" }}>
           <Tabs
-            value={value}
-            onChange={handleChange}
+            value={activeTab}
+            onChange={handleTabChange}
             indicatorColor="primary"
-            textColor="inherit"
-            centered
-            sx={{ backgroundColor: "#f0f0f0", borderRadius: "8px" }}
+            textColor="primary"
+            variant="fullWidth"
+            sx={{
+              bgcolor: "#f9fafb",
+              "& .MuiTab-root": {
+                fontWeight: 600,
+                py: 2,
+              },
+            }}
           >
-            <Tab label="Personal Details" />
+            <Tab label="Business Profile" />
             <Tab label="Documents" />
-            <Tab label="Bank details" />
+            <Tab label="Banking Information" />
+            <Tab label="Seller Policy" />
           </Tabs>
-          <Box sx={{ paddingY: 3 }}>
-            {value === 0 &&
+
+          <Box sx={{ p: 3 }}>
+            {activeTab === 0 &&
               (data && data.user ? (
                 <PersonalDetails personalData={data.user} />
               ) : (
-                <Typography>No user data available.</Typography>
+                <Typography
+                  sx={{ textAlign: "center", color: "text.secondary" }}
+                >
+                  No profile data available.
+                </Typography>
               ))}
-            {value === 1 &&
+
+            {activeTab === 1 &&
               (data && data.user ? (
                 <Document
                   document={{
@@ -169,18 +218,33 @@ function SellerPro() {
                   }}
                 />
               ) : (
-                <Typography>No Document data available.</Typography>
+                <Typography
+                  sx={{ textAlign: "center", color: "text.secondary" }}
+                >
+                  No document data available.
+                </Typography>
               ))}
-            {value === 2 &&
+
+            {activeTab === 2 &&
               (data && data.user ? (
                 <BankDetails bankDetails={data.user.bankDetails} />
               ) : (
-                <Typography>No Document data available.</Typography>
+                <Typography
+                  sx={{ textAlign: "center", color: "text.secondary" }}
+                >
+                  No banking information available.
+                </Typography>
               ))}
+            {activeTab === 3 && (
+              <SellerPolicy
+                initialPolicy={data?.user?.sellerPolicy || ""}
+                token={localStorage.getItem("token")}
+              />
+            )}
           </Box>
         </Box>
-      </Box>
-    </Box>
+      </Paper>
+    </Container>
   );
 }
 
