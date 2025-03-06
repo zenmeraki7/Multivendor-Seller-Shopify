@@ -15,7 +15,7 @@ export const vendorUpdateSchema = Yup.object().shape({
     .required("Zip code is required."),
   city: Yup.string().required("City is required."),
   state: Yup.string().required("State is required."),
-  country: Yup.string().default("India").required("Country is required."),
+  country: Yup.string().required("Country is required."),
   companyName: Yup.string().trim().required("Company name is required."),
   website: Yup.string().url("Website must be a valid URL.").notRequired(),
   businessType: Yup.string().required("Business type is required."),

@@ -238,7 +238,6 @@ function SellerPro() {
             {activeTab === 3 && (
               <SellerPolicy
                 initialPolicy={data?.user?.sellerPolicy || ""}
-                token={localStorage.getItem("token")}
               />
             )}
           </Box>
