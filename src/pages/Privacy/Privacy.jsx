@@ -30,7 +30,12 @@ function Privacy() {
     console.log("New Password:", newPassword);
     console.log("Confirm Password:", confirmPassword);
     handlePasswordModalClose(); // Close the modal after action
+
+    
+
+
   };
+  
 
   return (
     <Box sx={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
