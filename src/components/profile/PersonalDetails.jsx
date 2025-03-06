@@ -49,7 +49,7 @@ function PersonalDetails({ personalData }) {
       .catch((err) => console.error("Error fetching countries:", err));
 
     axios
-      .get(`${BASE_URL}/api/states?country=India`)
+      .get(`${BASE_URL}/api/states`)
       .then((response) => {
         console.log("Fetched States:", response.data);
         setStates(response.data);
@@ -175,14 +175,13 @@ function PersonalDetails({ personalData }) {
   };
 
   console.log(personalInfo);
-  const handleChange = (e, isQuill = false) => {
-    if (isQuill) {
-      const { name, value } = e; // Quill sends { name, value } instead of an event
-      setPersonalInfo((prev) => ({ ...prev, [name]: value }));
-    } else {
-      const { name, value } = e.target;
-      setPersonalInfo((prev) => ({ ...prev, [name]: value }));
-    }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPersonalInfo((prevValues) => ({
+      ...prevValues,
+      [name]: value,
+    }));
   };
 
   console.log(supportData);
@@ -209,7 +208,13 @@ function PersonalDetails({ personalData }) {
   const handleToggleEdit = () => {
     setOpenModal(true);
   };
-
+// Add this function to handle ReactQuill changes
+const handleQuillChange = (content, fieldName) => {
+  setPersonalInfo((prevValues) => ({
+    ...prevValues,
+    [fieldName]: content
+  }));
+};
   return (
     <Box
       sx={{
@@ -463,7 +468,10 @@ function PersonalDetails({ personalData }) {
                 name: "country",
                 handleChange,
                 editable,
-                MenuItems: countries || [], // Ensure not null
+                MenuItems: countries.map((c) => ({
+                  value: c._id,
+                  label: c.name,
+                })), // ✅ Pass ObjectId
                 error: validationError.country,
               },
               {
@@ -472,7 +480,7 @@ function PersonalDetails({ personalData }) {
                 name: "state",
                 handleChange,
                 editable,
-                MenuItems: states || [], // Ensure not null
+                MenuItems: states.map((s) => ({ value: s._id, label: s.name })), // ✅ Pass ObjectId
                 error: validationError.state,
               },
               {
@@ -481,7 +489,10 @@ function PersonalDetails({ personalData }) {
                 name: "businessType",
                 handleChange,
                 editable,
-                MenuItems: businessTypes || [],
+                MenuItems: businessTypes.map((b) => ({
+                  value: b._id,
+                  label: b.name,
+                })), // ✅ Pass ObjectId
                 error: validationError.businessType,
               },
             ].map((field) => (
@@ -491,7 +502,7 @@ function PersonalDetails({ personalData }) {
                 value={field.value}
                 name={field.name}
                 onChange={field.handleChange}
-                MenuItems={field.MenuItems}
+                MenuItems={field.MenuItems} // ✅ Now formatted correctly
                 readOnly={!field.editable}
                 error={field.error}
               />
@@ -538,7 +549,7 @@ function PersonalDetails({ personalData }) {
                   <ReactQuill
                     value={field.value}
                     onChange={(content) =>
-                      handleChange({ name: field.name, value: content }, true)
+                      handleQuillChange(content, field.name)
                     }
                     readOnly={!editable}
                     theme="snow"

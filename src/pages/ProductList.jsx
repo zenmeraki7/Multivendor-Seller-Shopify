@@ -62,6 +62,7 @@ const ProductList = () => {
     setLoading(true);
     setError(null);
     try {
+      console.log("Fetching products with filters:", filters);
       const response = await axios.get(
         `${BASE_URL}/api/product/all-seller-product`,
         {
@@ -76,6 +77,7 @@ const ProductList = () => {
           },
         }
       );
+      console.log("API Response:", response.data);
   
       const { data, totalPages } = response.data;
       setProducts(data);
@@ -83,6 +85,7 @@ const ProductList = () => {
       setTotalPages(totalPages);
       setLoading(false);
     } catch (err) {
+      console.error("Error fetching products:", err);
       setError(err.response?.data?.message || "Error fetching products");
       setLoading(false);
     }
@@ -124,14 +127,38 @@ const ProductList = () => {
     fetchProducts(currentPage);
   }, [currentPage, filters, searchQuery]);
 
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredProducts(products);
+    } else {
+      const lowercasedTerm = searchTerm.toLowerCase();
+      const filtered = products.filter((product) =>
+        product.title.toLowerCase().includes(lowercasedTerm)
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [searchTerm, products]);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  const applyFilters = () => {
+    setCurrentPage(1);
+    fetchProducts(1);
+  };
+
 
   useEffect(() => {
     fetchFilterOptions();
   }, []);
 
-  useEffect(() => {
-    fetchFilterOptions();
-  }, []);
+  // useEffect(() => {
+  //   fetchFilterOptions();
+  // }, []);
 
   // Handle search submission
   const handleSearchSubmit = (e) => {
@@ -140,7 +167,18 @@ const ProductList = () => {
     setCurrentPage(1); // Reset to first page when searching
   };
 
-  // Handle Page Change
+  const clearFilters = () => {
+    setFilters({
+      inStock: "all",
+      categoryType: "all",
+      category: "all",
+      subcategory: "all",
+      isActive: "all",
+    });
+    setCurrentPage(1);
+    fetchProducts(1);
+  };
+
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
