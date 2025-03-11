@@ -49,6 +49,7 @@ function Navbox() {
       ],
     },
     { text: "Transaction", icon: <ReceiptLongIcon />, path: "/dashboard/transaction" },
+    {text:"Subscription", icon:<PaymentIcon />,path:"/dashboard/subscription"},
     { text: "Review", icon: <ReviewsIcon />, path: "/dashboard/review" },
     {
       text: "Settings",

@@ -26,6 +26,7 @@ import Verification from "./pages/Verification/Verification";
 import PaymentDetails from "./pages/Payment/PaymentDetails";
 import MerchantNotification from "./pages/MerchantNotifications/MerchantNotification";
 import Feedback from "./pages/Feedback/Feedback";
+import Subscription from "./pages/Subscription/Subcription";
 
 function App() {
   return (
@@ -86,6 +87,10 @@ function App() {
 
           />
           <Route
+            path="subscription"
+            element={<PrivateRoute component={<Subscription />} />}
+          />
+          <Route
             path="transaction"
             element={<PrivateRoute component={<TransactionPage />} />}
           />
@@ -97,6 +102,7 @@ function App() {
           <Route path="payment" element={<PaymentDetails />} />
           <Route path="merchant-notification" element={<MerchantNotification />} />
           <Route path="feedback" element={<Feedback />} />
+          
 
         </Route>
       </Routes>
