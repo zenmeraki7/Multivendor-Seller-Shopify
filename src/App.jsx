@@ -27,6 +27,7 @@ import PaymentDetails from "./pages/Payment/PaymentDetails";
 import MerchantNotification from "./pages/MerchantNotifications/MerchantNotification";
 import Feedback from "./pages/Feedback/Feedback";
 import Subscription from "./pages/Subscription/Subcription";
+import LoginPage from "./components/LoginPage/LoginPage";
 
 function App() {
   return (
@@ -103,8 +104,10 @@ function App() {
           <Route path="merchant-notification" element={<MerchantNotification />} />
           <Route path="feedback" element={<Feedback />} />
           
+          
 
         </Route>
+        <Route path="login-page" element={<LoginPage />} />
       </Routes>
     </>
   );
