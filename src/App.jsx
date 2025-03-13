@@ -4,7 +4,7 @@ import Layout from "./layout/Layout";
 import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./routes/PrivateRoute";
 import Login from "./pages/Auth/Login/Login";
-import Register from "./pages/Auth/Register/Register";
+import Register from "./pages/Auth/Register/Register";  
 import "bootstrap/dist/css/bootstrap.min.css";
 import SellerPro from "./pages/SellerProfile/SellerPro";
 import ProductList from "./pages/ProductList";
@@ -26,7 +26,7 @@ import Verification from "./pages/Verification/Verification";
 import PaymentDetails from "./pages/Payment/PaymentDetails";
 import MerchantNotification from "./pages/MerchantNotifications/MerchantNotification";
 import Feedback from "./pages/Feedback/Feedback";
-
+import AddShopifyProduct from "./pages/AddShopifyProduct";
 function App() {
   return (
     <>
@@ -93,12 +93,12 @@ function App() {
             path="review"
             element={<PrivateRoute component={<ReviewPage />} />}
           />
-          
           <Route path="payment" element={<PaymentDetails />} />
           <Route path="merchant-notification" element={<MerchantNotification />} />
           <Route path="feedback" element={<Feedback />} />
-
         </Route>
+        <Route path="/add-shopifyProduct" element={<AddShopifyProduct/>} />
+
       </Routes>
     </>
   );
