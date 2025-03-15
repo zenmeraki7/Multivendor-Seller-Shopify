@@ -10,10 +10,10 @@ import {
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
 import JoditEditor from "jodit-react";
 import CustomInput from "../components/SharedComponents/CustomInput";
 import CustomSelect from "../components/SharedComponents/CustomSelect";
+import Variants from "../components/Shopify/Variants"
 
 function AddShopifyProduct() {
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
@@ -22,9 +22,6 @@ function AddShopifyProduct() {
     null,
     null,
     null,
-  ]);
-  const [variants, setVariants] = useState([
-    { option: "", price: "", sku: "", inventory: "" },
   ]);
   const [formData, setFormData] = useState({
     title: "",
@@ -49,6 +46,7 @@ function AddShopifyProduct() {
   });
 
   const [errors, setErrors] = useState({});
+  const [variantsModalOpen, setVariantsModalOpen] = useState(false);
 
   // Handle media upload
   const handleThumbnailChange = (event) => {
@@ -80,28 +78,10 @@ function AddShopifyProduct() {
     });
   };
 
-  // Handle adding a new variant
-  const handleAddVariant = () => {
-    setVariants([...variants, { option: "", price: "", sku: "", inventory: "" }]);
-  };
-
-  // Handle removing a variant
-  const handleRemoveVariant = (index) => {
-    setVariants(variants.filter((_, i) => i !== index));
-  };
-
-  // Handle variant field changes
-  const handleVariantChange = (index, field, value) => {
-    const updatedVariants = [...variants];
-    updatedVariants[index][field] = value;
-    setVariants(updatedVariants);
-  };
-
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Form Data:", formData);
-    console.log("Variants:", variants);
   };
 
   return (
@@ -153,7 +133,10 @@ function AddShopifyProduct() {
                     id={`image-${index}`}
                     onChange={(e) => handleProductImageChange(e, index)}
                   />
-                  <label htmlFor={`image-${index}`} style={{ cursor: "pointer" }}>
+                  <label
+                    htmlFor={`image-${index}`}
+                    style={{ cursor: "pointer" }}
+                  >
                     <CardMedia
                       component="img"
                       height="120"
@@ -314,93 +297,58 @@ function AddShopifyProduct() {
               onChange={handleInputChange}
             />
 
-            {/* Variants */}
-            <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-              Variants
+            {/* Variants Section */}
+            <Typography
+              variant="h6"
+              gutterBottom
+              sx={{ mt: 2, cursor: "pointer" }}
+              onClick={() => setVariantsModalOpen(true)}
+            >
+              Variants <AddIcon />
             </Typography>
-            {variants.map((variant, index) => (
-              <Box key={index} sx={{ display: "flex", gap: 2, mb: 2 }}>
-                <TextField
-                  label="Option"
-                  value={variant.option}
-                  onChange={(e) =>
-                    handleVariantChange(index, "option", e.target.value)
-                  }
-                  sx={{ flex: 1 }}
-                />
-                <TextField
-                  label="Price"
-                  type="number"
-                  value={variant.price}
-                  onChange={(e) =>
-                    handleVariantChange(index, "price", e.target.value)
-                  }
-                  sx={{ flex: 1 }}
-                />
-                <TextField
-                  label="SKU"
-                  value={variant.sku}
-                  onChange={(e) =>
-                    handleVariantChange(index, "sku", e.target.value)
-                  }
-                  sx={{ flex: 1 }}
-                />
-                <TextField
-                  label="Inventory"
-                  type="number"
-                  value={variant.inventory}
-                  onChange={(e) =>
-                    handleVariantChange(index, "inventory", e.target.value)
-                  }
-                  sx={{ flex: 1 }}
-                />
-                <IconButton onClick={() => handleRemoveVariant(index)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </Box>
-            ))}
-            <Button onClick={handleAddVariant} startIcon={<AddIcon />}>
-              Add Variant
-            </Button>
+
+            {/* Variants Modal */}
+            <Variants
+              open={variantsModalOpen}
+              onClose={() => setVariantsModalOpen(false)}
+            />
 
             {/* SEO */}
-      {/* SEO */}
-<Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
-  SEO
-</Typography>
+            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+              SEO
+            </Typography>
 
-<Box sx={{ mt: 2 }}>
-  <CustomInput
-    id="seoTitle"
-    label="SEO Title"
-    placeholder="Enter SEO title"
-    value={formData.seo.title}
-    onChange={handleSeoChange}
-  />
-</Box>
+            <Box sx={{ mt: 2 }}>
+              <CustomInput
+                id="seoTitle"
+                label="SEO Title"
+                placeholder="Enter SEO title"
+                value={formData.seo.title}
+                onChange={handleSeoChange}
+              />
+            </Box>
 
-<Box sx={{ mt: 2 }}>
-  <CustomInput
-    id="seoDescription"
-    label="SEO Description"
-    placeholder="Enter SEO description"
-    value={formData.seo.description}
-    onChange={handleSeoChange}
-    multiline
-    rows={3}
-  />
-</Box>
+            <Box sx={{ mt: 2 }}>
+              <CustomInput
+                id="seoDescription"
+                label="SEO Description"
+                placeholder="Enter SEO description"
+                value={formData.seo.description}
+                onChange={handleSeoChange}
+                multiline
+                rows={3}
+              />
+            </Box>
 
-<Box sx={{ mt: 2 }}>
-  <CustomInput
-    id="seoKeywords"
-    label="SEO Keywords"
-    placeholder="Enter SEO keywords"
-    value={formData.seo.keywords}
-    onChange={handleSeoChange}
-  />
-</Box>
-
+            <Box sx={{ mt: 2 }}>
+              <CustomInput
+                id="seoKeywords"
+                label="SEO Keywords"
+                placeholder="Enter SEO keywords"
+                value={formData.seo.keywords}
+                onChange={handleSeoChange}
+              />
+            </Box>
           </form>
         </Box>
       </div>
