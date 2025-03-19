@@ -27,7 +27,7 @@ import PaymentDetails from "./pages/Payment/PaymentDetails";
 import MerchantNotification from "./pages/MerchantNotifications/MerchantNotification";
 import Feedback from "./pages/Feedback/Feedback";
 import Subscription from "./pages/Subscription/Subcription";
-
+import AddShopifyProduct from "./pages/AddShopifyProduct";
 function App() {
   return (
     <>
@@ -39,8 +39,8 @@ function App() {
           element={<PrivateRoute component={<Verification />} />}
         />
         <Route path="/register" element={<Register />} />
-        <Route path="forgot-password" element={<ForgotPassword/>}/>
-        <Route path="/reset-password/:token" element={<ResetPassword/>}/>
+        <Route path="forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route
           path="/"
           element={
@@ -79,12 +79,12 @@ function App() {
             element={<PrivateRoute component={<SellerPro />} />}
           />
           <Route
-            path='commission'
-            element={<PrivateRoute component={<Commission />} />} />
+            path="commission"
+            element={<PrivateRoute component={<Commission />} />}
+          />
           <Route
-            path='privacy'
+            path="privacy"
             element={<PrivateRoute component={<Privacy />} />}
-
           />
           <Route
             path="subscription"
@@ -98,13 +98,14 @@ function App() {
             path="review"
             element={<PrivateRoute component={<ReviewPage />} />}
           />
-          
           <Route path="payment" element={<PaymentDetails />} />
-          <Route path="merchant-notification" element={<MerchantNotification />} />
+          <Route
+            path="merchant-notification"
+            element={<MerchantNotification />}
+          />
           <Route path="feedback" element={<Feedback />} />
-          
-
         </Route>
+        <Route path="/add-shopifyProduct" element={<AddShopifyProduct />} />
       </Routes>
     </>
   );
