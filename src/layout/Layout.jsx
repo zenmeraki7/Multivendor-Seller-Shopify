@@ -1,10 +1,11 @@
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { Stack, Box } from "@mui/material";
+import { Stack, Box, Button, IconButton } from "@mui/material";
 import { Outlet } from "react-router-dom";
 import ScrollToTop from "../components/ScrollToTop";
 import Navbox from "../components/Navbox";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const Layout = () => {
   return (
@@ -12,7 +13,7 @@ const Layout = () => {
       <ScrollToTop />
       <Header />
 
-      <Box sx={{ }}>
+      <Box sx={{}}>
         <Stack direction="row" spacing={2}>
           {/* Sidebar */}
           <Box
@@ -41,6 +42,9 @@ const Layout = () => {
             }}
             pt={2}
           >
+            <IconButton onClick={() => window.history.back()}>
+              <ArrowBackIcon />
+            </IconButton>
             <Outlet />
           </Box>
         </Stack>
