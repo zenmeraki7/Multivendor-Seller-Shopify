@@ -3,38 +3,15 @@ import { Box, Typography, Paper, Grid } from "@mui/material";
 
 import CustomInput from "../../components/SharedComponents/CustomInput";
 
-const SeoDetails = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    status: "draft",
-    type: "",
-    tag: "",
-    category: "",
-    price: 0,
-    compareAtPrice: 0,
-    inventory: 0,
-    sku: "",
-    barcode: "",
-    weightUnit: "kg",
-    seo: {
-      title: "",
-      description: "",
-      keywords: "",
-    },
-  });
-  // Handle SEO field changes
+const SeoDetails = ({ productData, setProductData }) => {
   const handleSeoChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      seo: {
-        ...prevData.seo,
-        [name]: value,
-      },
-    }));
+    setProductData({
+      ...productData,
+      seo: { ...productData.seo, [name]: value },
+    });
   };
+
   return (
     <>
       <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mt: 3 }}>
@@ -53,7 +30,7 @@ const SeoDetails = () => {
                 id="seoTitle"
                 label="SEO Title"
                 placeholder="Enter SEO title"
-                value={formData.seo.title}
+                value={productData.seo.title}
                 onChange={handleSeoChange}
                 fullWidth
               />
@@ -64,7 +41,7 @@ const SeoDetails = () => {
                 id="seoDescription"
                 label="SEO Description"
                 placeholder="Enter SEO description"
-                value={formData.seo.description}
+                value={productData.seo.description}
                 onChange={handleSeoChange}
                 multiline
                 rows={4}
