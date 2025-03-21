@@ -20,8 +20,12 @@ import CustomInput from "../../components/SharedComponents/CustomInput";
 import toast from "react-hot-toast";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-const VariantDetails = () => {
-  const [variantCombinations, setVariantCombinations] = useState([]);
+const VariantDetails = ({
+  variantsData,
+  setVariantsData,
+  productData,
+  setProductData,
+}) => {
   const [variantTypes, setVariantTypes] = useState([]);
   const [isVariantExpand, setIsVariantExpand] = useState(false);
   const [newVariantType, setNewVariantType] = useState("");
@@ -37,60 +41,65 @@ const VariantDetails = () => {
       );
     };
 
-    const optionLists = variants.map((v) => v.options);
+    const optionLists = variants.map((v) => v.values);
     return combine(optionLists).map((combination) => {
       const type = combination?.map((item) => {
         const op = variants.find((opt) => {
-          return opt.options.includes(item);
+          return opt.values.includes(item);
         });
         return {
-          option: op.type,
+          option: op.name,
           value: item,
         };
       });
       // console.log(type);
       return {
-        variant: combination.join("-"),
+        variant: combination.join(" / "),
         quantity: 0,
         barcode: "",
         sku: `SKU-${combination.join("-").toUpperCase()}`,
         price: 0,
         compareAtPrice: 0,
-        variantType: type,
+        variantTypes: type,
       };
     });
   };
 
   React.useEffect(() => {
-    variantTypes.length &&
-      setVariantCombinations(generateCombinations(variantTypes));
-  }, [variantTypes]);
+    productData.productOptions?.length &&
+      setVariantsData(generateCombinations(productData?.productOptions));
+  }, [productData?.productOptions]);
 
   // Update field values
   const handleChange = (index, field, value) => {
-    const updatedCombinations = [...variantCombinations];
+    const updatedCombinations = [...variantsData];
     updatedCombinations[index][field] = value;
-    setVariantCombinations(updatedCombinations);
+    setVariantsData(updatedCombinations);
   };
 
-  // Delete a variant type
   const handleDeleteVariant = (type) => {
-    setVariantTypes(variantTypes.filter((variant) => variant.type !== type));
+    setProductData({
+      ...productData,
+      productOptions: productData?.productOptions?.filter(
+        (variant) => variant.name !== type
+      ),
+    });
     // toast.success("Variant deleted");
   };
 
   // Delete a single option inside a variant
   const handleDeleteOption = (variantType, option) => {
-    setVariantTypes(
-      variantTypes.map((variant) =>
-        variant.type === variantType
+    setProductData({
+      ...productData,
+      productOptions: productData?.productOptions?.map((variant) =>
+        variant.name === variantType
           ? {
               ...variant,
-              options: variant.options.filter((opt) => opt !== option),
+              values: variant.values.filter((opt) => opt !== option),
             }
           : variant
-      )
-    );
+      ),
+    });
     // toast.success("Option removed");
   };
 
@@ -101,16 +110,17 @@ const VariantDetails = () => {
       return;
     }
 
-    if (variantTypes.some((item) => item.type === newType)) {
+    if (productData?.productOptions?.some((item) => item.name === newType)) {
       toast.error("Variant already exists");
       return;
     }
 
-    setVariantTypes(
-      variantTypes.map((variant) =>
-        variant.type === oldType ? { ...variant, type: newType } : variant
-      )
-    );
+    setProductData({
+      ...productData,
+      productOptions: productData?.productOptions?.map((variant) =>
+        variant.name === oldType ? { ...variant, name: newType } : variant
+      ),
+    });
     toast.success("Variant updated");
   };
   return (
@@ -121,9 +131,9 @@ const VariantDetails = () => {
             <AddCircleIcon /> Variants
           </Button>
 
-          {variantTypes.map((item) => (
+          {productData?.productOptions?.map((item) => (
             <Stack
-              key={item.type}
+              key={item.name}
               p={1}
               px={2}
               direction="row"
@@ -132,13 +142,13 @@ const VariantDetails = () => {
               component={Paper}
               sx={{ mt: 2 }}
             >
-              <Typography fontWeight="bold">{item.type} :</Typography>
+              <Typography fontWeight="bold">{item.name} :</Typography>
               <Stack spacing={1} direction="row">
-                {item.options.map((option) => (
+                {item.values.map((option) => (
                   <Chip
                     key={option}
                     label={option}
-                    onDelete={() => handleDeleteOption(item.type, option)}
+                    onDelete={() => handleDeleteOption(item.name, option)}
                   />
                 ))}
               </Stack>
@@ -153,7 +163,7 @@ const VariantDetails = () => {
                   >
                     <EditIcon />
                   </IconButton> */}
-              <IconButton onClick={() => handleDeleteVariant(item.type)}>
+              <IconButton onClick={() => handleDeleteVariant(item.name)}>
                 <DeleteIcon />
               </IconButton>
             </Stack>
@@ -226,18 +236,23 @@ const VariantDetails = () => {
                   disabled={newVariantOptions.length === 0 || !newVariantType}
                   onClick={() => {
                     if (
-                      variantTypes.some((item) => item.type === newVariantType)
+                      productData?.productOptions?.some(
+                        (item) => item.name === newVariantType
+                      )
                     ) {
                       toast.error("Variant already exists");
                       return;
                     }
-                    setVariantTypes([
-                      ...variantTypes,
-                      {
-                        type: newVariantType,
-                        options: newVariantOptions,
-                      },
-                    ]);
+                    setProductData({
+                      ...productData,
+                      productOptions: [
+                        ...productData?.productOptions,
+                        {
+                          name: newVariantType,
+                          values: newVariantOptions,
+                        },
+                      ],
+                    });
                     setNewVariantType("");
                     setNewVariantOptions([]);
                     setIsVariantExpand(false);
@@ -252,7 +267,7 @@ const VariantDetails = () => {
             </Stack>
           )}
         </Box>
-        {variantTypes.length > 0 && (
+        {productData?.productOptions?.length > 0 && (
           <Table>
             <TableHead>
               <TableRow>
@@ -265,7 +280,7 @@ const VariantDetails = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {variantCombinations.map((variant, index) => (
+              {variantsData.map((variant, index) => (
                 <TableRow key={index}>
                   <TableCell>{variant.variant}</TableCell>
                   <TableCell>

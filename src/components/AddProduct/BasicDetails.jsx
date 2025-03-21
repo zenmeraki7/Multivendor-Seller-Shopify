@@ -3,7 +3,11 @@ import React from "react";
 import CustomInput from "../SharedComponents/CustomInput";
 import ReactQuill from "react-quill";
 
-const BasicDetails = () => {
+const BasicDetails = ({ handleChange, productData, setProductData }) => {
+  const handleChangeQuill = (value) => {
+    setProductData({ ...productData, description: value });
+  };
+
   return (
     <>
       <Box>
@@ -14,8 +18,8 @@ const BasicDetails = () => {
               id="title"
               label="Product Title"
               placeholder="Enter product title"
-            //   value={formData.title}
-            //   onChange={handleInputChange}
+              value={productData.title}
+              onChange={handleChange}
               fullWidth
             />
           </Grid>
@@ -26,8 +30,8 @@ const BasicDetails = () => {
           Product Description
         </Typography>
         <ReactQuill
-          value={"Somehting"}
-          // onChange={setPolicy}
+          value={productData.description}
+          onChange={handleChangeQuill}
           // readOnly={!isEditing}
           style={{
             height: "180px",
