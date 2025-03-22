@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Paper, Container, Grid } from "@mui/material";
 
 import BasicDetails from "../../components/AddProduct/BasicDetails";
@@ -34,6 +34,20 @@ function AddShopifyProduct() {
     const { value, name } = e.target;
     setProductData({ ...productData, [name]: value });
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue =
+        "Are you sure you want to leave? Your changes may not be saved.";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   const createProduct = async () => {
     try {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,41 +9,113 @@ import {
   IconButton,
   Divider,
   Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Avatar,
+  Checkbox,
 } from "@mui/material";
 
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { BASE_URL } from "../../utils/baseUrl";
 
 const MediaDetails = () => {
-  const [media, setMedia] = useState({
-    thumbnail: null,
-    productImages: [],
-    existingImages: [],
-  });
-  const handleImageUpload = (event) => {
+  const [media, setMedia] = useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [selectedImageIds, setSelectedImageIds] = useState([]);
+  const [selectedExistingUrls, setSelectedExistingUrls] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/api/images/getall`)
+      .then((res) => setExistingImages(res.data.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  const handleSelect = ({ _id: id, url }) => {
+    setSelectedImages(
+      (prevSelected) =>
+        prevSelected.includes(id)
+          ? prevSelected.filter((i) => i !== id) // Unselect
+          : [...prevSelected, id] // Select
+    );
+    setSelectedExistingUrls(
+      (prevSelected) =>
+        prevSelected.includes(url)
+          ? prevSelected.filter((i) => i !== url) // Unselect
+          : [...prevSelected, url] // Select
+    );
+  };
+  console.log(selectedImageIds);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedImages([]);
+    selectedExistingUrls([]);
+  };
+
+  const handleSaveExistingImages = () => {
+    const imgIDs = selectedImages.filter(
+      (item) => !selectedImageIds.includes(item)
+    );
+    const imgUrls = selectedExistingUrls.filter(
+      (item) => !media.productImages?.includes(item)
+    );
+    setSelectedImageIds([...selectedImageIds, ...imgIDs]);
+
+    setMedia((prevMedia) => [...prevMedia, ...imgUrls]);
+    setOpen(false);
+    setSelectedImages([]);
+    selectedExistingUrls([]);
+  };
+
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const imageUrl = URL.createObjectURL(file);
-
-    setMedia((prevMedia) => ({
-      ...prevMedia,
-      productImages: [...prevMedia.productImages, imageUrl],
-    }));
+    const formdata = new FormData();
+    formdata.append("image", file);
+    // const imageUrl = URL.createObjectURL(file);
+    try {
+      toast.loading();
+      const response = await axios.post(
+        `${BASE_URL}/api/images/create`,
+        formdata,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      toast.dismiss();
+      console.log("image Created:", response.data.data);
+      setMedia((prevMedia) => [...prevMedia, response.data?.data || ""]);
+      setSelectedImageIds([...selectedImageIds, response.data.data._id]);
+    } catch (error) {
+      console.log(
+        "Error uploading image:",
+        error.response?.data || error.message
+      );
+    }
   };
 
-  // Simulate fetching existing images
-  const fetchExistingImages = () => {
-    const sampleImages = [
-      "https://variety.com/wp-content/uploads/2013/05/minion-biz-featured.jpg?w=1000&h=667&crop=1",
-      "https://images7.alphacoders.com/677/thumb-1920-677436.jpg",
-      "https://images6.alphacoders.com/138/1388945.png",
-    ];
-
-    setMedia((prevMedia) => ({
-      ...prevMedia,
-      productImages: [...prevMedia.productImages, ...sampleImages],
-    }));
+  const handleRemoveImage = (index) => {
+    const selectedImageUrl = media.productImages[index];
+    const updatedMediaUrl = media.productImages.filter(
+      (item, index) => index !== index
+    );
+    setMedia(updatedMediaUrl);
   };
+
   return (
     <>
       <Box sx={{ mt: 9 }}>
@@ -74,12 +146,13 @@ const MediaDetails = () => {
           >
             <Button
               variant="contained"
+              size="small"
               onClick={() => document.getElementById("upload-new").click()}
               sx={{ px: 3 }}
             >
               Upload New
             </Button>
-            <Button variant="outlined" onClick={fetchExistingImages}>
+            <Button variant="outlined" size="small" onClick={handleClickOpen}>
               Select From Library
             </Button>
           </Stack>
@@ -92,7 +165,7 @@ const MediaDetails = () => {
             accept="image/*"
           />
 
-          {media.productImages.length > 0 && (
+          {media.length > 0 && (
             <Box sx={{ mt: 3 }}>
               <Typography variant="subtitle1" gutterBottom align="left">
                 Product Images
@@ -100,7 +173,7 @@ const MediaDetails = () => {
               <Divider sx={{ mb: 2 }} />
 
               <Grid container spacing={2}>
-                {media.productImages.map((image, index) => (
+                {media?.map((image, index) => (
                   <Grid item xs={6} sm={4} md={3} key={index}>
                     <Card
                       sx={{
@@ -113,7 +186,7 @@ const MediaDetails = () => {
                       <CardMedia
                         component="img"
                         height={index === 0 ? "200" : "100"}
-                        image={image}
+                        image={image.url}
                         alt={`Image ${index + 1}`}
                         sx={{ borderRadius: 1 }}
                       />
@@ -157,6 +230,69 @@ const MediaDetails = () => {
           )}
         </Box>
       </Box>
+
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Your uploaded image files"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <Grid container spacing={1} width={"100%"}>
+              {existingImages.length > 0 ? (
+                existingImages?.map((item, index) => (
+                  <Grid item xs={3} key={index}>
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100px",
+                      }}
+                    >
+                      {/* Checkbox Positioned at the Top-Left */}
+                      <Checkbox
+                        size="small"
+                        checked={selectedImages.includes(item._id)}
+                        onChange={() => handleSelect(item)}
+                        sx={{
+                          position: "absolute",
+                          top: 5,
+                          left: 5,
+                          bgcolor: "rgba(255, 255, 255, 0.8)", // Light background for visibility
+                          borderRadius: "4px",
+                          zIndex: 99,
+                        }}
+                      />
+                      {/* Image */}
+                      <Avatar
+                        sx={{
+                          width: "100%",
+                          height: "100px",
+                          borderRadius: "8px",
+                        }}
+                        src={item.url}
+                        variant="rounded"
+                      />
+                    </Box>
+                  </Grid>
+                ))
+              ) : (
+                <Typography>Existing files note found!</Typography>
+              )}
+            </Grid>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleSaveExistingImages} autoFocus>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };
