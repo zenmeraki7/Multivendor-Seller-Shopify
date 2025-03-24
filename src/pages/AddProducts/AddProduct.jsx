@@ -9,6 +9,7 @@ import ProductOrganizationDetails from "../../components/AddProduct/ProductOrgan
 import axios from "axios";
 import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 function AddShopifyProduct() {
   const [productData, setProductData] = useState({
@@ -26,6 +27,8 @@ function AddShopifyProduct() {
     productOptions: [],
   });
 
+  const [media, setMedia] = useState([]);
+  const navigate = useNavigate();
   const [variantsData, setVariantsData] = useState([]);
   console.log(productData);
   console.log(variantsData);
@@ -50,13 +53,29 @@ function AddShopifyProduct() {
   }, []);
 
   const createProduct = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    
     try {
       toast.loading();
-      const response = await axios.post(`${BASE_URL}/api/product/create`, {
-        ...productData,
-        variants: variantsData,
-        images: ["67d94d914e7b92c72120fe15", "67d94da44e7b92c72120fe19"],
-      });
+      const response = await axios.post(
+        `${BASE_URL}/api/product/create`,
+        {
+          ...productData,
+          variants: variantsData,
+          images: media.map((img) => img._id),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json", // Ensure correct content type
+            Authorization: `Bearer ${token}`, // If using authentication
+          },
+        }
+      );
       toast.dismiss();
       toast.success("created");
       console.log("Product Created:", response.data);
@@ -81,7 +100,7 @@ function AddShopifyProduct() {
               productData={productData}
               setProductData={setProductData}
             />
-            <MediaDetails />
+            <MediaDetails setMedia={setMedia} media={media} />
           </Paper>
           <VariantDetails
             variantsData={variantsData}

@@ -23,13 +23,17 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { BASE_URL } from "../../utils/baseUrl";
 
-const MediaDetails = () => {
-  const [media, setMedia] = useState([]);
+const MediaDetails = ({ setMedia, media }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-  const [selectedImageIds, setSelectedImageIds] = useState([]);
-  const [selectedExistingUrls, setSelectedExistingUrls] = useState([]);
+  // const [selectedImageIds, setSelectedImageIds] = useState([]);
+  // const [selectedExistingUrls, setSelectedExistingUrls] = useState([]);
+
+  useEffect(() => {
+    console.log("Media:", media);
+    console.log("Selected Images:", selectedImages);
+  }, [media, selectedImages]); // Runs whenever these states change
 
   useEffect(() => {
     axios
@@ -38,21 +42,15 @@ const MediaDetails = () => {
       .catch((err) => console.log(err));
   }, []);
 
-  const handleSelect = ({ _id: id, url }) => {
+  const handleSelect = (item) => {
     setSelectedImages(
       (prevSelected) =>
-        prevSelected.includes(id)
-          ? prevSelected.filter((i) => i !== id) // Unselect
-          : [...prevSelected, id] // Select
-    );
-    setSelectedExistingUrls(
-      (prevSelected) =>
-        prevSelected.includes(url)
-          ? prevSelected.filter((i) => i !== url) // Unselect
-          : [...prevSelected, url] // Select
+        prevSelected.includes(item)
+          ? prevSelected.filter((i) => i._id !== item._id) // Unselect
+          : [...prevSelected, item] // Select
     );
   };
-  console.log(selectedImageIds);
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -60,22 +58,16 @@ const MediaDetails = () => {
   const handleClose = () => {
     setOpen(false);
     setSelectedImages([]);
-    selectedExistingUrls([]);
   };
 
   const handleSaveExistingImages = () => {
-    const imgIDs = selectedImages.filter(
-      (item) => !selectedImageIds.includes(item)
+    const imgs = selectedImages.filter(
+      (item) => !media.some((img) => img._id == item._id)
     );
-    const imgUrls = selectedExistingUrls.filter(
-      (item) => !media.productImages?.includes(item)
-    );
-    setSelectedImageIds([...selectedImageIds, ...imgIDs]);
 
-    setMedia((prevMedia) => [...prevMedia, ...imgUrls]);
+    setMedia((prevMedia) => [...prevMedia, ...imgs]);
     setOpen(false);
     setSelectedImages([]);
-    selectedExistingUrls([]);
   };
 
   const handleImageUpload = async (event) => {
@@ -98,8 +90,8 @@ const MediaDetails = () => {
       );
       toast.dismiss();
       console.log("image Created:", response.data.data);
-      setMedia((prevMedia) => [...prevMedia, response.data?.data || ""]);
-      setSelectedImageIds([...selectedImageIds, response.data.data._id]);
+      setMedia((prevMedia) => [...prevMedia, response.data?.data]);
+      // setSelectedImageIds([...selectedImageIds, response.data.data._id]);
     } catch (error) {
       console.log(
         "Error uploading image:",
@@ -108,12 +100,9 @@ const MediaDetails = () => {
     }
   };
 
-  const handleRemoveImage = (index) => {
-    const selectedImageUrl = media.productImages[index];
-    const updatedMediaUrl = media.productImages.filter(
-      (item, index) => index !== index
-    );
-    setMedia(updatedMediaUrl);
+  const handleRemoveImage = (id) => {
+    const updatedMedias = media.filter((item) => item._id !== id);
+    setMedia(updatedMedias);
   };
 
   return (
@@ -201,7 +190,7 @@ const MediaDetails = () => {
                           opacity: 0,
                           transition: "opacity 0.2s",
                         }}
-                        onClick={() => handleRemoveImage(index)}
+                        onClick={() => handleRemoveImage(image._id)}
                       >
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
@@ -242,7 +231,7 @@ const MediaDetails = () => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            <Grid container spacing={1} width={"100%"}>
+            <Grid container spacing={1} width={"100%"} height={"400px"}>
               {existingImages.length > 0 ? (
                 existingImages?.map((item, index) => (
                   <Grid item xs={3} key={index}>
@@ -256,7 +245,7 @@ const MediaDetails = () => {
                       {/* Checkbox Positioned at the Top-Left */}
                       <Checkbox
                         size="small"
-                        checked={selectedImages.includes(item._id)}
+                        checked={selectedImages.includes(item)}
                         onChange={() => handleSelect(item)}
                         sx={{
                           position: "absolute",
