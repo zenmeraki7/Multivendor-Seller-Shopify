@@ -62,7 +62,7 @@ const CustomSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
-const PersonalDetails = ({ handleNext, setEmail }) => {
+const PersonalDetails = ({ handleNext, setEmail, shop }) => {
   const [formValues, setFormValues] = useState({
     fullName: "",
     email: "",
@@ -164,10 +164,10 @@ const PersonalDetails = ({ handleNext, setEmail }) => {
       setFormErrors({}); // Reset form errors
 
       // If validation passes, make the API call
-      const response = await axios.post(
-        `${BASE_URL}/api/vendor/register`,
-        formValues
-      ); // Replace with your backend API
+      const response = await axios.post(`${BASE_URL}/api/vendor/register`, {
+        ...formValues,
+        merchantShop: shop,
+      }); // Replace with your backend API
       console.log(response.data.message);
 
       // Show success toast
