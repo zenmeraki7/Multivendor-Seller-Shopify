@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Box,
@@ -39,19 +38,44 @@ import {
 import "./Welcome.css";
 import { Link } from "react-scroll";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "../utils/baseUrl";
+import ShopNotFound from "../components/ShopNotFound";
 
 function Welcome() {
   const navigate = useNavigate();
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { shop } = useParams();
-  const theme = useTheme();
 
   const handleClick = () => {
-    navigate(`/${shop}/register`);
+    navigate(`/auth/${shop}/register`);
   };
 
   const handleLogin = () => {
-    navigate(`/${shop}/login`);
+    navigate(`/auth/${shop}/login`);
   };
+
+  React.useEffect(() => {
+    const checkShopExist = async () => {
+      setError(false);
+      setLoading(true);
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/api/vendor/authenticate-shop`,
+          { shop }
+        );
+        console.log(response.data);
+        setError(false);
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+        setError(true);
+        setLoading(false);
+      }
+    };
+    checkShopExist();
+  }, []);
 
   const [mobileMenuAnchor, setMobileMenuAnchor] = React.useState(null);
 
@@ -417,7 +441,11 @@ function Welcome() {
     });
   };
 
-  return (
+  if (!loading && error) return <ShopNotFound />;
+
+  return loading ? (
+    "Loading"
+  ) : (
     <div>
       <AppBar
         position="fixed"

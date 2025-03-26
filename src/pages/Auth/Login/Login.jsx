@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { keyframes } from "@emotion/react"; // Import keyframes from Emotion
@@ -17,6 +17,7 @@ const gradientAnimation = keyframes`
 
 function Login() {
   const navigate = useNavigate();
+  const { shop } = useParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,6 +37,7 @@ function Login() {
       const response = await axios.post(`${BASE_URL}/api/vendor/login`, {
         email,
         password,
+        shop,
       });
 
       // Handle success
@@ -59,12 +61,12 @@ function Login() {
 
   const handleSignUp = (e) => {
     e.preventDefault();
-    navigate("/register");
+    navigate(`/auth/${shop}/register`);
   };
 
   const handleForgotPassword = (e) => {
     e.preventDefault();
-    navigate("/forgot-password");
+    navigate(`/auth/${shop}/forgot-password`);
   };
 
   return (
