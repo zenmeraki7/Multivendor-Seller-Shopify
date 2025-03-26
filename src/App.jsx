@@ -28,19 +28,37 @@ import MerchantNotification from "./pages/MerchantNotifications/MerchantNotifica
 import Feedback from "./pages/Feedback/Feedback";
 import Subscription from "./pages/Subscription/Subcription";
 import AddShopifyProduct from "./pages/AddShopifyProduct";
+import Pending from "./pages/Pending";
+import AuthRoutes from "./routes/AuthRoutes";
 function App() {
   return (
     <>
       <Toaster />
       <Routes>
-        <Route path="/:shop/login" element={<Login />} />
-        <Route
-          path="/verification"
-          element={<PrivateRoute component={<Verification />} />}
-        />
-        <Route path="/:shop/register" element={<Register />} />
-        <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/auth/:shop">
+          <Route path="login" element={<AuthRoutes component={<Login />} />} />
+          <Route
+            path="register"
+            element={<AuthRoutes component={<Register />} />}
+          />
+
+          <Route
+            path="verification"
+            element={
+              <PrivateRoute
+                component={<AuthRoutes component={<Verification />} />}
+              />
+            }
+          />
+          <Route
+            path="forgot-password"
+            element={<AuthRoutes component={<ForgotPassword />} />}
+          />
+          <Route
+            path="reset-password/:token"
+            element={<AuthRoutes component={<ResetPassword />} />}
+          />
+        </Route>
         <Route
           path="/:shop"
           element={
@@ -50,7 +68,6 @@ function App() {
             </>
           }
         />
-        {/* Wrap all pages inside Layout to ensure header/footer are present */}
         <Route
           path="/dashboard"
           element={<PrivateRoute component={<Layout />} />}
@@ -74,6 +91,7 @@ function App() {
             element={<PrivateRoute component={<EditProduct />} />}
           />
           <Route path="product-list" element={<ProductList />} />
+          {/* <Route path="pending" element={<Pending />} /> */}
           <Route
             path="sellers"
             element={<PrivateRoute component={<SellerPro />} />}
@@ -104,8 +122,8 @@ function App() {
             element={<MerchantNotification />}
           />
           <Route path="feedback" element={<Feedback />} />
+          <Route path="pending" element={<Pending />} />
         </Route>
-        <Route path="/add-shopifyProduct" element={<AddShopifyProduct />} />
       </Routes>
     </>
   );

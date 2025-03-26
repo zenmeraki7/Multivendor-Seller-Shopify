@@ -30,7 +30,7 @@ import TableInput from "../components/SharedComponents/TableButton/TableInput";
 import TableSelect from "../components/SharedComponents/TableButton/TableSelect";
 import TableButton from "../components/SharedComponents/TableButton/TableButton";
 
-const ProductList = () => {
+const Pending = () => {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -396,15 +396,6 @@ const handleSearchChange = (e) => {
           >
             Clear
           </TableButton>
-          <TableButton
-            variant="outlined"
-            
-            style={{ height: "56px" }}
-          >
-           <Link to="/dashboard/pending" style={{textDecoration:"none"}}>Pending</Link> 
-          </TableButton>
-
-          
         </Box>
       </Box>
 
@@ -517,4 +508,4 @@ const handleSearchChange = (e) => {
   );
 };
 
-export default ProductList;
+export default Pending;
