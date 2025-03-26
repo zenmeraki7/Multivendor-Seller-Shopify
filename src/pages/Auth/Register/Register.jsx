@@ -12,7 +12,7 @@ import {
   CircularProgress,
   Divider,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PersonalDetails from "../../../components/Register/PersonalDetails";
 import DocumentUpload from "../../../components/Register/DocumentUpload";
 import BankDetailsUpload from "../../../components/Register/BankDetailsUpload";
@@ -33,7 +33,7 @@ export default function Register() {
   const [otp, setOtp] = useState(""); // Store OTP value entered by the user
   const [otpError, setOtpError] = useState(""); // Manage OTP error
   const [email, setEmail] = useState(""); // Manage OTP error
-
+  const { shop } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,7 +52,13 @@ export default function Register() {
   const getStepContent = (step) => {
     switch (step) {
       case 0:
-        return <PersonalDetails setEmail={setEmail} handleNext={handleNext} />;
+        return (
+          <PersonalDetails
+            shop={shop}
+            setEmail={setEmail}
+            handleNext={handleNext}
+          />
+        );
       case 1:
         return <OtpStep email={email} handleNext={handleNext} />;
       case 2:

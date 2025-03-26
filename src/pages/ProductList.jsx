@@ -433,7 +433,7 @@ const handleSearchChange = (e) => {
                   <TableCell>
                     <Avatar
                       variant="rounded"
-                      src={product.thumbnail.url}
+                      src={product.images[0].url}
                       alt={product.title}
                       sx={{ width: 60, height: 60 }}
                       onError={(e) => {
