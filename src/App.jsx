@@ -28,6 +28,7 @@ import MerchantNotification from "./pages/MerchantNotifications/MerchantNotifica
 import Feedback from "./pages/Feedback/Feedback";
 import Subscription from "./pages/Subscription/Subcription";
 import AddShopifyProduct from "./pages/AddShopifyProduct";
+import Pending from "./pages/Pending";
 function App() {
   return (
     <>
@@ -49,6 +50,7 @@ function App() {
               <Footer />
             </>
           }
+          
         />
         {/* Wrap all pages inside Layout to ensure header/footer are present */}
         <Route
@@ -74,6 +76,7 @@ function App() {
             element={<PrivateRoute component={<EditProduct />} />}
           />
           <Route path="product-list" element={<ProductList />} />
+          {/* <Route path="pending" element={<Pending />} /> */}
           <Route
             path="sellers"
             element={<PrivateRoute component={<SellerPro />} />}
@@ -104,6 +107,8 @@ function App() {
             element={<MerchantNotification />}
           />
           <Route path="feedback" element={<Feedback />} />
+          <Route path="pending" element={<Pending />} />
+          
         </Route>
         <Route path="/add-shopifyProduct" element={<AddShopifyProduct />} />
       </Routes>
