@@ -33,16 +33,16 @@ function App() {
     <>
       <Toaster />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/:shop/login" element={<Login />} />
         <Route
           path="/verification"
           element={<PrivateRoute component={<Verification />} />}
         />
-        <Route path="/register" element={<Register />} />
+        <Route path="/:shop/register" element={<Register />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route
-          path="/"
+          path="/:shop"
           element={
             <>
               <Welcome />
