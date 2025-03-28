@@ -64,7 +64,7 @@ const Pending = () => {
     try {
       console.log("Fetching products with filters:", filters);
       const response = await axios.get(
-        `${BASE_URL}/api/product/all-seller-product`,
+        `${BASE_URL}/api/product/all-seller-pending-products`,
         {
           params: {
             page,
