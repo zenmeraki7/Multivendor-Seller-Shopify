@@ -64,7 +64,7 @@ const ProductList = () => {
     try {
       console.log("Fetching products with filters:", filters);
       const response = await axios.get(
-        `${BASE_URL}/api/product/all-seller-product`,
+        `${BASE_URL}/api/product/all-seller-approved-products`,
         {
           params: {
             page,
