@@ -30,6 +30,8 @@ import Subscription from "./pages/Subscription/Subcription";
 import AddShopifyProduct from "./pages/AddShopifyProduct";
 import Pending from "./pages/Pending";
 import AuthRoutes from "./routes/AuthRoutes";
+import PendingProducts from "./pages/ProductList/PendingProducts";
+import ApprovedProducts from "./pages/ProductList/ApprovedProducts";
 function App() {
   return (
     <>
@@ -123,6 +125,11 @@ function App() {
           />
           <Route path="feedback" element={<Feedback />} />
           <Route path="pending" element={<Pending />} />
+
+          <Route path="pending-products" element={<PendingProducts />} />
+          <Route path="approved-products" element={<ApprovedProducts />} />
+
+
         </Route>
       </Routes>
     </>
