@@ -32,6 +32,7 @@ import Pending from "./pages/Pending";
 import AuthRoutes from "./routes/AuthRoutes";
 import PendingProducts from "./pages/ProductList/PendingProducts";
 import ApprovedProducts from "./pages/ProductList/ApprovedProducts";
+import ViewPendingProduct from "./pages/ViewPendingProduct/ViewPendingProduct";
 function App() {
   return (
     <>
@@ -128,6 +129,9 @@ function App() {
 
           <Route path="pending-products" element={<PendingProducts />} />
           <Route path="approved-products" element={<ApprovedProducts />} />
+          <Route path="view-pending-products/:id" element={<ViewPendingProduct/>} />
+         
+         
 
 
         </Route>

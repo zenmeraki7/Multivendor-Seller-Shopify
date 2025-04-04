@@ -501,7 +501,7 @@ const PendingProducts = () => {
                       variant="contained"
                       color="success"
                       isSmall
-                      onClick={() => navigate(`/dashboard/view-product/${product._id}`)}
+                      onClick={() => navigate(`/dashboard/view-pending-products/${product._id}`)}
                       sx={{
                         borderRadius: '20px',
                         boxShadow: '0 2px 10px rgba(76, 175, 80, 0.2)',

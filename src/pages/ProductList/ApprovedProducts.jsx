@@ -606,7 +606,7 @@ const ApprovedProducts = () => {
                           color="primary"
                           onClick={() =>
                             navigate(
-                              `/dashboard/view-product/${getProductData(product, "id")}`
+                              `/dashboard/view-approved-products/${product.node.id?.split("/")?.pop()}`
                             )
                           }
                         >
