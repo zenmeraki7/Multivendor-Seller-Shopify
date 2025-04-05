@@ -33,7 +33,8 @@ import AuthRoutes from "./routes/AuthRoutes";
 import PendingProducts from "./pages/ProductList/PendingProducts";
 import ApprovedProducts from "./pages/ProductList/ApprovedProducts";
 import ViewPendingProduct from "./pages/ViewPendingProduct/ViewPendingProduct";
-import ViewApprovedProduct from "./pages/ViewApprovedProducts/ViewPendingProduct";
+import ViewApprovedProduct from "./pages/ViewApprovedProducts/ViewApprovedProduct";
+
 function App() {
   return (
     <>

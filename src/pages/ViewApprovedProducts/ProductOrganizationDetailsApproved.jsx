@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Paper, Grid, CircularProgress, Box, Alert } from "@mui/material";
+import { Typography, Paper, Grid, CircularProgress, Box } from "@mui/material";
 import CustomInput from "../../components/SharedComponents/CustomInput";
 import CustomSelect from "../../components/SharedComponents/CustomSelect";
 
@@ -8,6 +8,7 @@ const ProductOrganizationDetailsApproved = ({
   productData,
   setProductData,
 }) => {
+  // Handle tag changes - split comma-separated string into array
   const handleTagChange = (e) => {
     const { value } = e.target;
     setProductData({ ...productData, tags: value ? value.split(",") : [] });
@@ -22,6 +23,14 @@ const ProductOrganizationDetailsApproved = ({
     );
   }
 
+  // Convert tags array to string for display in input field
+  const tagsString = Array.isArray(productData.tags) 
+    ? productData.tags.join(",") 
+    : productData.tags || "";
+
+  // Set default status if not available
+  const status = productData.status || "DRAFT";
+
   return (
     <Grid container>
       <Grid item xs={12}>
@@ -33,7 +42,7 @@ const ProductOrganizationDetailsApproved = ({
             name="status"
             id="status"
             label="Status"
-            value={productData.status || "DRAFT"}
+            value={status}
             onChange={handleChange}
             MenuItems={[
               { value: "DRAFT", label: "Draft" },
@@ -68,7 +77,7 @@ const ProductOrganizationDetailsApproved = ({
             id="tag"
             label="Tags"
             placeholder="Enter tags (comma-separated)"
-            value={Array.isArray(productData.tags) ? productData.tags.join(",") : ""}
+            value={tagsString}
             onChange={handleTagChange}
             fullWidth
           />
@@ -81,7 +90,7 @@ const ProductOrganizationDetailsApproved = ({
         <Typography gutterBottom fontWeight={"bold"}>
           Pricing
         </Typography>
-        
+                
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <CustomInput
