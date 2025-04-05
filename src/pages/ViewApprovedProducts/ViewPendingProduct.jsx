@@ -15,13 +15,13 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Import child components
-import ProductOrganizationDetailsPending from "./ProductOrganizationDetailsPending";
-import SeoDetailsPending from "./SeoDetailsPending";
-import VariantDetailsPending from "./VariantDetailsPending";
-import BasicDetailsPending from "./BasicDetailsPending";
-import MediaDetailsPending from "./MediaDetailsPending";
+// import ProductOrganizationDetailsPending from "./ProductOrganizationDetailsPending";
+// import SeoDetailsPending from "./SeoDetailsPending";
+// import VariantDetailsPending from "./VariantDetails";
+// import BasicDetailsPending from "./BasicDetailsPending";
+// import MediaDetailsPending from "./MediaDetailsPending";
 
-function ViewPendingProduct() {
+function ViewApprovedProduct() {
   // State for product data
   const [productData, setProductData] = useState(null);
   const [media, setMedia] = useState([]);
@@ -305,4 +305,4 @@ function ViewPendingProduct() {
   );
 }
 
-export default ViewPendingProduct;
+export default ViewApprovedProduct;
