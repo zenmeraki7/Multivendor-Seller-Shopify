@@ -27,13 +27,12 @@ const MediaDetailsApproved = ({ setMedia, media }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
-  // const [selectedImageIds, setSelectedImageIds] = useState([]);
-  // const [selectedExistingUrls, setSelectedExistingUrls] = useState([]);
+ 
 
   useEffect(() => {
     console.log("Media:", media);
     console.log("Selected Images:", selectedImages);
-  }, [media, selectedImages]); // Runs whenever these states change
+  }, [media, selectedImages]); 
 
   useEffect(() => {
     axios
@@ -46,8 +45,8 @@ const MediaDetailsApproved = ({ setMedia, media }) => {
     setSelectedImages(
       (prevSelected) =>
         prevSelected.includes(item)
-          ? prevSelected.filter((i) => i._id !== item._id) // Unselect
-          : [...prevSelected, item] // Select
+          ? prevSelected.filter((i) => i._id !== item._id) 
+          : [...prevSelected, item] 
     );
   };
 
@@ -76,7 +75,6 @@ const MediaDetailsApproved = ({ setMedia, media }) => {
 
     const formdata = new FormData();
     formdata.append("image", file);
-    // const imageUrl = URL.createObjectURL(file);
     try {
       toast.loading();
       const response = await axios.post(
@@ -91,7 +89,6 @@ const MediaDetailsApproved = ({ setMedia, media }) => {
       toast.dismiss();
       console.log("image Created:", response.data.data);
       setMedia((prevMedia) => [...prevMedia, response.data?.data]);
-      // setSelectedImageIds([...selectedImageIds, response.data.data._id]);
     } catch (error) {
       console.log(
         "Error uploading image:",

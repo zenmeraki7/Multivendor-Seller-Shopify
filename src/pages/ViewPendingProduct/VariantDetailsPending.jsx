@@ -34,7 +34,6 @@ const VariantDetailsPending = ({
   const [newVariantOptions, setNewVariantOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Generate all possible combinations of variants
   const generateCombinations = (variants) => {
     if (!variants || variants.length === 0) return [];
     
@@ -47,7 +46,6 @@ const VariantDetailsPending = ({
 
     const optionLists = variants.map((v) => v.values || []);
     
-    // If any variant has no values, return empty array
     if (optionLists.some(list => list.length === 0)) return [];
     
     return combine(optionLists).map((combination) => {
@@ -73,17 +71,13 @@ const VariantDetailsPending = ({
     });
   };
 
-  // Initialize or update variants when product options change
   useEffect(() => {
     if (productData && productData.productOptions && productData.productOptions.length > 0) {
       console.log("Generating variants from product options:", productData.productOptions);
       
-      // If we already have variants data, preserve custom values
       if (variantsData && variantsData.length > 0) {
-        // Get newly generated combinations
         const newCombinations = generateCombinations(productData.productOptions);
         
-        // Preserve existing data for matching variants
         const updatedVariants = newCombinations.map(newVar => {
           const existingVar = variantsData.find(v => v.variant === newVar.variant);
           if (existingVar) {
@@ -100,23 +94,19 @@ const VariantDetailsPending = ({
         
         setVariantsData(updatedVariants);
       } else {
-        // No existing variants, generate fresh
         setVariantsData(generateCombinations(productData.productOptions));
       }
     } else {
-      // No product options, clear variants
       setVariantsData([]);
     }
   }, [productData?.productOptions]);
 
-  // Update field values for a variant
   const handleChange = (index, field, value) => {
     const updatedCombinations = [...variantsData];
     updatedCombinations[index][field] = value;
     setVariantsData(updatedCombinations);
   };
 
-  // Delete a variant type
   const handleDeleteVariant = (type) => {
     setProductData({
       ...productData,
@@ -127,7 +117,6 @@ const VariantDetailsPending = ({
     toast.success(`Removed ${type} variant`);
   };
 
-  // Delete a single option inside a variant
   const handleDeleteOption = (variantType, option) => {
     setProductData({
       ...productData,
@@ -143,7 +132,6 @@ const VariantDetailsPending = ({
     toast.success(`Removed ${option} option`);
   };
 
-  // Update a variant name
   const handleUpdateVariant = (oldType, newType) => {
     if (!newType.trim()) {
       toast.error("Variant name cannot be empty");
@@ -164,7 +152,6 @@ const VariantDetailsPending = ({
     toast.success("Variant updated");
   };
 
-  // Add a new option to a variant type
   const handleAddOption = () => {
     if (!newOption.trim()) {
       toast.error("Option cannot be empty");
@@ -180,7 +167,6 @@ const VariantDetailsPending = ({
     setNewOption("");
   };
 
-  // Add the new variant type with options
   const handleAddVariant = () => {
     if (!newVariantType.trim()) {
       toast.error("Variant type cannot be empty");
@@ -210,7 +196,6 @@ const VariantDetailsPending = ({
       productOptions: updatedOptions,
     });
     
-    // Reset form
     setNewVariantType("");
     setNewVariantOptions([]);
     setIsVariantExpand(false);
@@ -218,7 +203,6 @@ const VariantDetailsPending = ({
     toast.success("Variant added successfully");
   };
 
-  // Set all variant prices at once
   const handleSetAllPrices = (price) => {
     const updatedVariants = variantsData.map(variant => ({
       ...variant,
@@ -228,7 +212,6 @@ const VariantDetailsPending = ({
     toast.success("Updated all variant prices");
   };
 
-  // Set all compare-at prices at once
   const handleSetAllCompareAtPrices = (compareAtPrice) => {
     const updatedVariants = variantsData.map(variant => ({
       ...variant,

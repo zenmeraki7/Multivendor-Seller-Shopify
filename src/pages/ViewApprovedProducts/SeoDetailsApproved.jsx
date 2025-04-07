@@ -1,18 +1,34 @@
-import React from "react";
-import { Box, Typography, Paper, Grid, CircularProgress } from "@mui/material";
+import React, { useEffect } from "react";
+import { Box, Typography, Paper, Grid, CircularProgress, Alert } from "@mui/material";
 import CustomInput from "../../components/SharedComponents/CustomInput";
 
 const SeoDetailsApproved = ({ productData, setProductData }) => {
-  // Handle changes to SEO fields
+  useEffect(() => {
+    console.log("SeoDetailsApproved component productData:", productData);
+    console.log("SEO data:", productData?.seo);
+    console.log("seoTitle:", productData?.seoTitle);
+    console.log("seoDescription:", productData?.seoDescription);
+    console.log("handle:", productData?.handle);
+  }, [productData]);
+
   const handleSeoChange = (e) => {
     const { name, value } = e.target;
-    setProductData({
-      ...productData,
-      seo: { ...productData?.seo || {}, [name]: value },
-    });
+    
+    if (productData.seo) {
+      setProductData({
+        ...productData,
+        seo: { ...productData.seo, [name]: value },
+        [`seo${name.charAt(0).toUpperCase() + name.slice(1)}`]: value
+      });
+    } else {
+      setProductData({
+        ...productData,
+        [`seo${name.charAt(0).toUpperCase() + name.slice(1)}`]: value,
+        seo: { ...productData.seo || {}, [name]: value }
+      });
+    }
   };
 
-  // Display loading state if productData is not yet loaded
   if (!productData) {
     return (
       <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mt: 3 }}>
@@ -23,8 +39,20 @@ const SeoDetailsApproved = ({ productData, setProductData }) => {
     );
   }
 
-  // Ensure seo object exists to prevent errors
-  const seo = productData.seo || {};
+  const seoTitle = 
+    (productData.seo && productData.seo.title) || 
+    productData.seoTitle || 
+    productData.title || 
+    productData.name || 
+    "";
+    
+  const seoDescription = 
+    (productData.seo && productData.seo.description) || 
+    productData.seoDescription || 
+    productData.description || 
+    "";
+    
+  const handle = productData.handle || "";
 
   return (
     <>
@@ -36,7 +64,7 @@ const SeoDetailsApproved = ({ productData, setProductData }) => {
           <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
             Improve your product's visibility in search results
           </Typography>
-
+          
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <CustomInput
@@ -44,7 +72,7 @@ const SeoDetailsApproved = ({ productData, setProductData }) => {
                 id="seoTitle"
                 label="SEO Title"
                 placeholder="Enter SEO title"
-                value={seo.title || ""}
+                value={seoTitle}
                 onChange={handleSeoChange}
                 fullWidth
                 helperText="The title that appears in search engine results (recommended: 50-60 characters)"
@@ -56,12 +84,24 @@ const SeoDetailsApproved = ({ productData, setProductData }) => {
                 id="seoDescription"
                 label="SEO Description"
                 placeholder="Enter SEO description"
-                value={seo.description || ""}
+                value={seoDescription}
                 onChange={handleSeoChange}
                 multiline
                 rows={4}
                 fullWidth
                 helperText="A brief summary that appears in search results (recommended: 150-160 characters)"
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CustomInput
+                name="handle"
+                id="handle"
+                label="URL Handle"
+                placeholder="product-url-handle"
+                value={handle}
+                onChange={(e) => setProductData({ ...productData, handle: e.target.value })}
+                fullWidth
+                helperText="The unique part of the URL for this product"
               />
             </Grid>
           </Grid>

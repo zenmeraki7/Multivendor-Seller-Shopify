@@ -20,25 +20,19 @@ import VariantDetailsApproved from "./VariantDetailsApproved";
 import BasicDetailsApproved from "./BasicDetailsApproved";
 
 function ViewApprovedProduct() {
-  // State for product data
   const [productData, setProductData] = useState(null);
   const [media, setMedia] = useState([]);
   const [variantsData, setVariantsData] = useState([]);
-  
-  // Loading and error states
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the product ID from URL params
+  const { id } = useParams(); 
   
   console.log("ViewApprovedProduct component rendering with ID:", id);
-  console.log("Current BASE_URL:", BASE_URL);
   
-  // Fetch product data when component mounts
   useEffect(() => {
-    // Clear any previous errors
     setError("");
     
     if (id) {
@@ -48,7 +42,6 @@ function ViewApprovedProduct() {
       setLoading(false);
     }
     
-    // Warn user about unsaved changes when leaving page
     const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = "Are you sure you want to leave? Your changes may not be saved.";
@@ -61,19 +54,31 @@ function ViewApprovedProduct() {
     };
   }, [id]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { value, name } = e.target;
-    setProductData({ ...productData, [name]: value });
+    
+    console.log(`Changing ${name} to:`, value);
+    
+    if (name === 'title' || name === 'name') {
+      setProductData({ 
+        ...productData, 
+        [name]: value,
+        [name === 'title' ? 'name' : 'title']: value 
+      });
+    }
+    else if (name === 'price' || name === 'compareAtPrice') {
+      const numValue = value === '' ? '' : Number(value);
+      setProductData({ ...productData, [name]: numValue });
+    } else {
+      setProductData({ ...productData, [name]: value });
+    }
   };
 
-  // Fetch product data from backend with better error handling and debugging
   const fetchProductData = async () => {
     try {
       setLoading(true);
       console.log("Fetching approved product data for ID:", id);
       
-      // Check the token first
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("No authentication token found");
@@ -84,7 +89,6 @@ function ViewApprovedProduct() {
       const endpoint = `${BASE_URL}/api/vendor/get-one-approved-product/${id}`;
       console.log("Using API endpoint:", endpoint);
       
-      // Add timeout to API request to avoid hanging
       const response = await axios.get(
         endpoint,
         {
@@ -92,82 +96,184 @@ function ViewApprovedProduct() {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          timeout: 15000 // 15 second timeout
+          timeout: 15000 
         }
       );
       
-      // Log the full response for debugging
       console.log("Full API response:", response);
       
       if (!response.data) {
         throw new Error("Empty response from server");
       }
       
-      if (!response.data.data) {
-        console.warn("Response missing data property:", response.data);
+      if (response.data.data && response.data.data.variants && response.data.data.variants.edges) {
+        console.log("Detected Shopify API response format");
+        const shopifyData = response.data.data;
         
-        // Try to handle alternate response formats
-        if (response.data.product) {
-          console.log("Found product data in alternate format");
-          setProductData(response.data.product);
-          
-          // Handle media and variants from this format if available
-          if (response.data.product.media) {
-            setMedia(response.data.product.media);
-          }
-          
-          if (response.data.product.variants) {
-            setVariantsData(response.data.product.variants);
-          }
-          
-          toast.success("Product data loaded successfully");
-          setLoading(false);
-          return;
-        } else {
-          throw new Error("Invalid response format: missing data property");
+        const transformedData = {
+          id: shopifyData.id,
+          name: shopifyData.title || "", 
+          title: shopifyData.title || "", 
+          description: shopifyData.description,
+          descriptionHtml: shopifyData.descriptionHtml,
+          productType: shopifyData.productType,
+          status: shopifyData.status,
+          tags: shopifyData.tags || [],
+          price: shopifyData.variants.edges[0]?.node?.price ? 
+            Number(shopifyData.variants.edges[0].node.price) : 0,
+          compareAtPrice: shopifyData.variants.edges[0]?.node?.compareAtPrice ? 
+            Number(shopifyData.variants.edges[0].node.compareAtPrice) : 
+            Number(shopifyData.compareAtPriceRange?.maxVariantCompareAtPrice?.amount || 0),
+          seoTitle: shopifyData.seo?.title || shopifyData.title || "",
+          seoDescription: shopifyData.seo?.description || shopifyData.description || "",
+          handle: shopifyData.handle,
+          vendor: shopifyData.vendor,
+          category: shopifyData.category,
+          totalInventory: shopifyData.totalInventory
+        };
+        
+        console.log("Transformed product data:", transformedData);
+        setProductData(transformedData);
+        
+        const transformedMedia = [];
+        if (shopifyData.media && shopifyData.media.edges) {
+          shopifyData.media.edges.forEach(edge => {
+            if (edge.node && edge.node.preview && edge.node.preview.image) {
+              transformedMedia.push({
+                id: `media-${transformedMedia.length + 1}`,
+                url: edge.node.preview.image.url,
+                alt: edge.node.preview.image.altText || ""
+              });
+            }
+          });
         }
-      }
-      
-      const data = response.data.data;
-      console.log("Product data successfully extracted:", data);
-      
-      // Set product data
-      setProductData(data);
-      
-      // Initialize media if it exists in response
-      if (data.media && Array.isArray(data.media)) {
-        console.log("Media data found in product response:", data.media);
         
-        // Validate media data
-        const validMedia = data.media.filter(item => item && (item._id || item.id) && item.url);
-        console.log("Valid media items:", validMedia);
+        if (shopifyData.featuredMedia && 
+            shopifyData.featuredMedia.preview && 
+            shopifyData.featuredMedia.preview.image) {
+          const featuredUrl = shopifyData.featuredMedia.preview.image.url;
+          if (!transformedMedia.some(m => m.url === featuredUrl)) {
+            transformedMedia.unshift({
+              id: `media-featured`,
+              url: featuredUrl,
+              alt: shopifyData.featuredMedia.alt || ""
+            });
+          }
+        }
         
-        if (validMedia.length > 0) {
+        console.log("Transformed media:", transformedMedia);
+        setMedia(transformedMedia);
+        
+        const transformedVariants = [];
+        if (shopifyData.variants && shopifyData.variants.edges) {
+          shopifyData.variants.edges.forEach(edge => {
+            if (edge.node) {
+              const variant = edge.node;
+              transformedVariants.push({
+                id: variant.id,
+                variant: variant.title,
+                price: Number(variant.price),
+                compareAtPrice: Number(variant.compareAtPrice),
+                quantity: variant.inventoryQuantity || 0,
+                sku: variant.sku || "",
+                barcode: variant.barcode || "",
+                variantTypes: [
+                  { option: "Color/Style", value: variant.title }
+                ]
+              });
+            }
+          });
+        }
+        
+        console.log("Transformed variants:", transformedVariants);
+        setVariantsData(transformedVariants);
+        
+        const variantTitles = new Set(transformedVariants.map(v => v.variant));
+        const productOptions = [{
+          name: "Color/Style",
+          values: Array.from(variantTitles)
+        }];
+        
+        setProductData(prevData => ({
+          ...prevData,
+          productOptions
+        }));
+        
+        toast.success("Product data loaded successfully");
+      } else {
+        console.log("Using standard API response format");
+        
+        let productDataFromResponse;
+        
+        if (response.data.data) {
+          console.log("Using standard response format with .data property");
+          productDataFromResponse = response.data.data;
+        } else if (response.data.product) {
+          console.log("Using alternate response format with .product property");
+          productDataFromResponse = response.data.product;
+        } else {
+          console.log("Using direct response data");
+          productDataFromResponse = response.data;
+        }
+        
+        console.log("Extracted product data:", productDataFromResponse);
+        
+        if (productDataFromResponse) {
+          if (productDataFromResponse.title && !productDataFromResponse.name) {
+            productDataFromResponse.name = productDataFromResponse.title;
+          } else if (productDataFromResponse.name && !productDataFromResponse.title) {
+            productDataFromResponse.title = productDataFromResponse.name;
+          }
+          
+        
+          if (productDataFromResponse.price !== undefined) {
+            productDataFromResponse.price = Number(productDataFromResponse.price);
+          }
+          
+          if (productDataFromResponse.compareAtPrice !== undefined) {
+            productDataFromResponse.compareAtPrice = Number(productDataFromResponse.compareAtPrice);
+          }
+          
+          
+          if (productDataFromResponse.price === undefined && productDataFromResponse.salePrice !== undefined) {
+            productDataFromResponse.price = Number(productDataFromResponse.salePrice);
+          }
+          
+          if (productDataFromResponse.compareAtPrice === undefined && productDataFromResponse.comparePrice !== undefined) {
+            productDataFromResponse.compareAtPrice = Number(productDataFromResponse.comparePrice);
+          }
+        }
+        
+        // Set product data
+        setProductData(productDataFromResponse);
+        
+        // Handle media
+        if (productDataFromResponse.media && Array.isArray(productDataFromResponse.media)) {
+          const validMedia = productDataFromResponse.media.filter(item => item && (item._id || item.id) && item.url);
           setMedia(validMedia);
         } else {
-          console.warn("Media data exists but has invalid format, fetching separately");
-          // fetchProductMedia(id);
+          setMedia([]);
         }
-      } else {
-        console.log("No media data found in product response, fetching separately");
-        // fetchProductMedia(id);
+        
+        // Handle variants
+        if (productDataFromResponse.variants && Array.isArray(productDataFromResponse.variants)) {
+          const processedVariants = productDataFromResponse.variants.map(variant => ({
+            ...variant,
+            price: variant.price !== undefined ? Number(variant.price) : productDataFromResponse.price || 0,
+            compareAtPrice: variant.compareAtPrice !== undefined ? 
+              Number(variant.compareAtPrice) : productDataFromResponse.compareAtPrice || 0
+          }));
+          
+          setVariantsData(processedVariants);
+        } else {
+          setVariantsData([]);
+        }
+        
+        toast.success("Product data loaded successfully");
       }
-      
-      // Initialize variants if they exist
-      if (data.variants && Array.isArray(data.variants)) {
-        console.log("Variants data found:", data.variants.length, "variants");
-        setVariantsData(data.variants);
-      } else if (data.productOptions && Array.isArray(data.productOptions) && data.productOptions.length > 0) {
-        console.log("Product options found, but no variants. Will be generated by child component.");
-      } else {
-        console.log("No variants or product options found in response");
-      }
-      
-      toast.success("Product data loaded successfully");
     } catch (err) {
       console.error("Error fetching product:", err);
       
-      // Log detailed error information
       if (err.response) {
         console.error("Response error details:", {
           status: err.response.status,
@@ -187,7 +293,6 @@ function ViewApprovedProduct() {
           toast.error("Failed to load product data");
         }
       } else if (err.code === 'ECONNABORTED') {
-        // Handle timeout
         setError("Request timed out. Server may be unavailable.");
         toast.error("Server request timed out");
       } else {
@@ -198,90 +303,6 @@ function ViewApprovedProduct() {
       setLoading(false);
     }
   };
-
-  // Fetch product media separately if needed with better logging
-  // const fetchProductMedia = async (productId) => {
-  //   try {
-  //     console.log("Fetching media separately for approved product ID:", productId);
-      
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       console.error("No authentication token found for media fetch");
-  //       return;
-  //     }
-      
-  //     // Try the approved product media endpoint first
-  //     const mediaEndpoint = `${BASE_URL}/api/product/get-approved-product-media/${productId}`;
-  //     console.log("Using media API endpoint:", mediaEndpoint);
-      
-  //     const response = await axios.get(
-  //       mediaEndpoint,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           'Content-Type': 'application/json'
-  //         },
-  //         timeout: 10000 // 10 second timeout
-  //       }
-  //     );
-      
-  //     console.log("Media API response:", response);
-      
-  //     if (response.data && response.data.data) {
-  //       console.log("Media fetched separately:", response.data.data);
-        
-  //       // Validate media data
-  //       const validMedia = response.data.data.filter(item => item && (item._id || item.id) && item.url);
-        
-  //       if (validMedia.length > 0) {
-  //         setMedia(validMedia);
-  //       } else {
-  //         console.warn("Media response contains invalid data format");
-  //         setMedia([]);
-  //       }
-  //     } else if (response.data && Array.isArray(response.data)) {
-  //       // Handle direct array response
-  //       console.log("Media returned as direct array");
-  //       setMedia(response.data);
-  //     } else {
-  //       console.log("No valid media returned from dedicated endpoint");
-  //       setMedia([]);
-  //     }
-  //   } catch (err) {
-  //     console.error("Error fetching product media:", err);
-      
-  //     // Try general product media endpoint as fallback
-  //     try {
-  //       console.log("Trying fallback media endpoint");
-  //       const fallbackEndpoint = `${BASE_URL}/api/product/get-product-media/${productId}`;
-        
-  //       const fallbackResponse = await axios.get(
-  //         fallbackEndpoint,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //             'Content-Type': 'application/json'
-  //           },
-  //           timeout: 10000
-  //         }
-  //       );
-        
-  //       if (fallbackResponse.data && fallbackResponse.data.data) {
-  //         console.log("Media fetched from fallback endpoint:", fallbackResponse.data.data);
-  //         setMedia(fallbackResponse.data.data);
-  //       } else if (fallbackResponse.data && Array.isArray(fallbackResponse.data)) {
-  //         console.log("Media returned as direct array from fallback");
-  //         setMedia(fallbackResponse.data);
-  //       } else {
-  //         console.log("No media from fallback endpoint either");
-  //         setMedia([]);
-  //       }
-  //     } catch (fallbackErr) {
-  //       console.error("Fallback media fetch also failed:", fallbackErr);
-  //       setMedia([]);
-  //     }
-  //   }
-  // };
 
   // Retry API call function
   const retryFetch = () => {
@@ -295,10 +316,10 @@ function ViewApprovedProduct() {
     try {
       setUpdating(true);
       
-      // Prepare the payload with all the updated data
+      
       const payload = {
         ...productData,
-        media: media.map(item => item._id || item.id), // Handle both _id and id formats
+        media: media.map(item => item._id || item.id), 
         variants: variantsData,
       };
       

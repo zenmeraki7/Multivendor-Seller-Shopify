@@ -3,7 +3,6 @@ import { Box, Typography, Paper, Grid, CircularProgress } from "@mui/material";
 import CustomInput from "../../components/SharedComponents/CustomInput";
 
 const SeoDetailsPending = ({ productData, setProductData }) => {
-  // Handle changes to SEO fields
   const handleSeoChange = (e) => {
     const { name, value } = e.target;
     setProductData({
@@ -12,7 +11,6 @@ const SeoDetailsPending = ({ productData, setProductData }) => {
     });
   };
 
-  // Display loading state if productData is not yet loaded
   if (!productData) {
     return (
       <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mt: 3 }}>
@@ -23,7 +21,6 @@ const SeoDetailsPending = ({ productData, setProductData }) => {
     );
   }
 
-  // Ensure seo object exists to prevent errors
   const seo = productData.seo || {};
 
   return (

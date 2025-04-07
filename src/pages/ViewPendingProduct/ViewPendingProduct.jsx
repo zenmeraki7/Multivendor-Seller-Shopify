@@ -14,7 +14,6 @@ import { BASE_URL } from "../../utils/baseUrl";
 import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 
-// Import child components
 import ProductOrganizationDetailsPending from "./ProductOrganizationDetailsPending";
 import SeoDetailsPending from "./SeoDetailsPending";
 import VariantDetailsPending from "./VariantDetailsPending";
@@ -22,20 +21,16 @@ import BasicDetailsPending from "./BasicDetailsPending";
 import MediaDetailsPending from "./MediaDetailsPending";
 
 function ViewPendingProduct() {
-  // State for product data
   const [productData, setProductData] = useState(null);
   const [media, setMedia] = useState([]);
   const [variantsData, setVariantsData] = useState([]);
-  
-  // Loading and error states
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState("");
   
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the product ID from URL params
+  const { id } = useParams(); 
   
-  // Fetch product data when component mounts
   useEffect(() => {
     if (id) {
       fetchProductData();
@@ -44,7 +39,6 @@ function ViewPendingProduct() {
       setLoading(false);
     }
     
-    // Warn user about unsaved changes when leaving page
     const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = "Are you sure you want to leave? Your changes may not be saved.";
@@ -57,13 +51,11 @@ function ViewPendingProduct() {
     };
   }, [id]);
 
-  // Handle input changes
   const handleChange = (e) => {
     const { value, name } = e.target;
     setProductData({ ...productData, [name]: value });
   };
 
-  // Fetch product data from backend
   const fetchProductData = async () => {
     try {
       setLoading(true);
@@ -85,93 +77,70 @@ function ViewPendingProduct() {
       const data = response.data.data;
       console.log("Product data received:", data);
       
-      // Set product data
       setProductData(data);
       
-      // Initialize media if it exists in response
-      if (data.media && Array.isArray(data.media)) {
-        console.log("Media data found:", data.media);
-        setMedia(data.media);
+      if (data.images && Array.isArray(data.images)) {
+        console.log("Media data found:", data.images);
+        const processedMedia = data.images.map((img, index) => ({
+          _id: img._id || `image-${index}`,
+          url: img.url,
+          alt: img.alt || ""
+        }));
+        setMedia(processedMedia);
       } else {
         console.log("No media data found in response");
-        // Attempt to fetch media separately
-        fetchProductMedia(id);
+        setMedia([]);
       }
       
-      // Initialize variants if they exist
       if (data.variants && Array.isArray(data.variants)) {
         console.log("Variants data found:", data.variants);
         setVariantsData(data.variants);
       } else {
         console.log("No variants data found in response");
+        setVariantsData([]);
       }
       
       toast.success("Product data loaded successfully");
     } catch (err) {
       console.error("Error fetching product:", err);
       
-      if (
-        err.response &&
-        (err.response.status === 404 || err.response.status === 401)
-      ) {
+      if (err.response) {
         if (err.response.status === 401) {
           localStorage.removeItem("token");
           navigate("/login");
           toast.error("Session expired. Please login again.");
-        } else {
+        } else if (err.response.status === 404) {
           toast.error("Product not found");
+        } else {
+          setError(`Error fetching product data: ${err.response.data?.message || 'Unknown error'}`);
+          toast.error("Failed to load product data");
         }
       } else {
-        setError("Error fetching product data. Please try again.");
-        toast.error("Failed to load product data");
+        setError("Network error. Please check your connection and try again.");
+        toast.error("Connection error");
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch product media separately if needed
-  const fetchProductMedia = async (productId) => {
-    try {
-      console.log("Fetching media for product ID:", productId);
-      
-      const response = await axios.get(
-        `${BASE_URL}/api/product/get-product-media/${productId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      
-      if (response.data && response.data.data) {
-        console.log("Media fetched separately:", response.data.data);
-        setMedia(response.data.data);
-      } else {
-        console.log("No media returned from dedicated endpoint");
-      }
-    } catch (err) {
-      console.error("Error fetching product media:", err);
-      console.log("Will continue with empty media array");
-      setMedia([]);
-    }
-  };
-
-  // Update product data
   const handleUpdateProduct = async () => {
     try {
       setUpdating(true);
       
-      // Prepare the payload with all the updated data
       const payload = {
         ...productData,
-        media: media.map(item => item._id), // Only send the IDs
+        images: media.map(item => ({
+          _id: item._id,
+          url: item.url,
+          alt: item.alt || ""
+        })),
         variants: variantsData,
       };
       
       console.log("Updating product with payload:", payload);
       
-      await axios.put(
+      const response = await axios.put(
         `${BASE_URL}/api/product/update-pending-product/${id}`,
         payload,
         {
@@ -181,17 +150,21 @@ function ViewPendingProduct() {
         }
       );
       
-      toast.success("Product updated successfully");
+      if (response.data && response.data.success) {
+        toast.success("Product updated successfully");
+        fetchProductData();
+      } else {
+        throw new Error(response.data?.message || "Update failed");
+      }
     } catch (err) {
       console.error("Error updating product:", err);
-      toast.error("Failed to update product");
+      toast.error(err.response?.data?.message || "Failed to update product");
       setError("Error updating product. Please try again.");
     } finally {
       setUpdating(false);
     }
   };
 
-  // Loading state
   if (loading && !productData) {
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -205,7 +178,6 @@ function ViewPendingProduct() {
     );
   }
 
-  // Error state
   if (error && !productData) {
     return (
       <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -232,7 +204,13 @@ function ViewPendingProduct() {
         <Typography variant="h5">
           View/Edit Pending Product
         </Typography>
-        
+        <Button 
+          variant="outlined" 
+          color="primary" 
+          onClick={() => navigate("/pending-products")}
+        >
+          Back to Products
+        </Button>
       </Box>
       
       {error && (
@@ -244,7 +222,7 @@ function ViewPendingProduct() {
       <Grid container spacing={2}>
         <Grid item xs={12} md={8}>
           {/* Basic Info Tab */}
-          <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mb: 2,height:'500px' }}>
+          <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mb: 2, height: 'auto', minHeight: '500px' }}>
             <BasicDetailsPending
               handleChange={handleChange}
               productData={productData}
@@ -281,22 +259,42 @@ function ViewPendingProduct() {
         </Grid>
         <Grid item xs={12} md={4}>
           {/* Product Organization */}
-          <ProductOrganizationDetailsPending
-            handleChange={handleChange}
-            productData={productData}
-            setProductData={setProductData}
-          />
+          <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mb: 2 }}>
+            <ProductOrganizationDetailsPending
+              handleChange={handleChange}
+              productData={productData}
+              setProductData={setProductData}
+            />
+          </Paper>
           
-          {/* Action button */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+          {/* Action buttons */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 3 }}>
             <Button
               variant="contained"
               color="primary"
               onClick={handleUpdateProduct}
               disabled={updating}
               fullWidth
+              sx={{ py: 1.5 }}
             >
-              {updating ? "Updating..." : "Update Product"}
+              {updating ? (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  Updating...
+                </Box>
+              ) : (
+                "Update Product"
+              )}
+            </Button>
+            
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => navigate("/pending-products")}
+              fullWidth
+              sx={{ py: 1.5 }}
+            >
+              Cancel
             </Button>
           </Box>
         </Grid>

@@ -34,13 +34,11 @@ const VariantDetailsApproved = ({
   const [newVariantOptions, setNewVariantOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Debug logging for initial data
   useEffect(() => {
     console.log("VariantDetailsApproved - Initial productData:", productData);
     console.log("VariantDetailsApproved - Initial variantsData:", variantsData);
   }, []);
 
-  // Generate all possible combinations of variants
   const generateCombinations = (variants) => {
     if (!variants || !Array.isArray(variants) || variants.length === 0) {
       console.log("No valid variants array to generate combinations");
@@ -59,7 +57,6 @@ const VariantDetailsApproved = ({
     const optionLists = variants.map((v) => Array.isArray(v.values) ? v.values : []);
     console.log("Option lists:", optionLists);
     
-    // If any variant has no values, return empty array
     if (optionLists.some(list => list.length === 0)) {
       console.log("Some variant has no values, returning empty array");
       return [];
@@ -76,7 +73,6 @@ const VariantDetailsApproved = ({
         };
       });
       
-      // Get default price and compareAtPrice from productData if available
       const defaultPrice = productData?.price !== undefined ? 
         Number(productData.price) : 0;
       
@@ -95,7 +91,6 @@ const VariantDetailsApproved = ({
     });
   };
 
-  // Initialize or update variants when product options change
   useEffect(() => {
     if (!productData) {
       console.log("No productData available");
@@ -104,7 +99,6 @@ const VariantDetailsApproved = ({
     
     console.log("Product options change detected, productData:", productData);
     
-    // Check for product options in a safe way
     const hasProductOptions = 
       productData.productOptions && 
       Array.isArray(productData.productOptions) && 
@@ -115,7 +109,6 @@ const VariantDetailsApproved = ({
     if (hasProductOptions) {
       console.log("Generating variants from product options:", productData.productOptions);
       
-      // Check if we already have variants data
       const hasExistingVariants = 
         Array.isArray(variantsData) && 
         variantsData.length > 0;
@@ -123,11 +116,9 @@ const VariantDetailsApproved = ({
       console.log("Has existing variants:", hasExistingVariants);
       
       if (hasExistingVariants) {
-        // Get newly generated combinations
         const newCombinations = generateCombinations(productData.productOptions);
         console.log("New combinations generated:", newCombinations);
         
-        // Preserve existing data for matching variants
         const updatedVariants = newCombinations.map(newVar => {
           const existingVar = variantsData.find(v => v.variant === newVar.variant);
           if (existingVar) {
@@ -147,23 +138,19 @@ const VariantDetailsApproved = ({
         console.log("Setting updated variants with preserved data:", updatedVariants);
         setVariantsData(updatedVariants);
       } else {
-        // No existing variants, generate fresh
         const freshVariants = generateCombinations(productData.productOptions);
         console.log("Setting fresh variants:", freshVariants);
         setVariantsData(freshVariants);
       }
     } else if (productData.variants && Array.isArray(productData.variants) && productData.variants.length > 0) {
-      // If productOptions isn't available but variants is, use that
       console.log("No product options but found variants in product data, using those");
       setVariantsData(productData.variants);
     } else {
-      // No product options or variants, clear variantsData
       console.log("No product options or variants found, clearing variants data");
       setVariantsData([]);
     }
   }, [productData?.productOptions]);
 
-  // Update field values for a variant
   const handleChange = (index, field, value) => {
     if (!Array.isArray(variantsData)) {
       console.error("variantsData is not an array");
@@ -178,7 +165,6 @@ const VariantDetailsApproved = ({
     }
   };
 
-  // Delete a variant type
   const handleDeleteVariant = (type) => {
     if (!productData || !productData.productOptions || !Array.isArray(productData.productOptions)) {
       toast.error("Product options data is not valid");
@@ -194,7 +180,6 @@ const VariantDetailsApproved = ({
     toast.success(`Removed ${type} variant`);
   };
 
-  // Delete a single option inside a variant
   const handleDeleteOption = (variantType, option) => {
     if (!productData || !productData.productOptions || !Array.isArray(productData.productOptions)) {
       toast.error("Product options data is not valid");
@@ -217,7 +202,6 @@ const VariantDetailsApproved = ({
     toast.success(`Removed ${option} option`);
   };
 
-  // Update a variant name
   const handleUpdateVariant = (oldType, newType) => {
     if (!newType.trim()) {
       toast.error("Variant name cannot be empty");
@@ -243,7 +227,6 @@ const VariantDetailsApproved = ({
     toast.success("Variant updated");
   };
 
-  // Add a new option to a variant type
   const handleAddOption = () => {
     if (!newOption.trim()) {
       toast.error("Option cannot be empty");
@@ -259,7 +242,6 @@ const VariantDetailsApproved = ({
     setNewOption("");
   };
 
-  // Add the new variant type with options
   const handleAddVariant = () => {
     if (!newVariantType.trim()) {
       toast.error("Variant type cannot be empty");
@@ -276,7 +258,6 @@ const VariantDetailsApproved = ({
       return;
     }
     
-    // Safely check if productOptions exists and is an array
     const currentProductOptions = Array.isArray(productData.productOptions) 
       ? productData.productOptions 
       : [];
@@ -299,7 +280,6 @@ const VariantDetailsApproved = ({
       productOptions: updatedOptions,
     });
     
-    // Reset form
     setNewVariantType("");
     setNewVariantOptions([]);
     setIsVariantExpand(false);
@@ -307,7 +287,6 @@ const VariantDetailsApproved = ({
     toast.success("Variant added successfully");
   };
 
-  // Set all variant prices at once
   const handleSetAllPrices = (price) => {
     if (!Array.isArray(variantsData)) {
       toast.error("Variants data is not valid");
@@ -322,7 +301,6 @@ const VariantDetailsApproved = ({
     toast.success("Updated all variant prices");
   };
 
-  // Set all compare-at prices at once
   const handleSetAllCompareAtPrices = (compareAtPrice) => {
     if (!Array.isArray(variantsData)) {
       toast.error("Variants data is not valid");
@@ -337,7 +315,6 @@ const VariantDetailsApproved = ({
     toast.success("Updated all variant compare-at prices");
   };
 
-  // Loading state when productData is not available
   if (!productData) {
     return (
       <Paper elevation={1} sx={{ p: 2, bgcolor: "#f2f2f270", mt: 3 }}>
@@ -348,12 +325,10 @@ const VariantDetailsApproved = ({
     );
   }
 
-  // Ensure productOptions is always an array
   const productOptions = Array.isArray(productData.productOptions) 
     ? productData.productOptions 
     : [];
   
-  // Ensure variantsData is always an array
   const safeVariantsData = Array.isArray(variantsData) ? variantsData : [];
 
   return (
@@ -363,12 +338,7 @@ const VariantDetailsApproved = ({
           Variants
         </Typography>
         
-        {/* Debug info - can be removed in production */}
-        <Alert severity="info" sx={{ mb: 2 }}>
-          <Typography variant="caption">
-            Product has {productOptions.length} variant types and {safeVariantsData.length} variant combinations
-          </Typography>
-        </Alert>
+        
         
         <Box sx={{ mt: 2 }}>
           {!isVariantExpand && (
@@ -382,7 +352,6 @@ const VariantDetailsApproved = ({
             </Button>
           )}
 
-          {/* Display existing variant types and their options */}
           {productOptions.map((item) => (
             <Stack
               key={item.name}
@@ -411,7 +380,6 @@ const VariantDetailsApproved = ({
             </Stack>
           ))}
 
-          {/* Form to add new variant type */}
           {isVariantExpand && (
             <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
               <Typography variant="subtitle1" gutterBottom>
@@ -428,7 +396,6 @@ const VariantDetailsApproved = ({
                   fullWidth
                 />
                 
-                {/* Display selected options for new variant */}
                 {newVariantOptions.length > 0 && (
                   <Box sx={{ p: 1, border: '1px solid #e0e0e0', borderRadius: 1, mt: 1 }}>
                     <Typography variant="caption" color="text.secondary" gutterBottom>
@@ -452,7 +419,6 @@ const VariantDetailsApproved = ({
                   </Box>
                 )}
                 
-                {/* Input for adding options to the new variant */}
                 {newVariantType && (
                   <Stack alignItems="flex-end" direction="row" spacing={1}>
                     <CustomInput
@@ -480,7 +446,6 @@ const VariantDetailsApproved = ({
                   </Stack>
                 )}
                 
-                {/* Buttons for adding or canceling new variant */}
                 <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
                   <Button
                     onClick={() => {
@@ -509,7 +474,6 @@ const VariantDetailsApproved = ({
           )}
         </Box>
         
-        {/* Variant combinations table */}
         {productOptions.length > 0 && safeVariantsData.length > 0 ? (
           <Box sx={{ mt: 3, overflowX: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 2 }}>

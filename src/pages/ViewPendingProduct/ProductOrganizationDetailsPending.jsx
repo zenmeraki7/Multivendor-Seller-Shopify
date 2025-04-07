@@ -13,7 +13,6 @@ const ProductOrganizationDetailsPending = ({
     setProductData({ ...productData, tags: value ? value.split(",") : [] });
   };
 
-  // If productData is not yet loaded, show loading indicator
   if (!productData) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
